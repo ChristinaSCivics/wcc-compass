@@ -88,18 +88,21 @@ export function ChatClient({
   return (
     <main className="min-h-screen flex flex-col max-w-3xl mx-auto w-full">
       <header className="flex items-center justify-between px-6 py-4 border-b border-borderline sticky top-0 bg-background/90 backdrop-blur z-10">
-        <Link href="/dashboard" className="flex items-center gap-3">
+        <Link
+          href={kind === "decision" && decisionId ? `/decisions/${decisionId}` : "/dashboard"}
+          className="flex items-center gap-3 group"
+        >
           <PrismMark />
-          <span className="text-sm text-muted">
-            {kind === "decision" ? "Decision interview" : "Your vision — with Prism"}
+          <span className="text-sm text-muted group-hover:text-gold transition-colors">
+            ← {kind === "decision" ? "Back to the decision" : "Your vision — with Prism"}
           </span>
         </Link>
-        {messages.length >= 6 && (
+        {messages.length >= (kind === "decision" ? 4 : 6) && (
           <button
             onClick={finish}
             disabled={finishing || busy}
             className={`text-sm border border-gold rounded-full px-4 py-1.5 transition-all disabled:opacity-40 ${
-              messages.length >= 14
+              messages.length >= (kind === "decision" ? 10 : 14)
                 ? "bg-gold text-background hover:bg-gold-soft"
                 : "text-gold hover:bg-gold hover:text-background"
             }`}
@@ -133,7 +136,7 @@ export function ChatClient({
         onSubmit={(e) => { e.preventDefault(); void send(input); }}
         className="sticky bottom-0 bg-background/90 backdrop-blur border-t border-borderline p-4 flex flex-wrap gap-3"
       >
-        {messages.length >= 10 && !finishing && (
+        {messages.length >= (kind === "decision" ? 6 : 10) && !finishing && (
           <p className="w-full text-xs text-muted text-center -mt-1">
             Go as deep as you like — and whenever it feels complete, press{" "}
             <button type="button" onClick={finish} className="text-gold underline">
