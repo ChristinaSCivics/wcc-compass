@@ -98,8 +98,11 @@ export function ChatClient({
           <button
             onClick={finish}
             disabled={finishing || busy}
-            className="text-sm border border-gold text-gold rounded-full px-4 py-1.5
-                       hover:bg-gold hover:text-background transition-all disabled:opacity-40"
+            className={`text-sm border border-gold rounded-full px-4 py-1.5 transition-all disabled:opacity-40 ${
+              messages.length >= 14
+                ? "bg-gold text-background hover:bg-gold-soft"
+                : "text-gold hover:bg-gold hover:text-background"
+            }`}
           >
             {finishing ? "Prism is drafting…" : "Finish & review draft"}
           </button>
@@ -128,8 +131,17 @@ export function ChatClient({
 
       <form
         onSubmit={(e) => { e.preventDefault(); void send(input); }}
-        className="sticky bottom-0 bg-background/90 backdrop-blur border-t border-borderline p-4 flex gap-3"
+        className="sticky bottom-0 bg-background/90 backdrop-blur border-t border-borderline p-4 flex flex-wrap gap-3"
       >
+        {messages.length >= 10 && !finishing && (
+          <p className="w-full text-xs text-muted text-center -mt-1">
+            Go as deep as you like — and whenever it feels complete, press{" "}
+            <button type="button" onClick={finish} className="text-gold underline">
+              Finish &amp; review draft
+            </button>
+            . You can always return.
+          </p>
+        )}
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
