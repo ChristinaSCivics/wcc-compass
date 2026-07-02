@@ -62,7 +62,7 @@ export default function Enter() {
       <PrismMark size={48} />
       <h1 className="mt-6 text-3xl">Enter the Compass</h1>
       <p className="mt-3 text-muted text-sm max-w-sm text-center leading-relaxed">
-        No account, no password — just tell us what to call you.
+        What should we call you?
       </p>
 
       <form onSubmit={enter} className="mt-8 w-full max-w-sm flex flex-col gap-3 fade-up">
@@ -85,19 +85,19 @@ export default function Enter() {
           {busy ? "Opening the door…" : "Enter →"}
         </button>
         {error && <p className="text-red-400 text-sm text-center">{error}</p>}
-        <p className="text-xs text-muted mt-1 text-center leading-relaxed">
-          Your conversations stay yours, tied to this browser for now.
-          Full accounts come later. Because visions are local, we note your
-          approximate region (city-level, from your connection) and timezone —
-          never your address or precise location.
+        <p className="text-xs text-muted mt-1 text-center">
+          No account needed.{" "}
+          <a href="/about#privacy" className="underline hover:text-gold transition-colors">
+            How your words are kept
+          </a>
         </p>
       </form>
 
       <button
         onClick={() => setShowReturning((s) => !s)}
-        className="mt-10 text-xs text-muted hover:text-gold transition-colors"
+        className="mt-10 text-xs text-muted/60 hover:text-gold transition-colors"
       >
-        {showReturning ? "Hide" : "Returning with a password?"}
+        {showReturning ? "Hide" : "Have a password?"}
       </button>
       {showReturning && (
         <form onSubmit={signIn} className="mt-4 w-full max-w-sm flex flex-col gap-3 fade-up">

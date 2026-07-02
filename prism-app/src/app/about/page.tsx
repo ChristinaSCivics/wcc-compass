@@ -138,6 +138,21 @@ export default function About() {
           />
         </Section>
 
+        {/* ============ PRIVACY ============ */}
+        <div id="privacy">
+          <Section title="How your words are kept">
+            <Ul
+              items={[
+                "Your conversations with Prism are private to you. Nothing is shown to anyone as your vision until you review, edit, and confirm it yourself.",
+                "Entering takes only a name — no account, no email. Your identity lives in your browser for now; full accounts come later.",
+                "Because visions are regional and local, we note your approximate area at entry (city-level, inferred from your connection), your timezone, and device type. We never collect your address, precise location, or IP address, and we never track you across other sites.",
+                "Significant events (a vision confirmed, a decision recorded) go on a tamper-evident log so history can't be quietly rewritten — that's protection for you, not surveillance of you.",
+                "All of this is verifiable: the code and Prism's instructions are public.",
+              ]}
+            />
+          </Section>
+        </div>
+
         {/* ============ HONEST LIMITS ============ */}
         <Section title="Honest limits of v0.1">
           <Ul

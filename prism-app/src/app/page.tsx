@@ -43,10 +43,11 @@ export default function Landing() {
         >
           Begin the conversation
         </Link>
-        <p className="mt-16 text-xs text-muted max-w-md leading-relaxed">
-          Founding-circle prototype. Your conversations are stored as part of the
-          collective record; nothing is published as your vision until you confirm it.
-          How Prism is instructed is public — read the prompts in the open repository.
+        <p className="mt-16 text-xs text-muted">
+          Founding-circle prototype ·{" "}
+          <Link href="/about" className="underline hover:text-gold transition-colors">
+            what this is &amp; how it works
+          </Link>
         </p>
       </section>
     </main>
