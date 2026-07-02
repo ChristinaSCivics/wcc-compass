@@ -10,10 +10,9 @@ export default async function DecisionPage({ params }: { params: Promise<{ id: s
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const [{ data: decision }, { data: profile }, { data: inputs }, { data: myInput }, { data: myConvo }] =
+  const [{ data: decision }, { data: inputs }, { data: myInput }, { data: myConvo }] =
     await Promise.all([
       supabase.from("decisions").select("*").eq("id", id).single(),
-      supabase.from("profiles").select("role").eq("id", user!.id).single(),
       supabase
         .from("decision_inputs")
         .select("user_id, confirmed, needs, profiles(display_name)")
@@ -35,7 +34,6 @@ export default async function DecisionPage({ params }: { params: Promise<{ id: s
     ]);
 
   if (!decision) notFound();
-  const isFacilitator = ["facilitator", "admin"].includes(profile?.role ?? "");
 
   return (
     <main className="min-h-screen max-w-3xl mx-auto w-full px-6 py-8">
@@ -67,7 +65,7 @@ export default async function DecisionPage({ params }: { params: Promise<{ id: s
       <DecisionActions
         decisionId={decision.id}
         decisionStatus={decision.status}
-        isFacilitator={isFacilitator}
+        hasSynthesis={decision.synthesis != null}
         hasConfirmedInput={!!myInput?.confirmed}
         activeConversationId={myConvo?.[0]?.status === "active" ? myConvo[0].id : null}
         confirmedInputCount={inputs?.length ?? 0}

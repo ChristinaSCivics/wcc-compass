@@ -12,14 +12,8 @@ const STATUS_LABEL: Record<string, string> = {
 
 export default async function DecisionsPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  const [{ data: profile }, { data: decisions }] = await Promise.all([
-    supabase.from("profiles").select("role").eq("id", user!.id).single(),
-    supabase.from("decisions").select("*").order("created_at", { ascending: false }),
-  ]);
-
-  const isFacilitator = ["facilitator", "admin"].includes(profile?.role ?? "");
+  const { data: decisions } = await supabase
+    .from("decisions").select("*").order("created_at", { ascending: false });
 
   return (
     <main className="min-h-screen max-w-3xl mx-auto w-full px-6 py-8 horizon">
@@ -35,7 +29,7 @@ export default async function DecisionsPage() {
         proposes options — then <em>we</em> decide, in the open.
       </p>
 
-      {isFacilitator && <NewDecisionForm />}
+      <NewDecisionForm />
 
       <div className="grid gap-4 mt-8">
         {(decisions ?? []).map((d) => (
@@ -56,9 +50,7 @@ export default async function DecisionsPage() {
           </Link>
         ))}
         {!decisions?.length && (
-          <p className="text-muted text-sm">
-            No decisions open yet{isFacilitator ? " — open the first one above." : "."}
-          </p>
+          <p className="text-muted text-sm">No decisions open yet — open the first one above.</p>
         )}
       </div>
     </main>

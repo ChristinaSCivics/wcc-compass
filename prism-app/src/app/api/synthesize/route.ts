@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { audit } from "@/lib/audit";
+import { checkKeeper } from "@/lib/keeper";
 import { synthesisPrompt } from "@/lib/prompts/decision";
 
 export const maxDuration = 300;
@@ -18,13 +19,13 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-  const { data: profile } = await supabase
-    .from("profiles").select("role").eq("id", user.id).single();
-  if (!profile || !["facilitator", "admin"].includes(profile.role)) {
-    return NextResponse.json({ error: "facilitators only" }, { status: 403 });
+  const { decisionId, keeperPassword } = await req.json();
+  if (!checkKeeper(keeperPassword)) {
+    return NextResponse.json({ error: "keeper password required" }, { status: 403 });
   }
 
-  const { decisionId } = await req.json();
+  const { data: profile } = await supabase
+    .from("profiles").select("display_name").eq("id", user.id).single();
   const admin = createAdminClient();
 
   const { data: decision } = await admin
@@ -70,6 +71,8 @@ export async function POST(req: NextRequest) {
   await audit("decision.synthesized", "decision", decisionId, user.id, {
     model: MODEL,
     stakeholder_count: inputs.length,
+    by_name: profile?.display_name ?? "unknown",
+    via: "keeper_password",
   });
 
   return NextResponse.json({ synthesis });

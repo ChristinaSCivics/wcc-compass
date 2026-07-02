@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { getKeeperPassword, clearKeeperPassword } from "@/lib/keeperClient";
 
 export function NewDecisionForm() {
   const router = useRouter();
@@ -12,13 +13,20 @@ export function NewDecisionForm() {
 
   async function create(e: React.FormEvent) {
     e.preventDefault();
+    const keeperPassword = getKeeperPassword();
+    if (!keeperPassword) return;
     setBusy(true);
     const res = await fetch("/api/decisions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, description }),
+      body: JSON.stringify({ title, description, keeperPassword }),
     });
     setBusy(false);
+    if (res.status === 403) {
+      clearKeeperPassword();
+      alert("That keeper password wasn't right — try again.");
+      return;
+    }
     if (res.ok) {
       const d = await res.json();
       router.push(`/decisions/${d.id}`);
@@ -32,7 +40,7 @@ export function NewDecisionForm() {
         className="border border-gold text-gold rounded-full px-6 py-2 text-sm
                    hover:bg-gold hover:text-background transition-all"
       >
-        + Open a decision for the circle
+        ⚿ Open a decision for the circle
       </button>
     );
   }
