@@ -11,12 +11,20 @@ export default function Landing() {
             World Co-Creation
           </span>
         </div>
-        <Link
-          href="/login"
-          className="text-sm text-gold hover:text-foreground transition-colors"
-        >
-          Enter →
-        </Link>
+        <div className="flex items-center gap-6">
+          <Link
+            href="/about"
+            className="text-sm text-muted hover:text-gold transition-colors"
+          >
+            About the prototype
+          </Link>
+          <Link
+            href="/login"
+            className="text-sm text-gold hover:text-foreground transition-colors"
+          >
+            Enter →
+          </Link>
+        </div>
       </nav>
 
       <section className="flex-1 flex flex-col items-center justify-center text-center px-6 fade-up">
