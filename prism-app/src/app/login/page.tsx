@@ -32,6 +32,12 @@ export default function Enter() {
       setError(error.message);
       return;
     }
+    // disclosed below: coarse entry context (region, timezone, device)
+    void fetch("/api/context", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }),
+    });
     router.push("/dashboard");
     router.refresh();
   }
@@ -81,7 +87,9 @@ export default function Enter() {
         {error && <p className="text-red-400 text-sm text-center">{error}</p>}
         <p className="text-xs text-muted mt-1 text-center leading-relaxed">
           Your conversations stay yours, tied to this browser for now.
-          Full accounts come later.
+          Full accounts come later. Because visions are local, we note your
+          approximate region (city-level, from your connection) and timezone —
+          never your address or precise location.
         </p>
       </form>
 
