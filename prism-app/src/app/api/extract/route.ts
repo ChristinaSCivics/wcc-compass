@@ -60,6 +60,7 @@ export async function POST(req: NextRequest) {
         conversation_id: conversationId,
         needs: draft,
         confirmed: false,
+        prompt_version: conversation.prompt_version,
       },
       { onConflict: "decision_id,user_id" }
     );
@@ -67,7 +68,13 @@ export async function POST(req: NextRequest) {
     await audit("decision_input.drafted", "decision", conversation.decision_id, user.id, {});
   } else {
     const { error } = await supabase.from("vision_profiles").upsert(
-      { user_id: user.id, draft, status: "draft", updated_at: new Date().toISOString() },
+      {
+        user_id: user.id,
+        draft,
+        status: "draft",
+        updated_at: new Date().toISOString(),
+        prompt_version: conversation.prompt_version,
+      },
       { onConflict: "user_id" }
     );
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });

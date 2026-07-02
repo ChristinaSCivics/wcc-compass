@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { audit } from "@/lib/audit";
+import { promptVersion } from "@/lib/prompts/version";
+import { ONBOARDING_PROMPT } from "@/lib/prompts/onboarding";
 
 /** Start (or resume) the onboarding conversation, then land in the chat. */
 export async function GET(request: Request) {
@@ -21,7 +23,11 @@ export async function GET(request: Request) {
 
   const { data: convo, error } = await supabase
     .from("conversations")
-    .insert({ user_id: user.id, kind: "onboarding" })
+    .insert({
+      user_id: user.id,
+      kind: "onboarding",
+      prompt_version: promptVersion(ONBOARDING_PROMPT),
+    })
     .select()
     .single();
   if (error) return NextResponse.redirect(`${origin}/dashboard`);
