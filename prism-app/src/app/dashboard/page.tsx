@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { PrismMark } from "@/components/PrismMark";
+import { TopNav } from "@/components/TopNav";
 
 export default async function Dashboard() {
   const supabase = await createClient();
@@ -19,15 +19,9 @@ export default async function Dashboard() {
   const activeOnboarding = convos?.[0];
 
   return (
-    <main className="min-h-screen horizon px-6 py-8 max-w-3xl mx-auto w-full">
-      <header className="flex items-center justify-between mb-12">
-        <div className="flex items-center gap-3">
-          <PrismMark />
-          <span className="text-sm tracking-[0.2em] uppercase text-muted">The Compass</span>
-        </div>
-        <span className="text-sm text-muted">{profile?.display_name}</span>
-      </header>
-
+    <>
+    <TopNav />
+    <main className="min-h-screen horizon px-6 py-10 max-w-3xl mx-auto w-full">
       <h1 className="text-4xl mb-2">Welcome, {profile?.display_name}</h1>
       <p className="text-muted mb-10">
         {vision?.status === "confirmed"
@@ -55,6 +49,13 @@ export default async function Dashboard() {
             highlight
           />
         )}
+        {vision?.status === "confirmed" && (
+          <Card
+            href="/vision"
+            title="Your confirmed vision"
+            sub="Read it, refine it, re-confirm it — it's yours."
+          />
+        )}
         <Card
           href="/decisions"
           title="Circle decisions"
@@ -67,6 +68,7 @@ export default async function Dashboard() {
         />
       </div>
     </main>
+    </>
   );
 }
 

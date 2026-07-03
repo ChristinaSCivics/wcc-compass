@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { PrismMark } from "@/components/PrismMark";
+import { TopNav } from "@/components/TopNav";
 
 /**
  * The open record: every significant event, hash-chained.
@@ -16,12 +15,9 @@ export default async function AuditPage() {
     .limit(200);
 
   return (
-    <main className="min-h-screen max-w-3xl mx-auto w-full px-6 py-8">
-      <header className="flex items-center gap-3 mb-10">
-        <Link href="/dashboard"><PrismMark /></Link>
-        <span className="text-sm text-muted">The open record</span>
-      </header>
-
+    <>
+    <TopNav />
+    <main className="min-h-screen max-w-3xl mx-auto w-full px-6 py-10">
       <h1 className="text-4xl mb-3">In the open, in the light</h1>
       <p className="text-muted mb-10 max-w-xl leading-relaxed">
         Every significant event is chained to the one before it by a cryptographic
@@ -51,5 +47,6 @@ export default async function AuditPage() {
         {!events?.length && <p className="text-muted text-sm">No events yet.</p>}
       </div>
     </main>
+    </>
   );
 }

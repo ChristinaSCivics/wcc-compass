@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { PrismMark } from "@/components/PrismMark";
+import { TopNav } from "@/components/TopNav";
 import { NewDecisionForm } from "./NewDecisionForm";
 
 const STATUS_LABEL: Record<string, string> = {
@@ -16,12 +16,9 @@ export default async function DecisionsPage() {
     .from("decisions").select("*").order("created_at", { ascending: false });
 
   return (
-    <main className="min-h-screen max-w-3xl mx-auto w-full px-6 py-8 horizon">
-      <header className="flex items-center gap-3 mb-10">
-        <Link href="/dashboard"><PrismMark /></Link>
-        <span className="text-sm text-muted">Circle decisions</span>
-      </header>
-
+    <>
+    <TopNav />
+    <main className="min-h-screen max-w-3xl mx-auto w-full px-6 py-10 horizon">
       <h1 className="text-4xl mb-2">Deciding together</h1>
       <p className="text-muted mb-10 max-w-xl leading-relaxed">
         Real decisions, facilitated by Prism toward all-win outcomes. Prism interviews
@@ -54,5 +51,6 @@ export default async function DecisionsPage() {
         )}
       </div>
     </main>
+    </>
   );
 }

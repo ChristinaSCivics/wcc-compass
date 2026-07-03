@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { PrismMark } from "@/components/PrismMark";
+import { TopNav } from "@/components/TopNav";
 import { DecisionActions } from "./DecisionActions";
 import { SynthesisView } from "./SynthesisView";
 
@@ -36,12 +36,14 @@ export default async function DecisionPage({ params }: { params: Promise<{ id: s
   if (!decision) notFound();
 
   return (
-    <main className="min-h-screen max-w-3xl mx-auto w-full px-6 py-8">
-      <header className="flex items-center gap-3 mb-10">
-        <Link href="/decisions"><PrismMark /></Link>
-        <span className="text-sm text-muted">← All decisions</span>
-      </header>
+    <>
+    <TopNav />
+    <main className="min-h-screen max-w-3xl mx-auto w-full px-6 py-10">
+      <Link href="/decisions" className="text-sm text-muted hover:text-gold transition-colors">
+        ← All decisions
+      </Link>
 
+      <div className="mt-6" />
       <span className="text-xs text-gold tracking-widest uppercase">{decision.status}</span>
       <h1 className="text-4xl mt-2 mb-4">{decision.title}</h1>
       {decision.description && (
@@ -83,5 +85,6 @@ export default async function DecisionPage({ params }: { params: Promise<{ id: s
         </section>
       )}
     </main>
+    </>
   );
 }

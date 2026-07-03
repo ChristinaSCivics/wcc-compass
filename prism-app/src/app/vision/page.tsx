@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { DraftEditor } from "@/components/DraftEditor";
-import { PrismMark } from "@/components/PrismMark";
+import { TopNav } from "@/components/TopNav";
 
 export default function VisionReview() {
   const router = useRouter();
@@ -44,12 +44,9 @@ export default function VisionReview() {
   }
 
   return (
-    <main className="min-h-screen max-w-2xl mx-auto w-full px-6 py-8">
-      <header className="flex items-center gap-3 mb-10">
-        <Link href="/dashboard"><PrismMark /></Link>
-        <span className="text-sm text-muted">Your vision — review &amp; confirm</span>
-      </header>
-
+    <>
+    <TopNav />
+    <main className="min-h-screen max-w-2xl mx-auto w-full px-6 py-10">
       <h1 className="text-3xl mb-3">
         {status === "confirmed" ? "Your confirmed vision" : "Is this true to you?"}
       </h1>
@@ -69,5 +66,6 @@ export default function VisionReview() {
         </p>
       )}
     </main>
+    </>
   );
 }
