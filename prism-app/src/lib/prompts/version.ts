@@ -6,7 +6,7 @@ import { createHash } from "crypto";
  * The content hash is appended automatically, so even unlabeled edits
  * are distinguishable in the data.
  */
-export const PROMPT_LABEL = "v1-founding-circle";
+export const PROMPT_LABEL = "v1.1-blueprint";
 
 export function promptVersion(promptText: string): string {
   const hash = createHash("sha256").update(promptText).digest("hex").slice(0, 12);

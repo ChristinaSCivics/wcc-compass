@@ -173,18 +173,19 @@ export default function About() {
             "Run one real decision (proposal: our legal structure) through the full engine",
             "Learn, in our own nervous systems, what the process needs to feel like",
           ]} />
-          <Phase when="Next — v0.2" items={[
-            "Move to organization-owned accounts (structure working group decision)",
-            "Multi-model cross-checking on synthesis + a bias evaluation suite (diverse personas, symmetric treatment, measured not vibed)",
-            "Anchor the audit chain to a public blockchain (free, independently verifiable)",
-            "Personal vision videos to share — growth through genuine inspiration, not ads",
-            "Consent language + privacy policy before wider onboarding",
+          <Phase when="Next — PRiSM 0.1, 'The Dispatcher'" items={[
+            "When someone arrives from The Call, PRiSM draws out their gifts and blueprint (the interview already captures this), matches them with others carrying a similar piece, points them to a team with a starter kit, and hands them one clear next step",
+            "A human host welcomes every new Builder personally — PRiSM notices host-spark at intake, so every wave of newcomers produces the next wave's welcomers",
+            "The World Co-Creation Guide becomes PRiSM's seed knowledge, so the full vision carries at infinite scale",
+            "Move to organization-owned accounts; consent language + privacy policy before wider onboarding",
           ]} />
-          <Phase when="Then — the movement" items={[
+          <Phase when="Then — PRiSM 0.2 and the Compass" items={[
+            "Team coordination and project tools — the nervous system of a movement of action cells",
             "The collective conversation: big questions, topics, blueprint ingestion from allied organizations",
-            "Local instances — neighborhoods, groups, and orgs running the process on their own questions ('show a win' locally, as Abráis said)",
-            "The novel financial model and steward participation — designed with the working groups",
-            "Synthesis at scale: from a circle of 15 to thousands, without losing a single voice",
+            "Multi-model cross-checking on synthesis + a bias evaluation suite; anchor the audit chain to a public blockchain",
+            "Personal vision videos to share — growth through genuine inspiration, not ads",
+            "Local instances — neighborhoods and orgs running the process on their own questions ('show a win' locally)",
+            "One PRiSM fronts both tools: the movement-coordination system and the Compass — everything learned carries forward",
           ]} />
         </Section>
 
