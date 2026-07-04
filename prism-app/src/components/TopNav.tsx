@@ -8,8 +8,9 @@ import { FeedbackWidget } from "./FeedbackWidget";
 
 const LINKS = [
   { href: "/dashboard", label: "Home" },
+  { href: "/collective", label: "Collective" },
   { href: "/decisions", label: "Decisions" },
-  { href: "/audit", label: "Open record" },
+  { href: "/audit", label: "Record" },
   { href: "/about", label: "About" },
 ];
 

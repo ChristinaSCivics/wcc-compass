@@ -69,8 +69,8 @@ export function FeedbackWidget() {
       )}
       <button
         onClick={() => setOpen((o) => !o)}
-        className="rounded-full border border-borderline bg-surface-raised px-4 py-2 text-xs text-muted
-                   hover:border-gold hover:text-gold transition-all shadow-lg"
+        className="rounded-full border border-gold bg-surface-raised px-6 py-3 text-sm text-gold
+                   hover:bg-gold hover:text-background transition-all shadow-lg gold-glow"
       >
         {open ? "Close" : "✎ Feedback"}
       </button>

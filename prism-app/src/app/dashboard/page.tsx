@@ -57,6 +57,11 @@ export default async function Dashboard() {
           />
         )}
         <Card
+          href="/collective"
+          title="The collective vision"
+          sub="Every confirmed voice, woven by Prism into one living map."
+        />
+        <Card
           href="/decisions"
           title="Circle decisions"
           sub={`${decisions?.length ?? 0} decision${(decisions?.length ?? 0) === 1 ? "" : "s"} in process — the all-win pilot.`}
