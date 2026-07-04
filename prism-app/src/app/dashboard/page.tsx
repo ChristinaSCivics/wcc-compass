@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { TopNav } from "@/components/TopNav";
+import { SaveSpot } from "@/components/SaveSpot";
 
 export default async function Dashboard() {
   const supabase = await createClient();
@@ -71,6 +72,7 @@ export default async function Dashboard() {
           title="The open record"
           sub="Every significant event, hash-chained and tamper-evident."
         />
+        {user!.is_anonymous && <SaveSpot />}
       </div>
     </main>
     </>
