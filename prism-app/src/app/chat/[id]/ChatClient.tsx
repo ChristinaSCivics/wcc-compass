@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PrismMark } from "@/components/PrismMark";
+import { FeedbackWidget } from "@/components/FeedbackWidget";
 
 type Msg = { id?: string; role: "user" | "assistant"; content: string };
 
@@ -87,6 +88,7 @@ export function ChatClient({
 
   return (
     <main className="min-h-screen flex flex-col max-w-3xl mx-auto w-full">
+      <FeedbackWidget />
       <header className="flex items-center justify-between px-6 py-4 border-b border-borderline sticky top-0 bg-background/90 backdrop-blur z-10">
         <Link
           href={kind === "decision" && decisionId ? `/decisions/${decisionId}` : "/dashboard"}

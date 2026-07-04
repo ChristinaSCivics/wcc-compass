@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { PrismMark } from "./PrismMark";
+import { FeedbackWidget } from "./FeedbackWidget";
 
 const LINKS = [
   { href: "/dashboard", label: "Home" },
@@ -31,6 +32,8 @@ export function TopNav() {
   }
 
   return (
+    <>
+    <FeedbackWidget />
     <header className="sticky top-0 z-20 bg-background/90 backdrop-blur border-b border-borderline">
       <nav className="max-w-3xl mx-auto w-full px-6 py-3 flex items-center justify-between">
         <Link href="/dashboard" className="flex items-center gap-2.5 shrink-0">
@@ -64,5 +67,6 @@ export function TopNav() {
         </div>
       </nav>
     </header>
+    </>
   );
 }
