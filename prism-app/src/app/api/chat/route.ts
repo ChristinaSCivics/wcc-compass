@@ -50,7 +50,9 @@ export async function POST(req: NextRequest) {
   const anthropic = new Anthropic();
   const stream = anthropic.messages.stream({
     model: MODEL,
-    max_tokens: 2048,
+    // a ceiling, not an allocation — 2048 risked cutting a long reply mid-sentence,
+    // which reads as Prism stalling
+    max_tokens: 8192,
     system: `${system}\n\nThe member you are speaking with is named: ${profile?.display_name ?? "unknown — ask them"}.`,
     messages: (history ?? []).map((m) => ({
       role: m.role as "user" | "assistant",
@@ -72,6 +74,21 @@ export async function POST(req: NextRequest) {
             full += event.delta.text;
             controller.enqueue(encoder.encode(event.delta.text));
           }
+        }
+      } catch (e) {
+        // A model/network failure mid-stream used to reject the response body,
+        // which the browser saw as a broken read. Finish the turn with a
+        // readable sentence instead, and keep whatever streamed so far.
+        console.error("chat stream failed:", e);
+        const note =
+          full.length > 0
+            ? "\n\n— Prism lost the thread there. Ask again and it'll continue."
+            : "Prism couldn't reach the model just then. Please try again.";
+        full += note;
+        try {
+          controller.enqueue(encoder.encode(note));
+        } catch {
+          // the client already hung up; nothing to send
         }
       } finally {
         // persist Prism's reply once complete

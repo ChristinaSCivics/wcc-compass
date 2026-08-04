@@ -24,6 +24,7 @@ export function ChatClient({
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [finishing, setFinishing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -36,53 +37,92 @@ export function ChatClient({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /** Put a notice in the trailing assistant bubble, or add one if there isn't a blank one. */
+  function notice(text: string) {
+    setMessages((m) => {
+      const copy = [...m];
+      const last = copy[copy.length - 1];
+      if (last?.role === "assistant" && !last.content) {
+        copy[copy.length - 1] = { ...last, content: text };
+      } else {
+        copy.push({ role: "assistant", content: text });
+      }
+      return copy;
+    });
+  }
+
   async function send(text: string) {
     if (busy || !text.trim()) return;
     setBusy(true);
+    setError(null);
     const isOpener = messages.length === 0 && text === "Hello";
     if (!isOpener) setMessages((m) => [...m, { role: "user", content: text }]);
     setInput("");
 
-    const res = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ conversationId, message: text }),
-    });
-    if (!res.ok || !res.body) {
-      setMessages((m) => [...m, { role: "assistant", content: "Something went wrong — please try again." }]);
-      setBusy(false);
-      return;
-    }
-
-    setMessages((m) => [...m, { role: "assistant", content: "" }]);
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      const chunk = decoder.decode(value);
-      setMessages((m) => {
-        const copy = [...m];
-        copy[copy.length - 1] = {
-          ...copy[copy.length - 1],
-          content: copy[copy.length - 1].content + chunk,
-        };
-        return copy;
+    // Every exit path has to release the input. A mid-stream failure used to
+    // escape this function with busy still true, which left the composer stuck
+    // on "Prism is listening…" with no way back except a reload.
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationId, message: text }),
       });
+      if (!res.ok || !res.body) throw new Error(`chat responded ${res.status}`);
+
+      setMessages((m) => [...m, { role: "assistant", content: "" }]);
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let received = 0;
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value);
+        received += chunk.length;
+        setMessages((m) => {
+          const copy = [...m];
+          copy[copy.length - 1] = {
+            ...copy[copy.length - 1],
+            content: copy[copy.length - 1].content + chunk,
+          };
+          return copy;
+        });
+      }
+      // a stream that closed without a single word is a failure, not a short answer
+      if (received === 0) {
+        notice("Prism went quiet there — say that again and it'll pick back up.");
+      }
+    } catch {
+      notice("Something interrupted Prism — everything you've said is saved. Try again.");
+    } finally {
+      setBusy(false);
     }
-    setBusy(false);
   }
 
   async function finish() {
+    if (finishing) return;
     setFinishing(true);
-    const res = await fetch("/api/extract", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ conversationId }),
-    });
-    setFinishing(false);
-    if (res.ok) {
+    setError(null);
+    try {
+      const res = await fetch("/api/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationId }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error ?? `draft responded ${res.status}`);
+      }
+      // stay disabled through the navigation — this conversation stays open,
+      // so they can come back and keep going afterwards
       router.push(kind === "decision" ? `/decisions/${decisionId}/confirm` : "/vision");
+    } catch (e) {
+      setError(
+        e instanceof Error
+          ? `Prism couldn't draft that — ${e.message}`
+          : "Prism couldn't draft that — please try again."
+      );
+      setFinishing(false);
     }
   }
 
@@ -99,7 +139,9 @@ export function ChatClient({
             ← {kind === "decision" ? "Back to the decision" : "Your vision — with Prism"}
           </span>
         </Link>
-        {messages.length >= (kind === "decision" ? 4 : 6) && (
+        {/* Available from the first exchange — a draft from a short conversation
+            is thin, not wrong, and the door out should never be locked. */}
+        {messages.length >= 2 && (
           <button
             onClick={finish}
             disabled={finishing || busy}
@@ -113,6 +155,12 @@ export function ChatClient({
           </button>
         )}
       </header>
+
+      {error && (
+        <p className="mx-6 mt-4 rounded-lg border border-red-400/40 bg-red-400/10 px-4 py-2 text-sm text-red-300">
+          {error}
+        </p>
+      )}
 
       <div className="flex-1 px-6 py-8 space-y-6">
         {messages.map((m, i) => (

@@ -65,10 +65,17 @@ export default function VisionReview() {
       <h1 className="text-3xl mb-3">
         {status === "confirmed" ? "Your confirmed vision" : "Is this true to you?"}
       </h1>
-      <p className="text-muted mb-10 leading-relaxed">
+      <p className="text-muted mb-4 leading-relaxed">
         Prism drafted this from your conversation — but a draft is not your voice.
         Correct anything, rewrite anything, delete anything. Only what you confirm
         becomes part of the collective map.
+      </p>
+      <p className="text-sm text-muted mb-10">
+        Stopped early, or want to go deeper?{" "}
+        <a href="/journey" className="text-gold underline">
+          Keep talking with Prism
+        </a>{" "}
+        — your conversation is still open, and drafting again updates this page.
       </p>
 
       {loading ? (

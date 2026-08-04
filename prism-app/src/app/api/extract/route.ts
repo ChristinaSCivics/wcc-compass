@@ -81,8 +81,12 @@ export async function POST(req: NextRequest) {
     await audit("vision.drafted", "vision_profile", user.id, user.id, {});
   }
 
+  // Deliberately leave the conversation active. Drafting is not the end of the
+  // interview — the member can review a thin early draft, then come back and
+  // keep talking; re-drafting upserts over the same row. Closing it here made
+  // /journey start a brand-new conversation and stranded the old one.
   await supabase.from("conversations")
-    .update({ status: "completed" }).eq("id", conversationId);
+    .update({ updated_at: new Date().toISOString() }).eq("id", conversationId);
 
   return NextResponse.json({ draft });
 }
