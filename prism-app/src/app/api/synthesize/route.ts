@@ -32,20 +32,21 @@ export async function POST(req: NextRequest) {
     .from("decisions").select("*").eq("id", decisionId).single();
   if (!decision) return NextResponse.json({ error: "not found" }, { status: 404 });
 
+  // !inner + is_test=false keeps sandbox identities out of the synthesis
   const { data: inputs } = await admin
     .from("decision_inputs")
-    .select("needs, confirmed, profiles(display_name)")
+    .select("needs, confirmed, profiles!inner(is_test)")
     .eq("decision_id", decisionId)
-    .eq("confirmed", true);
+    .eq("confirmed", true)
+    .eq("profiles.is_test", false);
   if (!inputs?.length) {
     return NextResponse.json({ error: "no confirmed stakeholder inputs yet" }, { status: 400 });
   }
 
+  // Anonymous positional labels only — real names never enter the prompt or the
+  // stored synthesis, so the group's proposal can't be attributed to individuals.
   const inputBlock = inputs
-    .map((i) => {
-      const p = i.profiles as unknown as { display_name: string } | null;
-      return `### Stakeholder: ${p?.display_name ?? "unknown"}\n${JSON.stringify(i.needs, null, 2)}`;
-    })
+    .map((i, idx) => `### Stakeholder ${idx + 1}\n${JSON.stringify(i.needs, null, 2)}`)
     .join("\n\n");
 
   const anthropic = new Anthropic();

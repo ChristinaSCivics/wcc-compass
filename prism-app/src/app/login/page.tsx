@@ -20,6 +20,15 @@ export default function Enter() {
   const [password, setPassword] = useState("");
   const [existingName, setExistingName] = useState<string | null>(null);
   const [showFresh, setShowFresh] = useState(false);
+  const [testMode, setTestMode] = useState(false);
+
+  // /login?test=1 opens a sandbox identity: it walks the whole product, but is
+  // excluded from the collective weave, decision synthesis, and the member
+  // counts. Read off window rather than useSearchParams so this page doesn't
+  // need a Suspense boundary.
+  useEffect(() => {
+    setTestMode(new URLSearchParams(window.location.search).get("test") === "1");
+  }, []);
 
   // if this browser already holds an identity, offer to continue as them —
   // typing your name again should never silently create a second you
@@ -41,7 +50,7 @@ export default function Enter() {
     setBusy(true);
     const supabase = createClient();
     const { error } = await supabase.auth.signInAnonymously({
-      options: { data: { display_name: name.trim() } },
+      options: { data: { display_name: name.trim(), is_test: testMode } },
     });
     setBusy(false);
     if (error) {
@@ -78,7 +87,18 @@ export default function Enter() {
       <PrismMark size={48} />
       <h1 className="mt-6 text-3xl">Enter the Compass</h1>
 
-      {existingName && !showFresh ? (
+      {testMode && (
+        <div className="mt-5 w-full max-w-sm rounded-lg border border-gold/40 bg-surface-raised px-4 py-3 text-center fade-up">
+          <p className="text-xs text-gold tracking-widest uppercase">Test mode</p>
+          <p className="text-sm text-muted mt-1 leading-relaxed">
+            This identity walks the whole system but never joins the collective —
+            it&rsquo;s left out of the weave, decision synthesis, and the member counts.
+          </p>
+        </div>
+      )}
+
+      {/* in test mode always mint a fresh sandbox identity, never resume a real one */}
+      {existingName && !showFresh && !testMode ? (
         <div className="mt-8 w-full max-w-sm flex flex-col gap-3 fade-up text-center">
           <p className="text-muted text-sm">Welcome back.</p>
           <button

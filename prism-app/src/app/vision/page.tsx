@@ -11,8 +11,10 @@ export default function VisionReview() {
   const router = useRouter();
   const [draft, setDraft] = useState<Record<string, unknown> | null>(null);
   const [status, setStatus] = useState<string | null>(null);
+  const [hidden, setHidden] = useState(false);
   const [loading, setLoading] = useState(true);
   const [confirming, setConfirming] = useState(false);
+  const [togglingVisibility, setTogglingVisibility] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -21,11 +23,12 @@ export default function VisionReview() {
       if (!user) return;
       const { data } = await supabase
         .from("vision_profiles")
-        .select("draft, confirmed, status")
+        .select("draft, confirmed, status, hidden")
         .eq("user_id", user.id)
         .maybeSingle();
       if (data) {
         setStatus(data.status);
+        setHidden(!!data.hidden);
         setDraft((data.status === "confirmed" ? data.confirmed : data.draft) as Record<string, unknown>);
       }
       setLoading(false);
@@ -41,6 +44,18 @@ export default function VisionReview() {
     });
     setConfirming(false);
     if (res.ok) router.push("/dashboard");
+  }
+
+  async function toggleVisibility() {
+    const next = !hidden;
+    setTogglingVisibility(true);
+    const res = await fetch("/api/visibility", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "vision", hidden: next }),
+    });
+    setTogglingVisibility(false);
+    if (res.ok) setHidden(next);
   }
 
   return (
@@ -59,7 +74,30 @@ export default function VisionReview() {
       {loading ? (
         <p className="text-muted">Loading…</p>
       ) : draft ? (
-        <DraftEditor draft={draft} onConfirm={confirm} confirming={confirming} />
+        <>
+          <DraftEditor draft={draft} onConfirm={confirm} confirming={confirming} />
+          {status === "confirmed" && (
+            <div className="mt-6 rounded-xl border border-borderline bg-surface p-6">
+              <label className="flex items-center justify-between gap-4 cursor-pointer">
+                <span>
+                  <span className="block">Visible to other confirmed members</span>
+                  <span className="block text-sm text-muted mt-1">
+                    Turn this off to hide your name and individual vision from other
+                    members. Your vision always stays part of the collective weave —
+                    just without your name attached to it.
+                  </span>
+                </span>
+                <input
+                  type="checkbox"
+                  checked={!hidden}
+                  disabled={togglingVisibility}
+                  onChange={toggleVisibility}
+                  className="w-5 h-5 accent-gold shrink-0"
+                />
+              </label>
+            </div>
+          )}
+        </>
       ) : (
         <p className="text-muted">
           No draft yet — <Link href="/journey" className="text-gold">begin your conversation with Prism</Link>.

@@ -51,7 +51,7 @@ export function SynthesisView({ synthesis }: { synthesis: any }) {
               <p className="text-sm text-muted mb-4">{o.description}</p>
               {o.how_it_meets_each_person?.map((p: any, j: number) => (
                 <p key={j} className="text-sm mb-1">
-                  <span className="text-gold">{p.name}:</span>{" "}
+                  <span className="text-gold">{p.stakeholder}:</span>{" "}
                   {p.needs_met?.length ? `meets ${p.needs_met.join(", ")}` : "—"}
                   {p.needs_unmet?.length ? (
                     <span className="text-muted"> · unmet: {p.needs_unmet.join(", ")}</span>
@@ -60,7 +60,7 @@ export function SynthesisView({ synthesis }: { synthesis: any }) {
               ))}
               {!!o.red_lines_crossed?.length && (
                 <p className="text-sm text-red-400 mt-3">
-                  ⚠ Crosses red lines: {o.red_lines_crossed.map((r: any) => `${r.name} (${r.red_line})`).join("; ")}
+                  ⚠ Crosses red lines: {o.red_lines_crossed.map((r: any) => `${r.stakeholder} (${r.red_line})`).join("; ")}
                 </p>
               )}
               <p className="text-sm mt-3">

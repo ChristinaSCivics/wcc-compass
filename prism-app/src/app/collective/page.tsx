@@ -1,26 +1,44 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { TopNav } from "@/components/TopNav";
 import { WeaveButton } from "./WeaveButton";
 
 /** The collective map: who's on it, and Prism's latest weaving of all confirmed visions. */
 export default async function CollectivePage() {
   const supabase = await createClient();
+  const admin = createAdminClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  const [{ data: visions }, { data: weaves }] = await Promise.all([
-    supabase
-      .from("vision_profiles")
-      .select("confirmed, confirmed_at, profiles(display_name)")
-      .eq("status", "confirmed")
-      .order("confirmed_at", { ascending: true }),
-    supabase
-      .from("collective_syntheses")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(1),
-  ]);
+  const [{ data: visions }, { data: weaves }, { data: mine }, { count: totalCount }] =
+    await Promise.all([
+      // RLS-gated: only returns names once the viewer has confirmed their own
+      // vision, and excludes anyone who's chosen to hide theirs. Sandbox
+      // identities (is_test) never appear on the map.
+      supabase
+        .from("vision_profiles")
+        .select("confirmed, confirmed_at, profiles!inner(display_name, is_test)")
+        .eq("status", "confirmed")
+        .eq("profiles.is_test", false)
+        .order("confirmed_at", { ascending: true }),
+      supabase
+        .from("collective_syntheses")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(1),
+      user
+        ? supabase.from("vision_profiles").select("status").eq("user_id", user.id).maybeSingle()
+        : Promise.resolve({ data: null }),
+      // Bypasses RLS, but only ever returns a count — never leaks who's hidden.
+      admin
+        .from("vision_profiles")
+        .select("id, profiles!inner(is_test)", { count: "exact", head: true })
+        .eq("status", "confirmed")
+        .eq("profiles.is_test", false),
+    ]);
 
+  const isConfirmed = mine?.status === "confirmed";
   const weave = weaves?.[0];
   const c = (weave?.content ?? null) as any;
 
@@ -39,18 +57,29 @@ export default async function CollectivePage() {
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <h2 className="text-lg">
-              {visions?.length ?? 0} {(visions?.length ?? 0) === 1 ? "voice" : "voices"} on the map
+              {totalCount ?? 0} {(totalCount ?? 0) === 1 ? "voice" : "voices"} on the map
             </h2>
             <p className="text-sm text-muted mt-1">
-              {(visions ?? [])
-                .map((v) => (v.profiles as unknown as { display_name: string } | null)?.display_name ?? "member")
-                .join(" · ") || "Be the first —"}
-              {!visions?.length && (
-                <Link href="/journey" className="text-gold ml-1">share your vision</Link>
+              {!isConfirmed ? (
+                <>
+                  Share your vision to see who else is here —{" "}
+                  <Link href="/journey" className="text-gold">begin here</Link>.
+                </>
+              ) : visions?.length ? (
+                visions
+                  .map((v) => (v.profiles as unknown as { display_name: string } | null)?.display_name ?? "member")
+                  .join(" · ")
+              ) : (totalCount ?? 0) > 0 ? (
+                "Others are on the map, but have chosen to keep their names private."
+              ) : (
+                <>
+                  Be the first —{" "}
+                  <Link href="/journey" className="text-gold">share your vision</Link>
+                </>
               )}
             </p>
           </div>
-          <WeaveButton hasVisions={(visions?.length ?? 0) > 0} />
+          <WeaveButton hasVisions={(totalCount ?? 0) > 0} />
         </div>
       </section>
 

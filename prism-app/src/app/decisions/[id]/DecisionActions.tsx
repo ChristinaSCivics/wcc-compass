@@ -9,6 +9,7 @@ export function DecisionActions({
   decisionStatus,
   hasSynthesis,
   hasConfirmedInput,
+  hidden,
   activeConversationId,
   confirmedInputCount,
 }: {
@@ -16,6 +17,7 @@ export function DecisionActions({
   decisionStatus: string;
   hasSynthesis: boolean;
   hasConfirmedInput: boolean;
+  hidden: boolean;
   activeConversationId: string | null;
   confirmedInputCount: number;
 }) {
@@ -24,6 +26,20 @@ export function DecisionActions({
   const [showRatify, setShowRatify] = useState(false);
   const [chosenOption, setChosenOption] = useState("");
   const [rationale, setRationale] = useState("");
+  const [isHidden, setIsHidden] = useState(hidden);
+  const [togglingVisibility, setTogglingVisibility] = useState(false);
+
+  async function toggleVisibility() {
+    const next = !isHidden;
+    setTogglingVisibility(true);
+    const res = await fetch("/api/visibility", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "decision_input", decisionId, hidden: next }),
+    });
+    setTogglingVisibility(false);
+    if (res.ok) setIsHidden(next);
+  }
 
   async function startInterview() {
     setBusy(true);
@@ -125,6 +141,26 @@ export function DecisionActions({
           </button>
         )}
       </div>
+
+      {hasConfirmedInput && (
+        <label className="mt-4 flex items-center justify-between gap-4 cursor-pointer
+                           rounded-xl border border-borderline bg-surface p-4 max-w-xl">
+          <span>
+            <span className="block text-sm">Visible to other confirmed members</span>
+            <span className="block text-xs text-muted mt-1">
+              Turn this off to hide your name and individual input from other
+              members. It always still counts toward Prism&apos;s synthesis.
+            </span>
+          </span>
+          <input
+            type="checkbox"
+            checked={!isHidden}
+            disabled={togglingVisibility}
+            onChange={toggleVisibility}
+            className="w-5 h-5 accent-gold shrink-0"
+          />
+        </label>
+      )}
 
       {showRatify && (
         <form

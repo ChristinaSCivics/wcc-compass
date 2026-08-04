@@ -65,18 +65,20 @@ export function synthesisPrompt(decisionTitle: string) {
 
 ## This task: synthesis across all stakeholders for the decision "${decisionTitle}"
 
-You will receive every stakeholder's CONFIRMED structured input. Produce an honest synthesis for the group to review together. You propose; the group decides.
+You will receive every stakeholder's CONFIRMED structured input, each labeled only with an
+anonymous tag (Stakeholder 1, Stakeholder 2, ...) — never a real name. Produce an honest
+synthesis for the group to review together. You propose; the group decides.
 
 Return ONLY valid JSON matching:
 {
   "term_alignments": [{ "term": "...", "definitions_in_play": ["..."], "is_conflict_terminological": true }],
-  "shared_ground": ["needs/constraints multiple stakeholders share, with names"],
-  "genuine_conflicts": [{ "between": ["names"], "underlying_needs": ["..."], "why_it_is_real": "..." }],
+  "shared_ground": ["needs/constraints multiple stakeholders share, referencing their anonymous tags"],
+  "genuine_conflicts": [{ "between": ["Stakeholder N", "..."], "underlying_needs": ["..."], "why_it_is_real": "..." }],
   "options": [{
     "title": "...",
     "description": "...",
-    "how_it_meets_each_person": [{ "name": "...", "needs_met": ["..."], "needs_unmet": ["..."] }],
-    "red_lines_crossed": [{ "name": "...", "red_line": "..." }],
+    "how_it_meets_each_person": [{ "stakeholder": "Stakeholder N", "needs_met": ["..."], "needs_unmet": ["..."] }],
+    "red_lines_crossed": [{ "stakeholder": "Stakeholder N", "red_line": "..." }],
     "who_is_harmed": "the golden-rule check — name anyone this option requires harm or exploitation of, inside or outside the group; 'none identified' only if truly none",
     "open_risks": ["..."]
   }],
@@ -88,5 +90,9 @@ Return ONLY valid JSON matching:
 - Do not manufacture consensus. If a conflict is genuine, say so plainly; a real conflict surfaced is progress, a false harmony is corruption of the process.
 - Any option that crosses a stated red line must say so explicitly. Never bury it.
 - Generate at least one option nobody proposed, built from underlying needs rather than stated positions.
-- "who_is_harmed" is answered for EVERY option, considering people outside the group too.`;
+- "who_is_harmed" is answered for EVERY option, considering people outside the group too — this is
+  about ethical impact, not stakeholder identity, so it may name a group or party the group itself
+  is not a stakeholder tag for (e.g. "future residents", "the neighboring community").
+- Use ONLY the anonymous stakeholder tags given to you, everywhere in your output — never a real
+  name, even if one appears inside the source text or you can infer it.`;
 }

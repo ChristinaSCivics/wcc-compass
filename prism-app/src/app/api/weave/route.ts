@@ -22,20 +22,21 @@ export async function POST(req: NextRequest) {
   }
 
   const admin = createAdminClient();
+  // !inner + is_test=false keeps sandbox identities out of the collective picture
   const { data: visions } = await admin
     .from("vision_profiles")
-    .select("confirmed, profiles(display_name)")
-    .eq("status", "confirmed");
+    .select("confirmed, profiles!inner(is_test)")
+    .eq("status", "confirmed")
+    .eq("profiles.is_test", false);
 
   if (!visions?.length) {
     return NextResponse.json({ error: "no confirmed visions on the map yet" }, { status: 400 });
   }
 
+  // Anonymous positional labels only — real names never enter the prompt or the
+  // stored weave, so the collective picture can't be attributed to individuals.
   const block = visions
-    .map((v) => {
-      const p = v.profiles as unknown as { display_name: string } | null;
-      return `### ${p?.display_name ?? "member"}\n${JSON.stringify(v.confirmed, null, 2)}`;
-    })
+    .map((v, i) => `### Voice ${i + 1}\n${JSON.stringify(v.confirmed, null, 2)}`)
     .join("\n\n");
 
   const anthropic = new Anthropic();

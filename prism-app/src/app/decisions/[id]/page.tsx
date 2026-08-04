@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { TopNav } from "@/components/TopNav";
 import { DecisionActions } from "./DecisionActions";
 import { SynthesisView } from "./SynthesisView";
@@ -8,19 +9,24 @@ import { SynthesisView } from "./SynthesisView";
 export default async function DecisionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
+  const admin = createAdminClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const [{ data: decision }, { data: inputs }, { data: myInput }, { data: myConvo }] =
+  const [{ data: decision }, { data: inputs }, { data: myInput }, { data: myConvo }, { count: totalInputCount }] =
     await Promise.all([
       supabase.from("decisions").select("*").eq("id", id).single(),
+      // RLS-gated: only returns other stakeholders' inputs once the viewer has
+      // confirmed their own, and excludes anyone who's chosen to hide theirs.
+      // Sandbox identities (is_test) are never counted among the voices.
       supabase
         .from("decision_inputs")
-        .select("user_id, confirmed, needs, profiles(display_name)")
+        .select("user_id, confirmed, needs, profiles!inner(display_name, is_test)")
         .eq("decision_id", id)
-        .eq("confirmed", true),
+        .eq("confirmed", true)
+        .eq("profiles.is_test", false),
       supabase
         .from("decision_inputs")
-        .select("confirmed")
+        .select("confirmed, hidden")
         .eq("decision_id", id)
         .eq("user_id", user!.id)
         .maybeSingle(),
@@ -31,6 +37,13 @@ export default async function DecisionPage({ params }: { params: Promise<{ id: s
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false })
         .limit(1),
+      // Bypasses RLS, but only ever returns a count — never leaks who's hidden.
+      admin
+        .from("decision_inputs")
+        .select("id, profiles!inner(is_test)", { count: "exact", head: true })
+        .eq("decision_id", id)
+        .eq("confirmed", true)
+        .eq("profiles.is_test", false),
     ]);
 
   if (!decision) notFound();
@@ -51,14 +64,27 @@ export default async function DecisionPage({ params }: { params: Promise<{ id: s
       )}
 
       <section className="rounded-xl border border-borderline bg-surface p-6 mb-8">
-        <h2 className="text-lg mb-3">Voices gathered</h2>
-        {inputs?.length ? (
+        <h2 className="text-lg mb-3">
+          Voices gathered
+          <span className="text-sm text-muted font-normal ml-2">
+            ({totalInputCount ?? 0} confirmed)
+          </span>
+        </h2>
+        {!myInput?.confirmed ? (
+          <p className="text-sm text-muted">
+            Submit your input to see who else has confirmed theirs.
+          </p>
+        ) : inputs?.length ? (
           <ul className="text-sm text-muted space-y-1">
             {inputs.map((i) => {
               const p = i.profiles as unknown as { display_name: string } | null;
               return <li key={i.user_id}>◈ {p?.display_name ?? "member"} — confirmed</li>;
             })}
           </ul>
+        ) : (totalInputCount ?? 0) > 0 ? (
+          <p className="text-sm text-muted">
+            Others have confirmed, but have chosen to keep their names private.
+          </p>
         ) : (
           <p className="text-sm text-muted">No confirmed inputs yet.</p>
         )}
@@ -69,8 +95,9 @@ export default async function DecisionPage({ params }: { params: Promise<{ id: s
         decisionStatus={decision.status}
         hasSynthesis={decision.synthesis != null}
         hasConfirmedInput={!!myInput?.confirmed}
+        hidden={!!myInput?.hidden}
         activeConversationId={myConvo?.[0]?.status === "active" ? myConvo[0].id : null}
-        confirmedInputCount={inputs?.length ?? 0}
+        confirmedInputCount={totalInputCount ?? 0}
       />
 
       {decision.synthesis != null && <SynthesisView synthesis={decision.synthesis} />}

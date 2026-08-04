@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -17,6 +18,20 @@ const LINKS = [
 export function TopNav() {
   const pathname = usePathname();
   const router = useRouter();
+  const [isTest, setIsTest] = useState(false);
+
+  // A sandbox identity should never be mistakable for a real one — say so on
+  // every page, not just at the door.
+  useEffect(() => {
+    (async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from("profiles").select("is_test").eq("id", user.id).maybeSingle();
+      setIsTest(!!data?.is_test);
+    })();
+  }, []);
 
   async function signOut() {
     const supabase = createClient();
@@ -35,6 +50,14 @@ export function TopNav() {
   return (
     <>
     <FeedbackWidget />
+    {isTest && (
+      <div className="sticky top-0 z-30 bg-gold/15 border-b border-gold/40 text-center py-1.5 px-4">
+        <span className="text-xs text-gold tracking-widest uppercase">Test mode</span>
+        <span className="text-xs text-muted ml-2">
+          this identity is left out of the weave, synthesis, and member counts
+        </span>
+      </div>
+    )}
     <header className="sticky top-0 z-20 bg-background/90 backdrop-blur border-b border-borderline">
       <nav className="max-w-3xl mx-auto w-full px-6 py-3 flex items-center justify-between">
         <Link href="/dashboard" className="flex items-center gap-2.5 shrink-0">
