@@ -6,6 +6,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { DraftEditor } from "@/components/DraftEditor";
 import { TopNav } from "@/components/TopNav";
+import { PrismPromise } from "@/components/PrismPromise";
+import { YourPiece } from "@/components/YourPiece";
 
 export default function VisionReview() {
   const router = useRouter();
@@ -70,13 +72,17 @@ export default function VisionReview() {
         Correct anything, rewrite anything, delete anything. Only what you confirm
         becomes part of the collective map.
       </p>
-      <p className="text-sm text-muted mb-10">
+      <p className="text-sm text-muted mb-6">
         Stopped early, or want to go deeper?{" "}
         <a href="/journey" className="text-gold underline">
           Keep talking with Prism
         </a>{" "}
         — your conversation is still open, and drafting again updates this page.
       </p>
+
+      <div className="mb-10">
+        <PrismPromise />
+      </div>
 
       {loading ? (
         <p className="text-muted">Loading…</p>
@@ -102,6 +108,11 @@ export default function VisionReview() {
                   className="w-5 h-5 accent-gold shrink-0"
                 />
               </label>
+            </div>
+          )}
+          {status === "confirmed" && (
+            <div className="mt-6">
+              <YourPiece vision={draft} />
             </div>
           )}
         </>

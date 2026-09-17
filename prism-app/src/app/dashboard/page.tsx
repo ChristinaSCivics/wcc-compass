@@ -2,22 +2,54 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { TopNav } from "@/components/TopNav";
 import { SaveSpot } from "@/components/SaveSpot";
+import { YourPiece } from "@/components/YourPiece";
+import { WhereYouMeet } from "@/components/WhereYouMeet";
+import { echoedThreads, type CoreValue, type Weave } from "@/lib/threads";
 
 export default async function Dashboard() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const [{ data: profile }, { data: vision }, { data: decisions }, { data: convos }] =
-    await Promise.all([
+  const [
+    { data: profile },
+    { data: vision },
+    { data: decisions },
+    { data: convos },
+    { data: weaveRows },
+    { data: myInputs },
+  ] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", user!.id).single(),
-      supabase.from("vision_profiles").select("status").eq("user_id", user!.id).maybeSingle(),
+      supabase.from("vision_profiles").select("status, confirmed").eq("user_id", user!.id).maybeSingle(),
       supabase.from("decisions").select("id, title, status").order("created_at", { ascending: false }),
       supabase.from("conversations").select("id, kind, status")
         .eq("user_id", user!.id).eq("kind", "onboarding").eq("status", "active")
         .order("created_at", { ascending: false }).limit(1),
+      supabase.from("collective_syntheses").select("content")
+        .order("created_at", { ascending: false }).limit(1),
+      supabase.from("decision_inputs").select("decision_id, confirmed").eq("user_id", user!.id),
     ]);
 
   const activeOnboarding = convos?.[0];
+
+  // Values -> Action, thin slice. Only meaningful once they have confirmed words
+  // of their own to match against.
+  const confirmedVision =
+    vision?.status === "confirmed"
+      ? (vision.confirmed as Record<string, unknown> | null)
+      : null;
+  const rawValues = confirmedVision?.core_values;
+  const threads = confirmedVision
+    ? echoedThreads(
+        (Array.isArray(rawValues) ? rawValues : []) as CoreValue[],
+        (weaveRows?.[0]?.content ?? null) as Weave | null
+      )
+    : [];
+  const answered = new Set(
+    (myInputs ?? []).filter((i) => i.confirmed).map((i) => i.decision_id)
+  );
+  const openForYou = (decisions ?? [])
+    .filter((d) => d.status === "gathering" && !answered.has(d.id))
+    .slice(0, 3);
 
   return (
     <>
@@ -56,6 +88,10 @@ export default async function Dashboard() {
             title="Your confirmed vision"
             sub="Read it, refine it, re-confirm it — it's yours."
           />
+        )}
+        {confirmedVision && <YourPiece vision={confirmedVision} compact />}
+        {confirmedVision && (threads.length > 0 || openForYou.length > 0) && (
+          <WhereYouMeet threads={threads} openDecisions={openForYou} />
         )}
         <Card
           href="/collective"

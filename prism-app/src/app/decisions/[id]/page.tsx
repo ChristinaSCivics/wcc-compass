@@ -5,6 +5,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { TopNav } from "@/components/TopNav";
 import { DecisionActions } from "./DecisionActions";
 import { SynthesisView } from "./SynthesisView";
+import { CompassStages } from "@/components/CompassStages";
+import { PrismPromise } from "@/components/PrismPromise";
 
 export default async function DecisionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -63,6 +65,8 @@ export default async function DecisionPage({ params }: { params: Promise<{ id: s
         <p className="text-muted leading-relaxed mb-8">{decision.description}</p>
       )}
 
+      <CompassStages status={decision.status} />
+
       <section className="rounded-xl border border-borderline bg-surface p-6 mb-8">
         <h2 className="text-lg mb-3">
           Voices gathered
@@ -100,7 +104,17 @@ export default async function DecisionPage({ params }: { params: Promise<{ id: s
         confirmedInputCount={totalInputCount ?? 0}
       />
 
-      {decision.synthesis != null && <SynthesisView synthesis={decision.synthesis} />}
+      {decision.synthesis != null && (
+        <>
+          <SynthesisView synthesis={decision.synthesis} />
+          <div className="mt-6">
+            <PrismPromise>
+              This synthesis is Prism&apos;s reading of the confirmed voices. It becomes the
+              circle&apos;s direction only when the circle ratifies it — and it can be sent back.
+            </PrismPromise>
+          </div>
+        </>
+      )}
 
       {decision.outcome != null && (
         <section className="rounded-xl border border-gold bg-surface-raised p-6 mt-8 gold-glow">
