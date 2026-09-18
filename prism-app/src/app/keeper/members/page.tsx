@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { TopNav } from "@/components/TopNav";
-import { getKeeperPassword, clearKeeperPassword } from "@/lib/keeperClient";
+import { getKeeperPassword, clearKeeperPassword, rememberKeeper } from "@/lib/keeperClient";
 
 type Member = {
   id: string;
@@ -45,6 +45,7 @@ export default function Members() {
       setError("Couldn't load the roster.");
       return;
     }
+    rememberKeeper();
     setMembers((await res.json()).members);
   }, []);
 

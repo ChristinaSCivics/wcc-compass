@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { TopNav } from "@/components/TopNav";
-import { getKeeperPassword, clearKeeperPassword } from "@/lib/keeperClient";
+import { getKeeperPassword, clearKeeperPassword, rememberKeeper } from "@/lib/keeperClient";
 
 type Bar = { label: string; count: number };
 type Person = {
@@ -59,6 +59,7 @@ export default function Funnel() {
       setError("Couldn't load the numbers.");
       return;
     }
+    rememberKeeper();
     setData(await res.json());
   }
 

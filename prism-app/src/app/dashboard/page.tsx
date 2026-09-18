@@ -5,6 +5,7 @@ import { TopNav } from "@/components/TopNav";
 import { SaveSpot } from "@/components/SaveSpot";
 import { DemoBadge } from "@/components/DemoBadge";
 import { WccMark } from "@/components/WccLogo";
+import { KeeperLink } from "@/components/KeeperLink";
 import { MastermindSignup } from "@/components/MastermindSignup";
 import { mastermindDate } from "@/lib/mastermind";
 import { YourPiece } from "@/components/YourPiece";
@@ -181,6 +182,7 @@ export default async function Dashboard() {
             sub={`${decisions?.length ?? 0} in process`}
           />
           <Tile href="/audit" title="The open record" sub="Tamper-evident, readable by all" />
+          <KeeperLink />
         </div>
       </nav>
     </main>
