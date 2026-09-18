@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { WccMark } from "./WccLogo";
 import { FeedbackWidget } from "./FeedbackWidget";
+import { disarmTestMode } from "@/lib/testMode";
 
 const LINKS = [
   { href: "/dashboard", label: "Home" },
@@ -51,11 +52,31 @@ export function TopNav() {
     <>
     <FeedbackWidget />
     {isTest && (
-      <div className="sticky top-0 z-30 bg-accent/15 border-b border-accent/40 text-center py-1.5 px-4">
-        <span className="text-xs text-accent tracking-widest uppercase">Test mode</span>
-        <span className="text-xs text-muted ml-2">
-          this identity is left out of the weave, synthesis, and member counts
+      // Loud on purpose. A sandbox identity that looks like a real one is how
+      // test visions end up counted as real voices on the map.
+      <div className="sticky top-0 z-30 bg-amber/20 border-b-2 border-amber text-center py-2 px-4
+                      flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+        <span className="text-xs text-amber tracking-[0.2em] uppercase font-medium">
+          ◆ Test mode
         </span>
+        <span className="text-xs text-muted">
+          sandboxed — left out of the weave, the synthesis and the member counts
+        </span>
+        <button
+          onClick={async () => {
+            // The flag lives in this browser; the is_test mark lives on the
+            // account. Clearing one without leaving the other would be a lie,
+            // so turning it off also ends the sandbox session.
+            disarmTestMode();
+            const supabase = createClient();
+            await supabase.auth.signOut();
+            router.push("/login");
+            router.refresh();
+          }}
+          className="text-xs text-amber/90 underline hover:text-foreground transition-colors"
+        >
+          turn off &amp; leave
+        </button>
       </div>
     )}
     <header className="sticky top-0 z-20 bg-background/90 backdrop-blur border-b border-borderline">

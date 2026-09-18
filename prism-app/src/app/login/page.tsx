@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { WccMark } from "@/components/WccLogo";
 import { DemoBadge } from "@/components/DemoBadge";
+import { isTestArmed, armTestMode, disarmTestMode } from "@/lib/testMode";
 
 /**
  * Lightweight entry for the pilot: give us a name, and you're in.
@@ -25,10 +26,12 @@ export default function Enter() {
 
   // /login?test=1 opens a sandbox identity: it walks the whole product, but is
   // excluded from the collective weave, decision synthesis, and the member
-  // counts. Read off window rather than useSearchParams so this page doesn't
-  // need a Suspense boundary.
+  // counts. Arming it sticks to this browser — forgetting the query param once
+  // is how test identities ended up counted as real voices. Read off window
+  // rather than useSearchParams so this page doesn't need a Suspense boundary.
   useEffect(() => {
-    setTestMode(new URLSearchParams(window.location.search).get("test") === "1");
+    if (new URLSearchParams(window.location.search).get("test") === "1") armTestMode();
+    setTestMode(isTestArmed());
   }, []);
 
   // if this browser already holds an identity, offer to continue as them —
@@ -90,12 +93,18 @@ export default function Enter() {
       <div className="mt-3"><DemoBadge /></div>
 
       {testMode && (
-        <div className="mt-5 w-full max-w-sm rounded-lg border border-accent/40 bg-surface-raised px-4 py-3 text-center fade-up">
-          <p className="text-xs text-accent tracking-widest uppercase">Test mode</p>
+        <div className="mt-5 w-full max-w-sm rounded-lg border border-amber/50 bg-amber/10 px-4 py-3 text-center fade-up">
+          <p className="text-xs text-amber tracking-widest uppercase">Test mode is on</p>
           <p className="text-sm text-muted mt-1 leading-relaxed">
-            This identity walks the whole system but never joins the collective —
-            it&rsquo;s left out of the weave, decision synthesis, and the member counts.
+            Everything you do from this browser is sandboxed — left out of the weave,
+            the decision synthesis and the member counts — until you turn it off.
           </p>
+          <button
+            onClick={() => { disarmTestMode(); setTestMode(false); }}
+            className="mt-2 text-xs text-muted/70 underline hover:text-accent transition-colors"
+          >
+            Turn test mode off
+          </button>
         </div>
       )}
 
@@ -111,7 +120,16 @@ export default function Enter() {
             Continue as {existingName} →
           </button>
           <button
-            onClick={() => setShowFresh(true)}
+            onClick={() => {
+              // Anonymous identities live in this browser and nowhere else, so
+              // starting fresh doesn't just switch user — it abandons the old
+              // one permanently. Signing out already warns about this; starting
+              // fresh has exactly the same consequence and used to say nothing.
+              const sure = window.confirm(
+                `Starting fresh creates a new person. Anything ${existingName} has said — conversations, a vision — stays with that identity, and this browser is the only place it can be reached from. Continue?`
+              );
+              if (sure) setShowFresh(true);
+            }}
             className="text-xs text-muted/60 hover:text-accent transition-colors"
           >
             Not you? Start fresh instead
