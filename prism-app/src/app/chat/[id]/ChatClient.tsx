@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PrismMark } from "@/components/PrismMark";
+import { WccMark } from "@/components/WccLogo";
 import { FeedbackWidget } from "@/components/FeedbackWidget";
 import { ConversationProgress } from "@/components/ConversationProgress";
 
@@ -182,7 +182,7 @@ export function ChatClient({
           href={kind === "decision" && decisionId ? `/decisions/${decisionId}` : "/dashboard"}
           className="flex items-center gap-3 group"
         >
-          <PrismMark />
+          <WccMark />
           <span className="text-sm text-muted group-hover:text-accent transition-colors">
             ← {kind === "decision" ? "Back to the decision" : "Your vision — with Prism"}
           </span>
@@ -221,7 +221,7 @@ export function ChatClient({
         >
           <div className="text-center max-w-sm">
             <div className="mx-auto w-fit animate-pulse">
-              <PrismMark size={44} />
+              <WccMark size={44} />
             </div>
             <p className="mt-5 text-lg">Prism is writing up your vision…</p>
             <p className="mt-2 text-sm text-muted leading-relaxed">

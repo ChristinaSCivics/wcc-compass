@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { DraftEditor } from "@/components/DraftEditor";
-import { PrismMark } from "@/components/PrismMark";
+import { WccMark } from "@/components/WccLogo";
 
 export default function ConfirmDecisionInput({ params }: { params: Promise<{ id: string }> }) {
   const { id: decisionId } = use(params);
@@ -44,7 +44,7 @@ export default function ConfirmDecisionInput({ params }: { params: Promise<{ id:
   return (
     <main className="min-h-screen max-w-2xl mx-auto w-full px-6 py-8">
       <header className="flex items-center gap-3 mb-10">
-        <Link href={`/decisions/${decisionId}`}><PrismMark /></Link>
+        <Link href={`/decisions/${decisionId}`}><WccMark /></Link>
         <span className="text-sm text-muted">Your input — review &amp; confirm</span>
       </header>
 

@@ -1,44 +1,46 @@
 @import "tailwindcss";
 
 /*
- * World Co-Creation house palette, on a dark ground.
+ * World Co-Creation brand, per the Brand Guidelines (4 Aug 2026).
  *
- * Colours are sampled from the official WCC Framework and Orientation
- * diagrams (public/brand/): navy #002F70, PRiSM purple #4C3493,
- * teal #016F7B, green #056732, orange #D67201, ember #CC3F01, blue #0266BD.
- * Those are print values on white; each is lifted here for legibility on a
- * dark ground while keeping its hue, so the app reads as the same system.
+ * Every value here is from that document, which measured them directly from
+ * The Call to My Colleagues deck and WorldCoCreationMark.png. Not sampled from
+ * the infographics, which are a different thing and led this app astray once.
  *
- * Two accents carry meaning, and the distinction is deliberate:
- *   --accent  (blue)   The Compass — primary interactive colour.
- *   --prism   (purple) PRiSM's own voice — its mark, its drafts, its synthesis.
- * The category colours map to the framework's layers.
+ * The palette is semantic, and the part that matters here: gold is the
+ * Compass. This app is the Compass, so gold is the primary accent. Teal is for
+ * eyebrows and section markers. PRiSM is a refracted spectrum and never a flat
+ * fill — see .prism-text and .prism-rule below.
+ *
+ * "Gold is light, and light is the movement... Don't spend it on decoration."
  */
 
 :root {
-  /* Ground — deep navy, from the framework's darkest navy (#000F44) */
-  --background: #071226;
-  --surface: #0c1b35;
-  --surface-raised: #142645;
-  --border: #22365c;
-  --foreground: #e9effa;
-  --muted: #93a6c6;
+  /* Core UI — measured from the deck */
+  --background: #1a1a1a;       /* charcoal */
+  --surface: #232323;          /* charcoal raised — cards, panels */
+  --surface-raised: #2b2b2b;   /* one step up again, for nesting */
+  --border: #343434;
+  --heading: #ffffff;          /* headings only */
+  --foreground: #d2d2d2;       /* body — never pure white at body size */
+  --muted: #8a8a8a;            /* captions, secondary */
 
-  /* The Compass — primary interactive */
-  --accent: #5b9bec;
-  --accent-soft: #3f7fd0;
-  --accent-glow: rgba(91, 155, 236, 0.16);
+  /* The Compass */
+  --accent: #c8a24a;           /* gold — the signature accent */
+  --accent-soft: #a8863c;
+  --accent-glow: rgba(200, 162, 74, 0.14);
 
-  /* PRiSM — facilitation and synthesis */
-  --prism: #9170de;
-  --prism-soft: #7756c4;
-  --prism-glow: rgba(145, 112, 222, 0.16);
+  /* The Movement OS */
+  --teal: #2aa6a0;
 
-  /* Framework layer colours */
-  --teal: #2fa3af;    /* WCCS — builder cohort */
-  --green: #40a96e;   /* participation & coordination */
-  --amber: #e09540;   /* local action & scaling */
-  --ember: #e2603a;   /* discourse as data */
+  /* The mark's gradient stops — ember falling through amber into cyan */
+  --ember: #ed4628;
+  --flame: #e35829;
+  --copper: #d76c2a;
+  --amber: #cc802b;
+  --turn: #a7924b;
+  --mark-teal: #2cb5c6;
+  --cyan: #11bce1;
 }
 
 @theme inline {
@@ -47,15 +49,14 @@
   --color-surface-raised: var(--surface-raised);
   --color-borderline: var(--border);
   --color-foreground: var(--foreground);
+  --color-heading: var(--heading);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
-  --color-prism: var(--prism);
-  --color-prism-soft: var(--prism-soft);
   --color-teal: var(--teal);
-  --color-green: var(--green);
   --color-amber: var(--amber);
   --color-ember: var(--ember);
+  --color-cyan: var(--cyan);
   --font-sans: var(--font-inter);
   --font-serif: var(--font-fraunces);
 }
@@ -66,26 +67,42 @@ body {
   font-family: var(--font-inter), system-ui, sans-serif;
 }
 
+/* Georgia speaks, Calibri explains — headings carry the voice, and only
+   headings get pure white. Body stays soft white so it doesn't glare. */
 h1, h2, h3, .serif {
   font-family: var(--font-fraunces), Georgia, serif;
   font-weight: 400;
   letter-spacing: -0.01em;
+  color: var(--heading);
+}
+
+/*
+ * PRiSM: white light in, ordered spectrum out. Never a flat fill — so where
+ * Prism itself speaks, the mark and the label take the mark's own gradient
+ * rather than a single colour borrowed from somewhere else.
+ */
+.prism-text {
+  background: linear-gradient(100deg, var(--ember), var(--amber) 45%, var(--cyan));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.prism-rule {
+  background: linear-gradient(90deg, var(--ember), var(--amber) 45%, var(--cyan));
 }
 
 .accent-glow {
   box-shadow: 0 0 60px var(--accent-glow);
 }
 
-.prism-glow {
-  box-shadow: 0 0 60px var(--prism-glow);
-}
-
+/* A single point of gold, spreading. */
 .horizon {
   background: linear-gradient(
     to bottom,
     transparent 0%,
-    rgba(91, 155, 236, 0.05) 55%,
-    rgba(145, 112, 222, 0.12) 100%
+    rgba(200, 162, 74, 0.04) 55%,
+    rgba(200, 162, 74, 0.10) 100%
   );
 }
 
