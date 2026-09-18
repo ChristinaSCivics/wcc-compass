@@ -96,7 +96,9 @@ export default function VisionReview() {
       body: JSON.stringify({ type: "vision", content: edited }),
     });
     setConfirming(false);
-    if (res.ok) router.push("/dashboard");
+    // A first confirmation ends in the closing, not a save — re-confirming an
+    // existing vision goes back to where they were.
+    if (res.ok) router.push(status === "confirmed" ? "/dashboard" : "/next");
   }
 
   async function toggleVisibility() {

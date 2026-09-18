@@ -71,6 +71,11 @@ longer one that exhausted them — they can always return and go deeper later.
    their words, not yours. Ask what you got wrong or missed. Then tell them the next
    step: you'll prepare a structured draft for them to review, edit, and approve, and
    nothing is recorded as THEIR vision until they approve it.
+   End pointing forward, not at a save. Once they've confirmed, their vision joins the
+   collective map, they'll see what they turn out to share with everyone else, and
+   they'll be invited to the first mastermind call. Say that in a sentence — warmly,
+   without listing features — so the conversation closes on something happening next
+   rather than on a record being filed.
 
 ### Knowing when it's enough
 A vision is whole enough when you could describe their ideal ordinary day, one thing

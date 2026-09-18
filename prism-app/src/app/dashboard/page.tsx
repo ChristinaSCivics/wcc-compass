@@ -5,6 +5,8 @@ import { TopNav } from "@/components/TopNav";
 import { SaveSpot } from "@/components/SaveSpot";
 import { DemoBadge } from "@/components/DemoBadge";
 import { WccMark } from "@/components/WccLogo";
+import { MastermindSignup } from "@/components/MastermindSignup";
+import { mastermindDate } from "@/lib/mastermind";
 import { YourPiece } from "@/components/YourPiece";
 import { WhereYouMeet } from "@/components/WhereYouMeet";
 import { echoedThreads, type CoreValue, type Weave } from "@/lib/threads";
@@ -23,6 +25,7 @@ export default async function Dashboard() {
     { data: weaveRows },
     { data: myInputs },
     { data: roster },
+    { data: signup },
   ] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", user!.id).single(),
       supabase.from("vision_profiles").select("status, confirmed").eq("user_id", user!.id).maybeSingle(),
@@ -35,6 +38,13 @@ export default async function Dashboard() {
       supabase.from("decision_inputs").select("decision_id, confirmed").eq("user_id", user!.id),
       // Names, used only to scrub them back out of the weave before display.
       admin.from("profiles").select("display_name"),
+      // Has this person already asked for the call? RLS blocks client reads of
+      // the signup list, so this goes through the admin client.
+      admin
+        .from("mastermind_signups")
+        .select("id")
+        .eq("user_id", user!.id)
+        .maybeSingle(),
     ]);
 
   const activeOnboarding = convos?.[0];
@@ -133,6 +143,14 @@ export default async function Dashboard() {
           {confirmedVision && (threads.length > 0 || openForYou.length > 0) && (
             <WhereYouMeet threads={threads} openDecisions={openForYou} />
           )}
+        </div>
+      )}
+
+      {/* The exit action shouldn't live three pages deep — anyone who hasn't
+          asked for the call yet can do it from here. */}
+      {!signup && (
+        <div className="mt-6">
+          <MastermindSignup when={mastermindDate()} compact />
         </div>
       )}
 
