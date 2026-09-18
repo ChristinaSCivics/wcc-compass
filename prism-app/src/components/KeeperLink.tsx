@@ -26,7 +26,7 @@ export function KeeperLink() {
 
   return (
     <Link
-      href="/keeper"
+      href="/admin"
       className="block rounded-xl border border-amber/40 bg-surface/60 px-4 py-3
                  transition-colors hover:border-amber"
     >

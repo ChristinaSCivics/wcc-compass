@@ -12,10 +12,12 @@ import { setKeeperPassword } from "@/lib/keeperClient";
 export function KeeperGate({
   error,
   onSubmit,
+  busy,
 }: {
   /** Message from the last attempt, if any. */
   error: string | null;
   onSubmit: () => void;
+  busy?: boolean;
 }) {
   const [value, setValue] = useState("");
 
@@ -47,11 +49,11 @@ export function KeeperGate({
       />
       <button
         type="submit"
-        disabled={!value.trim()}
+        disabled={!value.trim() || busy}
         className="w-full mt-3 border border-accent text-accent rounded-lg py-2.5
                    hover:bg-accent hover:text-background transition-all disabled:opacity-40"
       >
-        Unlock
+        {busy ? "Checking…" : "Unlock"}
       </button>
       {error && <p className="text-red-400 text-sm mt-3">{error}</p>}
     </form>
