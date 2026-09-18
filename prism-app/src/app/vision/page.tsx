@@ -54,6 +54,7 @@ export default function VisionReview() {
   const [viewingDraft, setViewingDraft] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [hidden, setHidden] = useState(false);
+  const [onBehalf, setOnBehalf] = useState(false);
   const [loading, setLoading] = useState(true);
   const [confirming, setConfirming] = useState(false);
   const [togglingVisibility, setTogglingVisibility] = useState(false);
@@ -65,12 +66,13 @@ export default function VisionReview() {
       if (!user) return;
       const { data } = await supabase
         .from("vision_profiles")
-        .select("draft, confirmed, status, hidden, confirmed_at, updated_at")
+        .select("draft, confirmed, status, hidden, confirmed_at, updated_at, confirmed_by")
         .eq("user_id", user.id)
         .maybeSingle();
       if (data) {
         setStatus(data.status);
         setHidden(!!data.hidden);
+        setOnBehalf(!!data.confirmed_by);
         setDraft((data.status === "confirmed" ? data.confirmed : data.draft) as Record<string, unknown>);
         // Kept talking after confirming? The newer draft is stored but must not
         // silently replace what they already stood behind — offer it instead.
@@ -136,6 +138,21 @@ export default function VisionReview() {
       <div className="mb-10">
         <PrismPromise />
       </div>
+
+      {!loading && onBehalf && (
+        <div className="mb-8 rounded-xl border border-amber/50 bg-surface-raised p-5">
+          <p className="text-sm leading-relaxed">
+            You talked to Prism but never got as far as a draft — the way out of the
+            conversation was too easy to miss, and that was our fault. So we drafted this
+            from what you said and put it on the map on your behalf, rather than lose your
+            voice entirely.
+          </p>
+          <p className="text-sm text-muted leading-relaxed mt-2">
+            It hasn&apos;t been confirmed by you, and everyone can see that. Change anything
+            that isn&apos;t right and confirm it below — then it&apos;s yours.
+          </p>
+        </div>
+      )}
 
       {!loading && newerDraft && !viewingDraft && (
         <div className="mb-8 rounded-xl border border-amber/50 bg-surface-raised p-5">

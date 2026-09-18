@@ -82,6 +82,15 @@ export default async function About() {
             <em>about a quarter of people here</em>.
           </P>
           <P>
+            One honest exception. Early on, some people had a long conversation and never
+            reached a draft, because the way out was too easy to miss. Rather than lose
+            what they said, a keeper drafted from those conversations and placed them on
+            the map on those people&apos;s behalf. Those visions are marked as exactly that
+            — on the collective page, and to the person themselves, who is asked to correct
+            and confirm it when they return. Nothing drafted on someone&apos;s behalf is
+            ever presented as something they approved.
+          </P>
+          <P>
             Every significant event — a vision confirmed, a decision recorded — is written
             to an open log that any member can read, and that is built so it can&apos;t be
             quietly rewritten after the fact. The code and Prism&apos;s full instructions

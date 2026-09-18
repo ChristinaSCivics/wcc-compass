@@ -17,16 +17,56 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-  const { keeperPassword } = await req.json();
-  if (!checkKeeper(keeperPassword)) {
+  const { keeperPassword, auto } = await req.json();
+
+  // Two ways in. A keeper can weave on demand with the password, or the
+  // collective page can ask for one when the map has moved on since the last
+  // weaving. The automatic path is rate limited so a busy day at a convention
+  // batches up instead of paying for a weave per confirmation.
+  const AUTO_MIN_GAP_MS = 30 * 60 * 1000;
+  if (!auto && !checkKeeper(keeperPassword)) {
     return NextResponse.json({ error: "keeper password required" }, { status: 403 });
   }
 
   const admin = createAdminClient();
+
+  // The automatic path is not a way around the password — it is only allowed to
+  // do something a keeper would have done anyway, and only when it is actually
+  // needed. It refuses if nothing has been confirmed since the last weaving, or
+  // if one ran recently, so a busy convention batches up instead of paying for
+  // a weave per visitor.
+  if (auto) {
+    const [{ data: lastWeave }, { data: newest }] = await Promise.all([
+      admin
+        .from("collective_syntheses")
+        .select("created_at")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      admin
+        .from("vision_profiles")
+        .select("confirmed_at")
+        .eq("status", "confirmed")
+        .order("confirmed_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    ]);
+
+    const wovenAt = lastWeave?.created_at ? new Date(lastWeave.created_at).getTime() : 0;
+    const confirmedAt = newest?.confirmed_at ? new Date(newest.confirmed_at).getTime() : 0;
+
+    if (confirmedAt <= wovenAt) {
+      return NextResponse.json({ ok: true, skipped: "nothing new since the last weaving" });
+    }
+    if (Date.now() - wovenAt < AUTO_MIN_GAP_MS) {
+      return NextResponse.json({ ok: true, skipped: "woven recently" });
+    }
+  }
+
   // !inner + is_test=false keeps sandbox identities out of the collective picture
   const { data: visions } = await admin
     .from("vision_profiles")
-    .select("confirmed, profiles!inner(display_name, is_test)")
+    .select("confirmed, profiles!vision_profiles_user_id_fkey!inner(display_name, is_test)")
     .eq("status", "confirmed")
     .eq("profiles.is_test", false);
 
@@ -74,7 +114,7 @@ export async function POST(req: NextRequest) {
     member_count: visions.length,
     model: MODEL,
     by_name: profile?.display_name ?? "unknown",
-    via: "keeper_password",
+    via: auto ? "auto_stale" : "keeper_password",
   });
 
   return NextResponse.json({ ok: true });

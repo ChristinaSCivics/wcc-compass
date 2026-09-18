@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { TopNav } from "@/components/TopNav";
 import { WeaveButton } from "./WeaveButton";
 import { scrubNames } from "@/lib/anonymize";
+import { AutoWeave } from "@/components/AutoWeave";
 
 /** The collective map: who's on it, and Prism's latest weaving of all confirmed visions. */
 export default async function CollectivePage() {
@@ -12,8 +13,14 @@ export default async function CollectivePage() {
   const admin = createAdminClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const [{ data: weaves }, { data: mine }, { count: totalCount }, { data: roster }] =
-    await Promise.all([
+  const [
+    { data: weaves },
+    { data: mine },
+    { count: totalCount },
+    { data: roster },
+    { count: onBehalfCount },
+    { data: newestConfirmed },
+  ] = await Promise.all([
       supabase
         .from("collective_syntheses")
         .select("*")
@@ -25,15 +32,39 @@ export default async function CollectivePage() {
       // Bypasses RLS, but only ever returns a count — never leaks who's hidden.
       admin
         .from("vision_profiles")
-        .select("id, profiles!inner(is_test)", { count: "exact", head: true })
+        .select("id, profiles!vision_profiles_user_id_fkey!inner(is_test)", { count: "exact", head: true })
         .eq("status", "confirmed")
         .eq("profiles.is_test", false),
       // Names, used only to scrub them back out of weaves stored before the
       // weave route started doing it at write time.
       admin.from("profiles").select("display_name"),
+      // How many voices were placed by a keeper and are still waiting for the
+      // person to make them their own.
+      admin
+        .from("vision_profiles")
+        .select("id, profiles!vision_profiles_user_id_fkey!inner(is_test)", {
+          count: "exact",
+          head: true,
+        })
+        .eq("status", "confirmed")
+        .eq("profiles.is_test", false)
+        .not("confirmed_by", "is", null),
+      admin
+        .from("vision_profiles")
+        .select("confirmed_at")
+        .eq("status", "confirmed")
+        .order("confirmed_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
     ]);
 
   const isConfirmed = mine?.status === "confirmed";
+  // Voices have joined since this weaving, so it no longer reflects the map.
+  const stale =
+    !!newestConfirmed?.confirmed_at &&
+    (!weaves?.[0]?.created_at ||
+      new Date(newestConfirmed.confirmed_at).getTime() >
+        new Date(weaves[0].created_at).getTime());
   const weave = weaves?.[0];
   const c = scrubNames(
     (weave?.content ?? null) as any,
@@ -43,6 +74,7 @@ export default async function CollectivePage() {
   return (
     <>
     <TopNav />
+    <AutoWeave stale={stale} />
     <main className="min-h-screen max-w-3xl mx-auto w-full px-6 py-10 horizon">
       <h1 className="text-4xl mb-3">The collective vision</h1>
       <p className="text-muted mb-8 max-w-xl leading-relaxed">
@@ -64,7 +96,19 @@ export default async function CollectivePage() {
                   <Link href="/journey" className="text-accent">begin here</Link>.
                 </>
               ) : (totalCount ?? 0) > 0 ? (
-                "Every vision here is anonymous — the threads are shared, the names are not."
+                <>
+                  Every vision here is anonymous — the threads are shared, the names are
+                  not.
+                  {(onBehalfCount ?? 0) > 0 && (
+                    <>
+                      {" "}
+                      {onBehalfCount} of them {onBehalfCount === 1 ? "was" : "were"} drafted
+                      from a conversation and placed here by a keeper, and {onBehalfCount === 1 ? "is" : "are"}{" "}
+                      still waiting for that person to confirm {onBehalfCount === 1 ? "it" : "them"} as
+                      their own.
+                    </>
+                  )}
+                </>
               ) : (
                 <>
                   Be the first —{" "}
@@ -76,6 +120,12 @@ export default async function CollectivePage() {
           <WeaveButton hasVisions={(totalCount ?? 0) > 0} />
         </div>
       </section>
+
+      {stale && weave && (
+        <p className="text-sm text-muted mb-6">
+          Voices have joined since this weaving — a fresh one is being prepared.
+        </p>
+      )}
 
       {!weave && (
         <p className="text-sm text-muted">
