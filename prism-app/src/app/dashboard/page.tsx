@@ -146,15 +146,22 @@ export default async function Dashboard() {
         </div>
       )}
 
-      {/* The exit action shouldn't live three pages deep — anyone who hasn't
-          asked for the call yet can do it from here. */}
-      {!signup && (
+      {/* One ask at a time. Two email forms stacked on top of each other read
+          as nagging, and they compete: "save my spot" protects work already
+          done, the mastermind invites you to something next. So: ask for the
+          call once someone has actually given something — and only if they
+          haven't already been asked at the end of their conversation. For an
+          anonymous visitor the more urgent thing is that their work is living
+          in one browser, so that ask wins. */}
+      {confirmedVision && !signup ? (
         <div className="mt-6">
           <MastermindSignup when={mastermindDate()} compact />
         </div>
-      )}
-
-      {user!.is_anonymous && <div className="mt-6"><SaveSpot /></div>}
+      ) : user!.is_anonymous ? (
+        <div className="mt-6">
+          <SaveSpot />
+        </div>
+      ) : null}
 
       {/* ---- everything else, deliberately quiet ---- */}
       <nav className="mt-12 pt-6 border-t border-borderline">
