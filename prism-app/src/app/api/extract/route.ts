@@ -67,11 +67,22 @@ export async function POST(req: NextRequest) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     await audit("decision_input.drafted", "decision", conversation.decision_id, user.id, {});
   } else {
+    // Re-drafting must never un-confirm someone. Drafting again after
+    // confirming used to flip status back to "draft", which silently dropped
+    // that person out of the weave (it filters status = 'confirmed') with no
+    // sign anything had happened. Keep the confirmed state; the newer draft is
+    // stored alongside it and surfaced on /vision for review.
+    const { data: existing } = await supabase
+      .from("vision_profiles")
+      .select("status")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
     const { error } = await supabase.from("vision_profiles").upsert(
       {
         user_id: user.id,
         draft,
-        status: "draft",
+        status: existing?.status === "confirmed" ? "confirmed" : "draft",
         updated_at: new Date().toISOString(),
         prompt_version: conversation.prompt_version,
       },

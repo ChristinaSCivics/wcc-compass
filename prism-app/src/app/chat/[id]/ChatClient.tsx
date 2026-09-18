@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PrismMark } from "@/components/PrismMark";
 import { FeedbackWidget } from "@/components/FeedbackWidget";
+import { ConversationProgress } from "@/components/ConversationProgress";
 
 type Msg = { id?: string; role: "user" | "assistant"; content: string };
 
@@ -26,16 +27,55 @@ export function ChatClient({
   const [finishing, setFinishing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const autoDrafted = useRef(false);
+  const opened = useRef(false);
+  // Exchange count the banked background draft reflects, so Finish can skip a
+  // second identical extraction when nothing has been said since.
+  const draftedAt = useRef<number | null>(null);
+
+  // Where most people finish. Also the point past which we quietly bank a draft.
+  const TYPICAL = kind === "decision" ? 6 : 7;
+  const exchanges = messages.filter((m) => m.role === "user").length;
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Prism opens the conversation if it's brand new
+  // Prism opens the conversation if it's brand new.
+  // The ref guard matters: this effect is invoked twice under React's dev
+  // StrictMode, and `busy` has not flushed by the second call, so the opener
+  // was being sent twice — a visitor's first impression was Prism greeting
+  // them twice over, with a stray "Hello" bubble of their own.
   useEffect(() => {
+    if (opened.current) return;
+    opened.current = true;
     if (initialMessages.length === 0) void send("Hello");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // A conversation that is never "finished" used to produce nothing at all —
+  // one tester talked for 27 messages and no draft was ever written, because
+  // drafting only happened on an explicit button press she never found. Once
+  // there's clearly enough to work with, bank a draft in the background so the
+  // work survives even if she closes the tab. Silent by design: it does not
+  // navigate, and it never touches an already-confirmed vision.
+  useEffect(() => {
+    if (autoDrafted.current || busy || finishing) return;
+    if (exchanges < TYPICAL) return;
+    autoDrafted.current = true;
+    const at = exchanges;
+    void fetch("/api/extract", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ conversationId }),
+    })
+      .then((r) => {
+        if (r.ok) draftedAt.current = at;
+      })
+      .catch(() => {
+        // Best-effort only. The explicit Finish button remains the real path.
+      });
+  }, [exchanges, busy, finishing, conversationId, TYPICAL]);
 
   /** Put a notice in the trailing assistant bubble, or add one if there isn't a blank one. */
   function notice(text: string) {
@@ -103,6 +143,14 @@ export function ChatClient({
     if (finishing) return;
     setFinishing(true);
     setError(null);
+
+    // A background draft already covers everything said so far — re-extracting
+    // would burn another ten seconds to produce the same thing.
+    if (draftedAt.current !== null && draftedAt.current === exchanges) {
+      router.push(kind === "decision" ? `/decisions/${decisionId}/confirm` : "/vision");
+      return;
+    }
+
     try {
       const res = await fetch("/api/extract", {
         method: "POST",
@@ -135,7 +183,7 @@ export function ChatClient({
           className="flex items-center gap-3 group"
         >
           <PrismMark />
-          <span className="text-sm text-muted group-hover:text-gold transition-colors">
+          <span className="text-sm text-muted group-hover:text-accent transition-colors">
             ← {kind === "decision" ? "Back to the decision" : "Your vision — with Prism"}
           </span>
         </Link>
@@ -145,16 +193,47 @@ export function ChatClient({
           <button
             onClick={finish}
             disabled={finishing || busy}
-            className={`text-sm border border-gold rounded-full px-4 py-1.5 transition-all disabled:opacity-40 ${
-              messages.length >= (kind === "decision" ? 10 : 14)
-                ? "bg-gold text-background hover:bg-gold-soft"
-                : "text-gold hover:bg-gold hover:text-background"
+            className={`text-sm border border-accent rounded-full px-4 py-1.5 transition-all disabled:opacity-40 ${
+              exchanges >= TYPICAL
+                ? "bg-accent text-background hover:bg-accent-soft"
+                : "text-accent hover:bg-accent hover:text-background"
             }`}
           >
             {finishing ? "Prism is drafting…" : "Finish & review draft"}
           </button>
         )}
       </header>
+
+      {messages.length >= 2 && (
+        <ConversationProgress
+          exchanges={exchanges}
+          typical={TYPICAL}
+          onFinish={finish}
+          disabled={finishing || busy}
+        />
+      )}
+
+      {finishing && (
+        <div
+          className="fixed inset-0 z-40 bg-background/85 backdrop-blur-sm flex items-center justify-center px-6"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="text-center max-w-sm">
+            <div className="mx-auto w-fit animate-pulse">
+              <PrismMark size={44} />
+            </div>
+            <p className="mt-5 text-lg">Prism is writing up your vision…</p>
+            <p className="mt-2 text-sm text-muted leading-relaxed">
+              It&apos;s reading back everything you said, in your own words. This usually
+              takes about ten seconds.
+            </p>
+            <div className="mt-5 h-1 w-full rounded-full bg-borderline overflow-hidden">
+              <div className="h-full w-1/3 rounded-full bg-accent animate-[drift_1.4s_ease-in-out_infinite]" />
+            </div>
+          </div>
+        </div>
+      )}
 
       {error && (
         <p className="mx-6 mt-4 rounded-lg border border-red-400/40 bg-red-400/10 px-4 py-2 text-sm text-red-300">
@@ -173,7 +252,7 @@ export function ChatClient({
               }`}
             >
               {m.role === "assistant" && (
-                <span className="block text-xs text-gold mb-1 tracking-widest uppercase">Prism</span>
+                <span className="block text-xs text-accent mb-1 tracking-widest uppercase">Prism</span>
               )}
               {m.content || <span className="text-muted">…</span>}
             </div>
@@ -186,13 +265,13 @@ export function ChatClient({
         onSubmit={(e) => { e.preventDefault(); void send(input); }}
         className="sticky bottom-0 bg-background/90 backdrop-blur border-t border-borderline p-4 flex flex-wrap gap-3"
       >
-        {messages.length >= (kind === "decision" ? 6 : 10) && !finishing && (
+        {messages.length >= 2 && !finishing && (
           <p className="w-full text-xs text-muted text-center -mt-1">
-            Go as deep as you like — and whenever it feels complete, press{" "}
-            <button type="button" onClick={finish} className="text-gold underline">
-              Finish &amp; review draft
+            Stop whenever you like —{" "}
+            <button type="button" onClick={finish} className="text-accent underline">
+              finish and review your draft
             </button>
-            . You can always return.
+            . Nothing is lost, and you can always come back and go deeper.
           </p>
         )}
         <textarea
@@ -207,13 +286,13 @@ export function ChatClient({
           rows={2}
           placeholder={busy ? "Prism is listening…" : "Speak freely…"}
           className="flex-1 bg-surface border border-borderline rounded-xl px-4 py-3 resize-none
-                     focus:outline-none focus:border-gold transition-colors"
+                     focus:outline-none focus:border-accent transition-colors"
         />
         <button
           type="submit"
           disabled={busy || !input.trim()}
-          className="self-end border border-gold text-gold rounded-xl px-5 py-3
-                     hover:bg-gold hover:text-background transition-all disabled:opacity-40"
+          className="self-end border border-accent text-accent rounded-xl px-5 py-3
+                     hover:bg-accent hover:text-background transition-all disabled:opacity-40"
         >
           Send
         </button>

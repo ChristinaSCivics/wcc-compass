@@ -37,8 +37,8 @@ export function NewDecisionForm() {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="border border-gold text-gold rounded-full px-6 py-2 text-sm
-                   hover:bg-gold hover:text-background transition-all"
+        className="border border-accent text-accent rounded-full px-6 py-2 text-sm
+                   hover:bg-accent hover:text-background transition-all"
       >
         ⚿ Open a decision for the circle
       </button>
@@ -46,14 +46,14 @@ export function NewDecisionForm() {
   }
 
   return (
-    <form onSubmit={create} className="rounded-xl border border-gold bg-surface-raised p-6 space-y-4 fade-up">
+    <form onSubmit={create} className="rounded-xl border border-accent bg-surface-raised p-6 space-y-4 fade-up">
       <input
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         required
         placeholder="What are we deciding? (e.g., What legal structure do we start with?)"
         className="w-full bg-surface border border-borderline rounded-lg px-4 py-3
-                   focus:outline-none focus:border-gold"
+                   focus:outline-none focus:border-accent"
       />
       <textarea
         value={description}
@@ -61,14 +61,14 @@ export function NewDecisionForm() {
         rows={3}
         placeholder="Context the circle should know…"
         className="w-full bg-surface border border-borderline rounded-lg px-4 py-3
-                   focus:outline-none focus:border-gold"
+                   focus:outline-none focus:border-accent"
       />
       <div className="flex gap-3">
         <button
           type="submit"
           disabled={busy}
-          className="border border-gold text-gold rounded-lg px-6 py-2
-                     hover:bg-gold hover:text-background transition-all disabled:opacity-40"
+          className="border border-accent text-accent rounded-lg px-6 py-2
+                     hover:bg-accent hover:text-background transition-all disabled:opacity-40"
         >
           {busy ? "Opening…" : "Open decision"}
         </button>

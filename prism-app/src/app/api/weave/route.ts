@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { audit } from "@/lib/audit";
 import { checkKeeper } from "@/lib/keeper";
 import { WEAVE_PROMPT } from "@/lib/prompts/collective";
+import { scrubNames } from "@/lib/anonymize";
 
 export const maxDuration = 300;
 
@@ -25,16 +26,20 @@ export async function POST(req: NextRequest) {
   // !inner + is_test=false keeps sandbox identities out of the collective picture
   const { data: visions } = await admin
     .from("vision_profiles")
-    .select("confirmed, profiles!inner(is_test)")
+    .select("confirmed, profiles!inner(display_name, is_test)")
     .eq("status", "confirmed")
     .eq("profiles.is_test", false);
+
+  // The roster, used only to scrub names back out of the weave (below).
+  const { data: roster } = await admin.from("profiles").select("display_name");
+  const names = (roster ?? []).map((p) => p.display_name as string | null);
 
   if (!visions?.length) {
     return NextResponse.json({ error: "no confirmed visions on the map yet" }, { status: 400 });
   }
 
-  // Anonymous positional labels only — real names never enter the prompt or the
-  // stored weave, so the collective picture can't be attributed to individuals.
+  // Positional labels only. Note this is NOT sufficient on its own: names also
+  // occur inside the vision text people wrote, so the output is scrubbed below.
   const block = visions
     .map((v, i) => `### Voice ${i + 1}\n${JSON.stringify(v.confirmed, null, 2)}`)
     .join("\n\n");
@@ -54,6 +59,9 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: "weave did not return valid JSON" }, { status: 502 });
   }
+
+  // Backstop for the prompt's no-names rule — an instruction is not enforcement.
+  content = scrubNames(content, names);
 
   const { error } = await admin
     .from("collective_syntheses")

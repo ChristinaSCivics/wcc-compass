@@ -60,7 +60,7 @@ export function WhereYouMeet({
 
       {openDecisions.length > 0 && (
         <div>
-          <span className="block text-sm text-gold tracking-widest uppercase mb-2">
+          <span className="block text-sm text-accent tracking-widest uppercase mb-2">
             What you could do now
           </span>
           <ul className="space-y-2">
@@ -69,7 +69,7 @@ export function WhereYouMeet({
                 <Link
                   href={`/decisions/${d.id}`}
                   className="block rounded-lg border border-borderline bg-surface-raised p-4
-                             hover:border-gold transition-colors"
+                             hover:border-accent transition-colors"
                 >
                   <span className="block">{d.title}</span>
                   <span className="block text-sm text-muted mt-0.5">

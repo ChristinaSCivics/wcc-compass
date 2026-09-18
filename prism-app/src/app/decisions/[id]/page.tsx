@@ -14,18 +14,9 @@ export default async function DecisionPage({ params }: { params: Promise<{ id: s
   const admin = createAdminClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const [{ data: decision }, { data: inputs }, { data: myInput }, { data: myConvo }, { count: totalInputCount }] =
+  const [{ data: decision }, { data: myInput }, { data: myConvo }, { count: totalInputCount }] =
     await Promise.all([
       supabase.from("decisions").select("*").eq("id", id).single(),
-      // RLS-gated: only returns other stakeholders' inputs once the viewer has
-      // confirmed their own, and excludes anyone who's chosen to hide theirs.
-      // Sandbox identities (is_test) are never counted among the voices.
-      supabase
-        .from("decision_inputs")
-        .select("user_id, confirmed, needs, profiles!inner(display_name, is_test)")
-        .eq("decision_id", id)
-        .eq("confirmed", true)
-        .eq("profiles.is_test", false),
       supabase
         .from("decision_inputs")
         .select("confirmed, hidden")
@@ -54,12 +45,12 @@ export default async function DecisionPage({ params }: { params: Promise<{ id: s
     <>
     <TopNav />
     <main className="min-h-screen max-w-3xl mx-auto w-full px-6 py-10">
-      <Link href="/decisions" className="text-sm text-muted hover:text-gold transition-colors">
+      <Link href="/decisions" className="text-sm text-muted hover:text-accent transition-colors">
         ← All decisions
       </Link>
 
       <div className="mt-6" />
-      <span className="text-xs text-gold tracking-widest uppercase">{decision.status}</span>
+      <span className="text-xs text-accent tracking-widest uppercase">{decision.status}</span>
       <h1 className="text-4xl mt-2 mb-4">{decision.title}</h1>
       {decision.description && (
         <p className="text-muted leading-relaxed mb-8">{decision.description}</p>
@@ -76,18 +67,13 @@ export default async function DecisionPage({ params }: { params: Promise<{ id: s
         </h2>
         {!myInput?.confirmed ? (
           <p className="text-sm text-muted">
-            Submit your input to see who else has confirmed theirs.
+            Add your voice to see the synthesis across everyone who has.
           </p>
-        ) : inputs?.length ? (
-          <ul className="text-sm text-muted space-y-1">
-            {inputs.map((i) => {
-              const p = i.profiles as unknown as { display_name: string } | null;
-              return <li key={i.user_id}>◈ {p?.display_name ?? "member"} — confirmed</li>;
-            })}
-          </ul>
         ) : (totalInputCount ?? 0) > 0 ? (
           <p className="text-sm text-muted">
-            Others have confirmed, but have chosen to keep their names private.
+            {totalInputCount} {totalInputCount === 1 ? "person has" : "people have"} confirmed
+            their input. Positions here are unattributed — what was said matters, who said
+            it doesn&apos;t.
           </p>
         ) : (
           <p className="text-sm text-muted">No confirmed inputs yet.</p>
@@ -117,8 +103,8 @@ export default async function DecisionPage({ params }: { params: Promise<{ id: s
       )}
 
       {decision.outcome != null && (
-        <section className="rounded-xl border border-gold bg-surface-raised p-6 mt-8 gold-glow">
-          <h2 className="text-lg mb-2 text-gold">Ratified outcome</h2>
+        <section className="rounded-xl border border-accent bg-surface-raised p-6 mt-8 accent-glow">
+          <h2 className="text-lg mb-2 text-accent">Ratified outcome</h2>
           <p className="mb-2">{(decision.outcome as { chosen_option?: string }).chosen_option}</p>
           <p className="text-sm text-muted">
             {(decision.outcome as { rationale?: string }).rationale}

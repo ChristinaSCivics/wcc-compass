@@ -87,7 +87,7 @@ export default function Members() {
       </p>
       <p className="text-sm text-muted mb-8">
         To walk the system without touching the collective, enter through{" "}
-        <a href="/login?test=1" className="text-gold underline">
+        <a href="/login?test=1" className="text-accent underline">
           /login?test=1
         </a>{" "}
         — that identity is sandboxed from the start.
@@ -122,7 +122,7 @@ export default function Members() {
 function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div>
-      <span className="text-2xl text-gold tabular-nums">{value}</span>
+      <span className="text-2xl text-accent tabular-nums">{value}</span>
       <span className="text-muted ml-2">{label}</span>
     </div>
   );
@@ -143,7 +143,7 @@ function Table({
           className="flex items-baseline gap-4 border-b border-borderline py-3 text-sm flex-wrap"
         >
           <div className="flex-1 min-w-[12rem]">
-            <span className={m.isTest ? "text-muted" : "text-gold"}>{m.name}</span>
+            <span className={m.isTest ? "text-muted" : "text-accent"}>{m.name}</span>
             {m.saved && <span className="text-xs text-muted ml-2">· saved spot</span>}
             {m.role !== "member" && (
               <span className="text-xs text-muted ml-2">· {m.role}</span>
@@ -158,7 +158,7 @@ function Table({
           <div className="text-xs text-muted shrink-0 w-40">
             <div>
               vision:{" "}
-              <span className={m.visionStatus === "confirmed" ? "text-gold" : ""}>
+              <span className={m.visionStatus === "confirmed" ? "text-accent" : ""}>
                 {m.visionStatus}
               </span>
               {m.visionHidden && " (hidden)"}
@@ -173,7 +173,7 @@ function Table({
             onClick={() => onFlag(m)}
             disabled={pending === m.id}
             className="text-xs border border-borderline rounded-full px-3 py-1 shrink-0
-                       hover:border-gold hover:text-gold transition-all disabled:opacity-40"
+                       hover:border-accent hover:text-accent transition-all disabled:opacity-40"
           >
             {pending === m.id ? "…" : m.isTest ? "Mark as real" : "Mark as test"}
           </button>

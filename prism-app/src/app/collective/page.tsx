@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { TopNav } from "@/components/TopNav";
 import { WeaveButton } from "./WeaveButton";
+import { scrubNames } from "@/lib/anonymize";
 
 /** The collective map: who's on it, and Prism's latest weaving of all confirmed visions. */
 export default async function CollectivePage() {
@@ -11,17 +12,8 @@ export default async function CollectivePage() {
   const admin = createAdminClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const [{ data: visions }, { data: weaves }, { data: mine }, { count: totalCount }] =
+  const [{ data: weaves }, { data: mine }, { count: totalCount }, { data: roster }] =
     await Promise.all([
-      // RLS-gated: only returns names once the viewer has confirmed their own
-      // vision, and excludes anyone who's chosen to hide theirs. Sandbox
-      // identities (is_test) never appear on the map.
-      supabase
-        .from("vision_profiles")
-        .select("confirmed, confirmed_at, profiles!inner(display_name, is_test)")
-        .eq("status", "confirmed")
-        .eq("profiles.is_test", false)
-        .order("confirmed_at", { ascending: true }),
       supabase
         .from("collective_syntheses")
         .select("*")
@@ -36,11 +28,17 @@ export default async function CollectivePage() {
         .select("id, profiles!inner(is_test)", { count: "exact", head: true })
         .eq("status", "confirmed")
         .eq("profiles.is_test", false),
+      // Names, used only to scrub them back out of weaves stored before the
+      // weave route started doing it at write time.
+      admin.from("profiles").select("display_name"),
     ]);
 
   const isConfirmed = mine?.status === "confirmed";
   const weave = weaves?.[0];
-  const c = (weave?.content ?? null) as any;
+  const c = scrubNames(
+    (weave?.content ?? null) as any,
+    (roster ?? []).map((p) => p.display_name as string | null)
+  );
 
   return (
     <>
@@ -63,18 +61,14 @@ export default async function CollectivePage() {
               {!isConfirmed ? (
                 <>
                   Share your vision to see who else is here —{" "}
-                  <Link href="/journey" className="text-gold">begin here</Link>.
+                  <Link href="/journey" className="text-accent">begin here</Link>.
                 </>
-              ) : visions?.length ? (
-                visions
-                  .map((v) => (v.profiles as unknown as { display_name: string } | null)?.display_name ?? "member")
-                  .join(" · ")
               ) : (totalCount ?? 0) > 0 ? (
-                "Others are on the map, but have chosen to keep their names private."
+                "Every vision here is anonymous — the threads are shared, the names are not."
               ) : (
                 <>
                   Be the first —{" "}
-                  <Link href="/journey" className="text-gold">share your vision</Link>
+                  <Link href="/journey" className="text-accent">share your vision</Link>
                 </>
               )}
             </p>
@@ -92,8 +86,8 @@ export default async function CollectivePage() {
 
       {c && (
         <div className="space-y-6 fade-up">
-          <section className="rounded-xl border border-gold bg-surface-raised p-8 gold-glow">
-            <p className="text-xs text-gold tracking-widest uppercase mb-3">
+          <section className="rounded-xl border border-accent bg-surface-raised p-8 accent-glow">
+            <p className="text-xs text-accent tracking-widest uppercase mb-3">
               Woven from {weave.member_count} {weave.member_count === 1 ? "voice" : "voices"} ·{" "}
               {new Date(weave.created_at).toLocaleDateString()}
             </p>
@@ -104,9 +98,13 @@ export default async function CollectivePage() {
             <Block title="Threads we share">
               {c.shared_threads.map((t: any, i: number) => (
                 <div key={i} className="mb-4 last:mb-0">
-                  <p className="text-gold">{t.thread}</p>
+                  <p className="text-accent">{t.thread}</p>
                   <p className="text-sm text-muted italic mt-1">&ldquo;{t.in_their_words}&rdquo;</p>
-                  <p className="text-xs text-muted mt-1">— {t.carried_by?.join(", ")}</p>
+                  {t.carried_by && (
+                    <p className="text-xs text-muted mt-1">
+                      — {Array.isArray(t.carried_by) ? `${t.carried_by.length} voices` : t.carried_by}
+                    </p>
+                  )}
                 </div>
               ))}
             </Block>
@@ -128,7 +126,7 @@ export default async function CollectivePage() {
             <Block title="The many ways we want to live">
               {c.many_ways.map((w: any, i: number) => (
                 <div key={i} className="mb-3 last:mb-0">
-                  <p><span className="text-gold">{w.whose}:</span> {w.way}</p>
+                  <p><span className="text-accent">{w.whose}:</span> {w.way}</p>
                   <p className="text-sm text-muted mt-0.5">{w.essence}</p>
                 </div>
               ))}
@@ -150,7 +148,7 @@ export default async function CollectivePage() {
             <Block title="Questions this raises">
               <ul className="space-y-2 text-sm">
                 {c.emerging_questions.map((q: string, i: number) => (
-                  <li key={i} className="flex gap-2"><span className="text-gold">◈</span>{q}</li>
+                  <li key={i} className="flex gap-2"><span className="text-accent">◈</span>{q}</li>
                 ))}
               </ul>
             </Block>

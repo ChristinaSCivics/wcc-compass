@@ -38,7 +38,7 @@ export function FeedbackWidget() {
           className="w-72 rounded-xl border border-borderline bg-surface-raised p-4 shadow-xl fade-up"
         >
           {state === "sent" ? (
-            <p className="text-sm text-gold text-center py-4">
+            <p className="text-sm text-accent text-center py-4">
               Received — thank you for building this with us. ◈
             </p>
           ) : (
@@ -53,13 +53,13 @@ export function FeedbackWidget() {
                 rows={3}
                 placeholder="Tell us anything…"
                 className="w-full bg-surface border border-borderline rounded-lg px-3 py-2 text-sm
-                           focus:outline-none focus:border-gold transition-colors"
+                           focus:outline-none focus:border-accent transition-colors"
               />
               <button
                 type="submit"
                 disabled={state === "sending" || !message.trim()}
-                className="mt-2 w-full border border-gold text-gold rounded-lg py-1.5 text-sm
-                           hover:bg-gold hover:text-background transition-all disabled:opacity-40"
+                className="mt-2 w-full border border-accent text-accent rounded-lg py-1.5 text-sm
+                           hover:bg-accent hover:text-background transition-all disabled:opacity-40"
               >
                 {state === "sending" ? "Sending…" : "Send"}
               </button>
@@ -69,8 +69,8 @@ export function FeedbackWidget() {
       )}
       <button
         onClick={() => setOpen((o) => !o)}
-        className="rounded-full border border-gold bg-surface-raised px-6 py-3 text-sm text-gold
-                   hover:bg-gold hover:text-background transition-all shadow-lg gold-glow"
+        className="rounded-full border border-accent bg-surface-raised px-6 py-3 text-sm text-accent
+                   hover:bg-accent hover:text-background transition-all shadow-lg accent-glow"
       >
         {open ? "Close" : "✎ Feedback"}
       </button>

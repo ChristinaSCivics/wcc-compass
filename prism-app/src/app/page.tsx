@@ -1,54 +1,127 @@
 import Link from "next/link";
-import { PrismMark } from "@/components/PrismMark";
+import { WccLogo, WccMark } from "@/components/WccLogo";
+import { mastermindDate, MASTERMIND } from "@/lib/mastermind";
 
+/**
+ * The hero holds three things and nothing else: the mark, the question, the
+ * way in. Everything that used to sit under the button — the early-demo
+ * notice, the mastermind card, the reassurance line — was competing with the
+ * one action this page exists to produce, and a centred stack of seven items
+ * reads as a list of notices rather than an invitation.
+ *
+ * The mastermind now lives below the fold as its own section, which is also
+ * where it was asked to go: bottom of the page, and Prism raises it at the end
+ * of a conversation.
+ */
 export default function Landing() {
+  const when = mastermindDate();
+
   return (
-    <main className="min-h-screen flex flex-col horizon">
-      <nav className="flex items-center justify-between px-8 py-6">
+    <main className="min-h-screen flex flex-col">
+      <nav className="flex items-center justify-between px-6 sm:px-10 py-6 gap-4">
         <div className="flex items-center gap-3">
-          <PrismMark />
-          <span className="text-sm tracking-[0.2em] uppercase text-muted">
-            World Co-Creation
+          <WccLogo height={30} />
+          <span className="text-[10px] tracking-[0.18em] uppercase text-amber/80 whitespace-nowrap">
+            v0.1
           </span>
         </div>
-        <div className="flex items-center gap-6">
-          <Link
-            href="/about"
-            className="text-sm text-muted hover:text-gold transition-colors"
-          >
-            About the prototype
+        <div className="flex items-center gap-6 shrink-0 text-sm">
+          <Link href="/about" className="text-muted hover:text-accent transition-colors">
+            What this is
           </Link>
-          <Link
-            href="/login"
-            className="text-sm text-gold hover:text-foreground transition-colors"
-          >
+          <Link href="/login" className="text-accent hover:text-foreground transition-colors">
             Enter →
           </Link>
         </div>
       </nav>
 
-      <section className="flex-1 flex flex-col items-center justify-center text-center px-6 fade-up">
-        <PrismMark size={64} />
-        <h1 className="mt-8 text-5xl md:text-6xl max-w-3xl leading-tight">
-          A world that works <span className="text-gold italic">for all</span>
-        </h1>
-        <p className="mt-6 max-w-xl text-muted text-lg leading-relaxed">
-          The Compass is a new way for people to think together — beginning with a
-          simple question: how do <em>you</em> actually want to live?
-        </p>
-        <Link
-          href="/login"
-          className="mt-10 px-8 py-3 border border-gold text-gold rounded-full
-                     hover:bg-gold hover:text-background transition-all gold-glow"
+      {/* ---- the fold: one question, one way in ---- */}
+      <section className="relative flex-1 min-h-[calc(100dvh-6rem)] flex flex-col justify-center
+                          px-6 sm:px-10 pb-20 horizon fade-up overflow-hidden">
+        {/* Brand presence without another line in the stack. */}
+        <div
+          className="pointer-events-none absolute -right-16 sm:right-4 top-1/2 -translate-y-1/2
+                     opacity-[0.07] hidden sm:block"
+          aria-hidden
         >
-          Begin the conversation
-        </Link>
-        <p className="mt-16 text-xs text-muted">
-          Founding-circle prototype ·{" "}
-          <Link href="/about" className="underline hover:text-gold transition-colors">
-            what this is &amp; how it works
-          </Link>
-        </p>
+          <WccMark size={460} />
+        </div>
+
+        <div className="relative max-w-4xl mx-auto w-full">
+          <h1 className="text-[2.75rem] sm:text-6xl lg:text-7xl leading-[1.05] max-w-3xl">
+            How do <span className="text-accent italic">you</span> actually want to live?
+          </h1>
+
+          <p className="mt-7 text-lg sm:text-xl text-muted max-w-lg leading-relaxed">
+            Almost nobody gets asked. Tell us, and we&apos;ll show you what you turn out
+            to share with everyone else who did.
+          </p>
+
+          <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
+            <Link
+              href="/login"
+              className="px-10 py-4 bg-accent text-background text-lg rounded-full
+                         hover:bg-accent-soft transition-all accent-glow"
+            >
+              Share your vision
+            </Link>
+            <span className="text-sm text-muted">
+              A few minutes. Stop whenever you like.
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* ---- below the fold ---- */}
+      <section className="border-t border-borderline px-6 sm:px-10 py-16">
+        <div className="max-w-4xl mx-auto w-full grid gap-10 sm:grid-cols-2">
+          <div>
+            <span className="block text-[10px] text-teal tracking-[0.18em] uppercase mb-3">
+              What happens next
+            </span>
+            <h2 className="text-2xl mb-2">Come to the first mastermind</h2>
+            <p className="text-sm text-muted leading-relaxed">
+              A group call for everyone who&apos;s been through the Compass. We open on
+              what we found we share, and go from there.
+            </p>
+            <p className="mt-4 text-sm">
+              {when ? (
+                <span className="text-foreground">{when}</span>
+              ) : (
+                <span className="text-muted">
+                  Date coming shortly — it&apos;ll be posted here first.
+                </span>
+              )}
+            </p>
+            {when && MASTERMIND.registrationUrl && (
+              <a
+                href={MASTERMIND.registrationUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block mt-4 text-sm border border-teal text-teal rounded-full
+                           px-5 py-2 hover:bg-teal hover:text-background transition-all"
+              >
+                Save my spot →
+              </a>
+            )}
+          </div>
+
+          <div className="sm:border-l sm:border-borderline sm:pl-10">
+            <span className="block text-[10px] text-amber/80 tracking-[0.18em] uppercase mb-3">
+              v0.1 · Early demo
+            </span>
+            <p className="text-sm text-muted leading-relaxed">
+              This is an early demo. It&apos;s here so you can feel what we&apos;re
+              building — the Proto-Compass is coming soon.
+            </p>
+            <Link
+              href="/about"
+              className="inline-block mt-4 text-sm text-accent hover:text-foreground transition-colors"
+            >
+              What this is &amp; how it works →
+            </Link>
+          </div>
+        </div>
       </section>
     </main>
   );

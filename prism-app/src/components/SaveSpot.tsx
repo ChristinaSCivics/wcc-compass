@@ -31,11 +31,11 @@ export function SaveSpot() {
 
   if (state === "done") {
     return (
-      <div className="rounded-xl border border-gold bg-surface-raised p-6 gold-glow fade-up">
+      <div className="rounded-xl border border-accent bg-surface-raised p-6 accent-glow fade-up">
         <h2 className="text-xl mb-1">Your spot is saved ◈</h2>
         <p className="text-sm text-muted">
           You can now return from any device — entry page → &ldquo;Have a password?&rdquo; →{" "}
-          <span className="text-gold">{email}</span>.
+          <span className="text-accent">{email}</span>.
         </p>
       </div>
     );
@@ -45,7 +45,7 @@ export function SaveSpot() {
     <div className="rounded-xl border border-borderline bg-surface p-6">
       {!open ? (
         <button onClick={() => setOpen(true)} className="text-left w-full group">
-          <h2 className="text-xl mb-1 group-hover:text-gold transition-colors">
+          <h2 className="text-xl mb-1 group-hover:text-accent transition-colors">
             Save my spot
           </h2>
           <p className="text-sm text-muted">
@@ -63,7 +63,7 @@ export function SaveSpot() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
             className="w-full bg-surface-raised border border-borderline rounded-lg px-4 py-3
-                       focus:outline-none focus:border-gold transition-colors"
+                       focus:outline-none focus:border-accent transition-colors"
           />
           <input
             type="password"
@@ -73,13 +73,13 @@ export function SaveSpot() {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Choose a password (8+ characters)"
             className="w-full bg-surface-raised border border-borderline rounded-lg px-4 py-3
-                       focus:outline-none focus:border-gold transition-colors"
+                       focus:outline-none focus:border-accent transition-colors"
           />
           <button
             type="submit"
             disabled={state === "busy"}
-            className="w-full border border-gold text-gold rounded-lg py-2.5
-                       hover:bg-gold hover:text-background transition-all disabled:opacity-40"
+            className="w-full border border-accent text-accent rounded-lg py-2.5
+                       hover:bg-accent hover:text-background transition-all disabled:opacity-40"
           >
             {state === "busy" ? "Saving…" : "Save my spot"}
           </button>

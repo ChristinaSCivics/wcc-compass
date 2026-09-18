@@ -1,13 +1,18 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { TopNav } from "@/components/TopNav";
 import { SaveSpot } from "@/components/SaveSpot";
+import { DemoBadge } from "@/components/DemoBadge";
+import { WccMark } from "@/components/WccLogo";
 import { YourPiece } from "@/components/YourPiece";
 import { WhereYouMeet } from "@/components/WhereYouMeet";
 import { echoedThreads, type CoreValue, type Weave } from "@/lib/threads";
+import { scrubNames } from "@/lib/anonymize";
 
 export default async function Dashboard() {
   const supabase = await createClient();
+  const admin = createAdminClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   const [
@@ -17,6 +22,7 @@ export default async function Dashboard() {
     { data: convos },
     { data: weaveRows },
     { data: myInputs },
+    { data: roster },
   ] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", user!.id).single(),
       supabase.from("vision_profiles").select("status, confirmed").eq("user_id", user!.id).maybeSingle(),
@@ -27,6 +33,8 @@ export default async function Dashboard() {
       supabase.from("collective_syntheses").select("content")
         .order("created_at", { ascending: false }).limit(1),
       supabase.from("decision_inputs").select("decision_id, confirmed").eq("user_id", user!.id),
+      // Names, used only to scrub them back out of the weave before display.
+      admin.from("profiles").select("display_name"),
     ]);
 
   const activeOnboarding = convos?.[0];
@@ -41,7 +49,10 @@ export default async function Dashboard() {
   const threads = confirmedVision
     ? echoedThreads(
         (Array.isArray(rawValues) ? rawValues : []) as CoreValue[],
-        (weaveRows?.[0]?.content ?? null) as Weave | null
+        scrubNames(
+          (weaveRows?.[0]?.content ?? null) as Weave | null,
+          (roster ?? []).map((p) => p.display_name as string | null)
+        )
       )
     : [];
   const answered = new Set(
@@ -51,81 +62,116 @@ export default async function Dashboard() {
     .filter((d) => d.status === "gathering" && !answered.has(d.id))
     .slice(0, 3);
 
+  // One next step, chosen by where they actually are. Everything else on this
+  // page used to be a same-sized card in the same stack, so nothing read as
+  // more important than anything else — including the only thing most people
+  // arrive needing to do.
+  const primary =
+    vision?.status === "draft"
+      ? {
+          href: "/vision",
+          eyebrow: "Waiting on you",
+          title: "Review and confirm your vision",
+          sub: "Prism drafted it from your conversation. Only you can make it true — edit anything, then confirm.",
+          cta: "Review the draft",
+        }
+      : vision?.status === "confirmed"
+        ? {
+            href: "/collective",
+            eyebrow: "Your vision is on the map",
+            title: "See what everyone is reaching for",
+            sub: "Prism weaves every confirmed vision into one picture — the threads we share, and the many ways we want to live.",
+            cta: "Open the collective vision",
+          }
+        : {
+            href: activeOnboarding ? `/chat/${activeOnboarding.id}` : "/journey",
+            eyebrow: activeOnboarding ? "Picked up where you left off" : "Start here",
+            title: activeOnboarding
+              ? "Continue your conversation with Prism"
+              : "Describe the life you'd actually want",
+            sub: "Dream big — completely unbounded. A few minutes, and you can stop whenever you like.",
+            cta: activeOnboarding ? "Continue" : "Begin",
+          };
+
   return (
     <>
     <TopNav />
     <main className="min-h-screen horizon px-6 py-10 max-w-3xl mx-auto w-full">
-      <h1 className="text-4xl mb-2">Welcome, {profile?.display_name}</h1>
-      <p className="text-muted mb-10">
-        {vision?.status === "confirmed"
-          ? "Your vision is part of the collective map."
-          : "The journey begins with your vision."}
-      </p>
+      <header className="flex items-start gap-4 mb-8">
+        <WccMark size={44} className="shrink-0 mt-1 hidden sm:block" />
+        <div>
+          <DemoBadge />
+          <h1 className="text-4xl mt-2">Welcome, {profile?.display_name}</h1>
+          <p className="text-muted mt-1">
+            {vision?.status === "confirmed"
+              ? "Your vision is part of the collective map."
+              : vision?.status === "draft"
+                ? "One step left — your draft is waiting."
+                : "It begins with your vision."}
+          </p>
+        </div>
+      </header>
 
-      <div className="grid gap-4">
-        <Card
-          href={activeOnboarding ? `/chat/${activeOnboarding.id}` : "/journey"}
-          title={
-            vision?.status === "confirmed"
-              ? "Revisit your vision conversation"
-              : activeOnboarding
-                ? "Continue your conversation with Prism"
-                : "Begin: describe your ideal life"
-          }
-          sub="The Global Values Survey — dream big, completely unbounded."
-        />
-        {vision?.status === "draft" && (
-          <Card
-            href="/vision"
-            title="Review & confirm your vision draft"
-            sub="Prism drafted it; only you can make it true."
-            highlight
+      {/* ---- the one thing to do next ---- */}
+      <Link
+        href={primary.href}
+        className="block rounded-2xl border border-accent bg-surface-raised p-7 accent-glow
+                   transition-all hover:bg-surface"
+      >
+        <span className="block text-[10px] text-accent tracking-[0.18em] uppercase mb-2">
+          {primary.eyebrow}
+        </span>
+        <h2 className="text-2xl mb-2">{primary.title}</h2>
+        <p className="text-sm text-muted leading-relaxed max-w-xl">{primary.sub}</p>
+        <span className="inline-block mt-5 text-sm text-accent">{primary.cta} →</span>
+      </Link>
+
+      {/* ---- what's yours ---- */}
+      {(confirmedVision || vision?.status === "confirmed") && (
+        <div className="grid gap-4 mt-6">
+          {confirmedVision && <YourPiece vision={confirmedVision} compact />}
+          {confirmedVision && (threads.length > 0 || openForYou.length > 0) && (
+            <WhereYouMeet threads={threads} openDecisions={openForYou} />
+          )}
+        </div>
+      )}
+
+      {user!.is_anonymous && <div className="mt-6"><SaveSpot /></div>}
+
+      {/* ---- everything else, deliberately quiet ---- */}
+      <nav className="mt-12 pt-6 border-t border-borderline">
+        <span className="block text-[10px] text-muted tracking-[0.18em] uppercase mb-4">
+          Elsewhere
+        </span>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {vision?.status === "confirmed" && (
+            <Tile href="/vision" title="Your vision" sub="Read, refine, re-confirm" />
+          )}
+          {vision?.status !== "confirmed" && (
+            <Tile href="/collective" title="The collective" sub="Every confirmed voice, woven" />
+          )}
+          <Tile
+            href="/decisions"
+            title="Decisions"
+            sub={`${decisions?.length ?? 0} in process`}
           />
-        )}
-        {vision?.status === "confirmed" && (
-          <Card
-            href="/vision"
-            title="Your confirmed vision"
-            sub="Read it, refine it, re-confirm it — it's yours."
-          />
-        )}
-        {confirmedVision && <YourPiece vision={confirmedVision} compact />}
-        {confirmedVision && (threads.length > 0 || openForYou.length > 0) && (
-          <WhereYouMeet threads={threads} openDecisions={openForYou} />
-        )}
-        <Card
-          href="/collective"
-          title="The collective vision"
-          sub="Every confirmed voice, woven by Prism into one living map."
-        />
-        <Card
-          href="/decisions"
-          title="Circle decisions"
-          sub={`${decisions?.length ?? 0} decision${(decisions?.length ?? 0) === 1 ? "" : "s"} in process — the all-win pilot.`}
-        />
-        <Card
-          href="/audit"
-          title="The open record"
-          sub="Every significant event, hash-chained and tamper-evident."
-        />
-        {user!.is_anonymous && <SaveSpot />}
-      </div>
+          <Tile href="/audit" title="The open record" sub="Tamper-evident, readable by all" />
+        </div>
+      </nav>
     </main>
     </>
   );
 }
 
-function Card({ href, title, sub, highlight }: {
-  href: string; title: string; sub: string; highlight?: boolean;
-}) {
+function Tile({ href, title, sub }: { href: string; title: string; sub: string }) {
   return (
     <Link
       href={href}
-      className={`block rounded-xl border p-6 transition-all hover:border-gold
-        ${highlight ? "border-gold bg-surface-raised gold-glow" : "border-borderline bg-surface"}`}
+      className="block rounded-xl border border-borderline bg-surface/60 px-4 py-3
+                 transition-colors hover:border-accent"
     >
-      <h2 className="text-xl mb-1">{title}</h2>
-      <p className="text-sm text-muted">{sub}</p>
+      <span className="block text-sm">{title}</span>
+      <span className="block text-xs text-muted mt-0.5">{sub}</span>
     </Link>
   );
 }

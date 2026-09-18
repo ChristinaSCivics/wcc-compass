@@ -21,7 +21,7 @@ export function SynthesisView({ synthesis }: { synthesis: any }) {
         <Block title="Words we're using differently">
           {synthesis.term_alignments.map((t: any, i: number) => (
             <div key={i} className="text-sm mb-2">
-              <span className="text-gold">{t.term}</span>
+              <span className="text-prism">{t.term}</span>
               <span className="text-muted"> — {t.definitions_in_play?.join(" · ")}</span>
               {t.is_conflict_terminological && (
                 <span className="text-muted italic"> (likely a language conflict, not a real one)</span>
@@ -35,7 +35,7 @@ export function SynthesisView({ synthesis }: { synthesis: any }) {
         <Block title="Genuine conflicts — named honestly">
           {synthesis.genuine_conflicts.map((c: any, i: number) => (
             <div key={i} className="text-sm mb-3">
-              <p className="text-gold">{c.between?.join(" ↔ ")}</p>
+              <p className="text-prism">{c.between?.join(" ↔ ")}</p>
               <p className="text-muted">{c.why_it_is_real}</p>
             </div>
           ))}
@@ -51,7 +51,7 @@ export function SynthesisView({ synthesis }: { synthesis: any }) {
               <p className="text-sm text-muted mb-4">{o.description}</p>
               {o.how_it_meets_each_person?.map((p: any, j: number) => (
                 <p key={j} className="text-sm mb-1">
-                  <span className="text-gold">{p.stakeholder}:</span>{" "}
+                  <span className="text-prism">{p.stakeholder}:</span>{" "}
                   {p.needs_met?.length ? `meets ${p.needs_met.join(", ")}` : "—"}
                   {p.needs_unmet?.length ? (
                     <span className="text-muted"> · unmet: {p.needs_unmet.join(", ")}</span>
@@ -64,7 +64,7 @@ export function SynthesisView({ synthesis }: { synthesis: any }) {
                 </p>
               )}
               <p className="text-sm mt-3">
-                <span className="text-gold">Golden-rule check — who is harmed:</span>{" "}
+                <span className="text-prism">Golden-rule check — who is harmed:</span>{" "}
                 <span className={o.who_is_harmed === "none identified" ? "text-muted" : "text-red-400"}>
                   {o.who_is_harmed}
                 </span>

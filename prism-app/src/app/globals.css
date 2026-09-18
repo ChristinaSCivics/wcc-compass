@@ -1,15 +1,44 @@
 @import "tailwindcss";
 
+/*
+ * World Co-Creation house palette, on a dark ground.
+ *
+ * Colours are sampled from the official WCC Framework and Orientation
+ * diagrams (public/brand/): navy #002F70, PRiSM purple #4C3493,
+ * teal #016F7B, green #056732, orange #D67201, ember #CC3F01, blue #0266BD.
+ * Those are print values on white; each is lifted here for legibility on a
+ * dark ground while keeping its hue, so the app reads as the same system.
+ *
+ * Two accents carry meaning, and the distinction is deliberate:
+ *   --accent  (blue)   The Compass — primary interactive colour.
+ *   --prism   (purple) PRiSM's own voice — its mark, its drafts, its synthesis.
+ * The category colours map to the framework's layers.
+ */
+
 :root {
-  --background: #0b0a08;
-  --surface: #14120e;
-  --surface-raised: #1c1913;
-  --border: #2b261c;
-  --foreground: #f2ece0;
-  --muted: #9c9284;
-  --gold: #d4a24e;
-  --gold-soft: #b8893a;
-  --gold-glow: rgba(212, 162, 78, 0.14);
+  /* Ground — deep navy, from the framework's darkest navy (#000F44) */
+  --background: #071226;
+  --surface: #0c1b35;
+  --surface-raised: #142645;
+  --border: #22365c;
+  --foreground: #e9effa;
+  --muted: #93a6c6;
+
+  /* The Compass — primary interactive */
+  --accent: #5b9bec;
+  --accent-soft: #3f7fd0;
+  --accent-glow: rgba(91, 155, 236, 0.16);
+
+  /* PRiSM — facilitation and synthesis */
+  --prism: #9170de;
+  --prism-soft: #7756c4;
+  --prism-glow: rgba(145, 112, 222, 0.16);
+
+  /* Framework layer colours */
+  --teal: #2fa3af;    /* WCCS — builder cohort */
+  --green: #40a96e;   /* participation & coordination */
+  --amber: #e09540;   /* local action & scaling */
+  --ember: #e2603a;   /* discourse as data */
 }
 
 @theme inline {
@@ -19,8 +48,14 @@
   --color-borderline: var(--border);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
-  --color-gold: var(--gold);
-  --color-gold-soft: var(--gold-soft);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-prism: var(--prism);
+  --color-prism-soft: var(--prism-soft);
+  --color-teal: var(--teal);
+  --color-green: var(--green);
+  --color-amber: var(--amber);
+  --color-ember: var(--ember);
   --font-sans: var(--font-inter);
   --font-serif: var(--font-fraunces);
 }
@@ -37,21 +72,25 @@ h1, h2, h3, .serif {
   letter-spacing: -0.01em;
 }
 
-.gold-glow {
-  box-shadow: 0 0 60px var(--gold-glow);
+.accent-glow {
+  box-shadow: 0 0 60px var(--accent-glow);
+}
+
+.prism-glow {
+  box-shadow: 0 0 60px var(--prism-glow);
 }
 
 .horizon {
   background: linear-gradient(
     to bottom,
     transparent 0%,
-    rgba(212, 162, 78, 0.05) 55%,
-    rgba(212, 162, 78, 0.12) 100%
+    rgba(91, 155, 236, 0.05) 55%,
+    rgba(145, 112, 222, 0.12) 100%
   );
 }
 
 ::selection {
-  background: var(--gold);
+  background: var(--accent);
   color: var(--background);
 }
 
@@ -60,3 +99,8 @@ h1, h2, h3, .serif {
   to { opacity: 1; transform: translateY(0); }
 }
 .fade-up { animation: fade-up 0.5s ease both; }
+
+@keyframes drift {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}

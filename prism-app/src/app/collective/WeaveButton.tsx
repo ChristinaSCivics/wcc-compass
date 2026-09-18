@@ -37,8 +37,8 @@ export function WeaveButton({ hasVisions }: { hasVisions: boolean }) {
       onClick={weave}
       disabled={busy}
       title="Keeper action — requires the keeper password"
-      className="border border-gold text-gold rounded-full px-5 py-2 text-sm
-                 hover:bg-gold hover:text-background transition-all disabled:opacity-40"
+      className="border border-accent text-accent rounded-full px-5 py-2 text-sm
+                 hover:bg-accent hover:text-background transition-all disabled:opacity-40"
     >
       {busy ? "Prism is weaving…" : "⚿ Ask Prism to weave the vision"}
     </button>

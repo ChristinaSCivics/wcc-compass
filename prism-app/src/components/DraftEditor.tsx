@@ -26,14 +26,25 @@ function isFlatObjectArray(v: unknown): v is Record<string, unknown>[] {
   );
 }
 
+/**
+ * Optional grouping. The first group renders open; the rest collapse into
+ * drawers. Sixteen stacked textareas made a two-minute conversation feel like
+ * a tax form — the depth is still all there, it just isn't all shouting at
+ * once. Any key not named in a group falls through to the end, so schemas this
+ * doesn't know about (decision inputs) still render in full.
+ */
+export type FieldGroup = { title: string; hint?: string; keys: string[] };
+
 export function DraftEditor({
   draft,
   onConfirm,
   confirming,
+  groups,
 }: {
   draft: Record<string, unknown>;
   onConfirm: (edited: Record<string, unknown>) => void;
   confirming: boolean;
+  groups?: FieldGroup[];
 }) {
   // simple text fields
   const [fields, setFields] = useState<Record<string, string>>(() => {
@@ -117,12 +128,17 @@ export function DraftEditor({
   // preserve the draft's field order in the UI
   const orderedKeys = Object.keys(draft);
 
-  return (
-    <div className="space-y-6">
-      {orderedKeys.map((k) =>
-        k in objArrays ? (
+  const present = (keys: string[]) => keys.filter((k) => orderedKeys.includes(k));
+  const grouped = groups?.length
+    ? groups.map((g) => ({ ...g, keys: present(g.keys) })).filter((g) => g.keys.length > 0)
+    : null;
+  const claimed = new Set(grouped?.flatMap((g) => g.keys) ?? []);
+  const leftover = orderedKeys.filter((k) => !claimed.has(k));
+
+  const renderField = (k: string) =>
+    k in objArrays ? (
           <div key={k}>
-            <label className="block text-sm text-gold tracking-widest uppercase mb-2">
+            <label className="block text-sm text-accent tracking-widest uppercase mb-2">
               {label(k)}
             </label>
             <div className="space-y-3">
@@ -147,7 +163,7 @@ export function DraftEditor({
                         onChange={(e) => setObjField(k, idx, ik, e.target.value)}
                         rows={Math.min(4, Math.max(1, iv.split("\n").length))}
                         className="w-full bg-surface-raised border border-borderline rounded-lg px-3 py-2 text-sm
-                                   focus:outline-none focus:border-gold transition-colors leading-relaxed"
+                                   focus:outline-none focus:border-accent transition-colors leading-relaxed"
                       />
                     </div>
                   ))}
@@ -156,7 +172,7 @@ export function DraftEditor({
               <button
                 type="button"
                 onClick={() => addObjItem(k)}
-                className="text-xs text-muted hover:text-gold transition-colors"
+                className="text-xs text-muted hover:text-accent transition-colors"
               >
                 + add another
               </button>
@@ -164,7 +180,7 @@ export function DraftEditor({
           </div>
         ) : k in fields ? (
           <div key={k}>
-            <label className="block text-sm text-gold tracking-widest uppercase mb-2">
+            <label className="block text-sm text-accent tracking-widest uppercase mb-2">
               {label(k)}
             </label>
             <textarea
@@ -172,10 +188,52 @@ export function DraftEditor({
               onChange={(e) => setFields((f) => ({ ...f, [k]: e.target.value }))}
               rows={Math.min(10, Math.max(2, fields[k].split("\n").length + 1))}
               className="w-full bg-surface border border-borderline rounded-xl px-4 py-3
-                         focus:outline-none focus:border-gold transition-colors leading-relaxed"
+                         focus:outline-none focus:border-accent transition-colors leading-relaxed"
             />
           </div>
-        ) : null
+        ) : null;
+
+  return (
+    <div className="space-y-6">
+      {grouped ? (
+        <>
+          {grouped.map((g, gi) =>
+            gi === 0 ? (
+              <div key={g.title} className="space-y-6">
+                {g.keys.map(renderField)}
+              </div>
+            ) : (
+              <details
+                key={g.title}
+                className="rounded-xl border border-borderline bg-surface/60 group"
+              >
+                <summary
+                  className="cursor-pointer list-none px-5 py-4 flex items-baseline justify-between gap-3
+                             hover:text-accent transition-colors"
+                >
+                  <span>
+                    <span className="block">{g.title}</span>
+                    {g.hint && (
+                      <span className="block text-xs text-muted mt-0.5">{g.hint}</span>
+                    )}
+                  </span>
+                  <span className="text-xs text-muted shrink-0 group-open:hidden">
+                    {g.keys.length} more ▾
+                  </span>
+                  <span className="text-xs text-muted shrink-0 hidden group-open:inline">
+                    close ▴
+                  </span>
+                </summary>
+                <div className="px-5 pb-5 pt-1 space-y-6">{g.keys.map(renderField)}</div>
+              </details>
+            )
+          )}
+          {leftover.length > 0 && (
+            <div className="space-y-6">{leftover.map(renderField)}</div>
+          )}
+        </>
+      ) : (
+        orderedKeys.map(renderField)
       )}
       {error && <p className="text-red-400 text-sm">{error}</p>}
       <button
@@ -185,8 +243,8 @@ export function DraftEditor({
           if (edited) onConfirm(edited);
         }}
         disabled={confirming}
-        className="w-full border border-gold text-gold rounded-xl py-4 text-lg
-                   hover:bg-gold hover:text-background transition-all gold-glow disabled:opacity-40"
+        className="w-full border border-accent text-accent rounded-xl py-4 text-lg
+                   hover:bg-accent hover:text-background transition-all accent-glow disabled:opacity-40"
       >
         {confirming ? "Recording…" : "This is true to me — confirm it"}
       </button>

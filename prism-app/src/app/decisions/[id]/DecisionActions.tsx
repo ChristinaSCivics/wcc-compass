@@ -98,8 +98,8 @@ export function DecisionActions({
           activeConversationId ? (
             <button
               onClick={() => router.push(`/chat/${activeConversationId}`)}
-              className="border border-gold text-gold rounded-full px-6 py-2
-                         hover:bg-gold hover:text-background transition-all"
+              className="border border-accent text-accent rounded-full px-6 py-2
+                         hover:bg-accent hover:text-background transition-all"
             >
               Continue my interview with Prism
             </button>
@@ -107,8 +107,8 @@ export function DecisionActions({
             <button
               onClick={startInterview}
               disabled={busy}
-              className="border border-gold text-gold rounded-full px-6 py-2
-                         hover:bg-gold hover:text-background transition-all disabled:opacity-40"
+              className="border border-accent text-accent rounded-full px-6 py-2
+                         hover:bg-accent hover:text-background transition-all disabled:opacity-40"
             >
               {busy ? "Opening…" : "Add my voice — interview with Prism"}
             </button>
@@ -124,7 +124,7 @@ export function DecisionActions({
             disabled={busy}
             title="Keeper action — requires the keeper password"
             className="border border-borderline text-muted rounded-full px-6 py-2
-                       hover:border-gold hover:text-gold transition-all disabled:opacity-40"
+                       hover:border-accent hover:text-accent transition-all disabled:opacity-40"
           >
             {busy ? "Prism is synthesizing…" : "⚿ Run Prism synthesis"}
           </button>
@@ -135,7 +135,7 @@ export function DecisionActions({
             onClick={() => setShowRatify((s) => !s)}
             title="Keeper action — requires the keeper password"
             className="border border-borderline text-muted rounded-full px-6 py-2
-                       hover:border-gold hover:text-gold transition-all"
+                       hover:border-accent hover:text-accent transition-all"
           >
             ⚿ Record the group&apos;s decision
           </button>
@@ -157,7 +157,7 @@ export function DecisionActions({
             checked={!isHidden}
             disabled={togglingVisibility}
             onChange={toggleVisibility}
-            className="w-5 h-5 accent-gold shrink-0"
+            className="w-5 h-5 accent-accent shrink-0"
           />
         </label>
       )}
@@ -165,7 +165,7 @@ export function DecisionActions({
       {showRatify && (
         <form
           onSubmit={ratify}
-          className="mt-4 rounded-xl border border-gold bg-surface-raised p-6 space-y-3 fade-up"
+          className="mt-4 rounded-xl border border-accent bg-surface-raised p-6 space-y-3 fade-up"
         >
           <p className="text-sm text-muted">
             Record what the group ratified together. This enters the permanent record
@@ -177,7 +177,7 @@ export function DecisionActions({
             required
             placeholder="The option the group chose"
             className="w-full bg-surface border border-borderline rounded-lg px-4 py-3
-                       focus:outline-none focus:border-gold"
+                       focus:outline-none focus:border-accent"
           />
           <textarea
             value={rationale}
@@ -186,13 +186,13 @@ export function DecisionActions({
             rows={3}
             placeholder="Why — the group's reasoning, including any dissent honored…"
             className="w-full bg-surface border border-borderline rounded-lg px-4 py-3
-                       focus:outline-none focus:border-gold"
+                       focus:outline-none focus:border-accent"
           />
           <button
             type="submit"
             disabled={busy}
-            className="border border-gold text-gold rounded-lg px-6 py-2
-                       hover:bg-gold hover:text-background transition-all disabled:opacity-40"
+            className="border border-accent text-accent rounded-lg px-6 py-2
+                       hover:bg-accent hover:text-background transition-all disabled:opacity-40"
           >
             {busy ? "Recording…" : "Record it"}
           </button>

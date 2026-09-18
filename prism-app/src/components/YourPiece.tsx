@@ -10,6 +10,8 @@
  * place, not only describe the world they want.
  */
 
+import Link from "next/link";
+
 type Vision = Record<string, unknown>;
 
 function str(v: unknown): string | null {
@@ -53,8 +55,14 @@ export function YourPiece({ vision, compact }: { vision: Vision; compact?: boole
   if (yourPieceIsEmpty(vision)) return null;
 
   if (compact) {
+    // Sits among cards that are all links, so it has to behave like one —
+    // it looked clickable and wasn't, which is worse than either.
     return (
-      <div className="rounded-xl border border-borderline bg-surface p-6">
+      <Link
+        href="/vision"
+        className="block rounded-xl border border-borderline bg-surface p-6
+                   transition-all hover:border-accent"
+      >
         <h2 className="text-xl mb-1">Your piece of the puzzle</h2>
         {blueprint ? (
           <p className="text-sm text-muted leading-relaxed">{blueprint}</p>
@@ -66,14 +74,15 @@ export function YourPiece({ vision, compact }: { vision: Vision; compact?: boole
             {gifts.slice(0, 4).map((g, i) => (
               <span
                 key={i}
-                className="text-xs text-gold border border-gold/40 rounded-full px-3 py-1"
+                className="text-xs text-accent border border-accent/40 rounded-full px-3 py-1"
               >
                 {g}
               </span>
             ))}
           </div>
         )}
-      </div>
+        <span className="block text-sm text-muted mt-4">Review or edit it →</span>
+      </Link>
     );
   }
 
@@ -96,7 +105,7 @@ export function YourPiece({ vision, compact }: { vision: Vision; compact?: boole
             {gifts.map((g, i) => (
               <span
                 key={i}
-                className="text-sm text-gold border border-gold/40 rounded-full px-3 py-1"
+                className="text-sm text-accent border border-accent/40 rounded-full px-3 py-1"
               >
                 {g}
               </span>
@@ -118,7 +127,7 @@ export function YourPiece({ vision, compact }: { vision: Vision; compact?: boole
 
 function Label({ children }: { children: React.ReactNode }) {
   return (
-    <span className="block text-sm text-gold tracking-widest uppercase mb-2">{children}</span>
+    <span className="block text-sm text-accent tracking-widest uppercase mb-2">{children}</span>
   );
 }
 

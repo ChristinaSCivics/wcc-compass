@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { PrismMark } from "@/components/PrismMark";
+import { WccMark } from "@/components/WccLogo";
+import { DemoBadge } from "@/components/DemoBadge";
 
 /**
  * Lightweight entry for the pilot: give us a name, and you're in.
@@ -84,12 +85,13 @@ export default function Enter() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center horizon px-6">
-      <PrismMark size={48} />
+      <WccMark size={48} />
       <h1 className="mt-6 text-3xl">Enter the Compass</h1>
+      <div className="mt-3"><DemoBadge /></div>
 
       {testMode && (
-        <div className="mt-5 w-full max-w-sm rounded-lg border border-gold/40 bg-surface-raised px-4 py-3 text-center fade-up">
-          <p className="text-xs text-gold tracking-widest uppercase">Test mode</p>
+        <div className="mt-5 w-full max-w-sm rounded-lg border border-accent/40 bg-surface-raised px-4 py-3 text-center fade-up">
+          <p className="text-xs text-accent tracking-widest uppercase">Test mode</p>
           <p className="text-sm text-muted mt-1 leading-relaxed">
             This identity walks the whole system but never joins the collective —
             it&rsquo;s left out of the weave, decision synthesis, and the member counts.
@@ -103,14 +105,14 @@ export default function Enter() {
           <p className="text-muted text-sm">Welcome back.</p>
           <button
             onClick={() => { router.push("/dashboard"); router.refresh(); }}
-            className="border border-gold text-gold rounded-lg py-3
-                       hover:bg-gold hover:text-background transition-all gold-glow"
+            className="border border-accent text-accent rounded-lg py-3
+                       hover:bg-accent hover:text-background transition-all accent-glow"
           >
             Continue as {existingName} →
           </button>
           <button
             onClick={() => setShowFresh(true)}
-            className="text-xs text-muted/60 hover:text-gold transition-colors"
+            className="text-xs text-muted/60 hover:text-accent transition-colors"
           >
             Not you? Start fresh instead
           </button>
@@ -130,20 +132,20 @@ export default function Enter() {
           onChange={(e) => setName(e.target.value)}
           placeholder="Your name or handle"
           className="bg-surface border border-borderline rounded-lg px-4 py-3 text-center
-                     focus:outline-none focus:border-gold transition-colors"
+                     focus:outline-none focus:border-accent transition-colors"
         />
         <button
           type="submit"
           disabled={busy}
-          className="border border-gold text-gold rounded-lg py-3
-                     hover:bg-gold hover:text-background transition-all gold-glow disabled:opacity-40"
+          className="border border-accent text-accent rounded-lg py-3
+                     hover:bg-accent hover:text-background transition-all accent-glow disabled:opacity-40"
         >
           {busy ? "Opening the door…" : "Enter →"}
         </button>
         {error && <p className="text-red-400 text-sm text-center">{error}</p>}
         <p className="text-xs text-muted mt-1 text-center">
           No account needed.{" "}
-          <a href="/about#privacy" className="underline hover:text-gold transition-colors">
+          <a href="/about#privacy" className="underline hover:text-accent transition-colors">
             How your words are kept
           </a>
         </p>
@@ -151,7 +153,7 @@ export default function Enter() {
 
       <button
         onClick={() => setShowReturning((s) => !s)}
-        className="mt-10 text-xs text-muted/60 hover:text-gold transition-colors"
+        className="mt-10 text-xs text-muted/60 hover:text-accent transition-colors"
       >
         {showReturning ? "Hide" : "Have a password?"}
       </button>
@@ -164,7 +166,7 @@ export default function Enter() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
             className="bg-surface border border-borderline rounded-lg px-4 py-3
-                       focus:outline-none focus:border-gold transition-colors"
+                       focus:outline-none focus:border-accent transition-colors"
           />
           <input
             type="password"
@@ -173,13 +175,13 @@ export default function Enter() {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
             className="bg-surface border border-borderline rounded-lg px-4 py-3
-                       focus:outline-none focus:border-gold transition-colors"
+                       focus:outline-none focus:border-accent transition-colors"
           />
           <button
             type="submit"
             disabled={busy}
             className="border border-borderline text-muted rounded-lg py-2 text-sm
-                       hover:border-gold hover:text-gold transition-all disabled:opacity-40"
+                       hover:border-accent hover:text-accent transition-all disabled:opacity-40"
           >
             Sign in
           </button>

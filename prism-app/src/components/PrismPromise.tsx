@@ -9,7 +9,7 @@ export function PrismPromise({ children }: { children?: React.ReactNode }) {
   return (
     <div className="rounded-lg border border-borderline/60 bg-surface/50 px-4 py-3
                     flex flex-col sm:flex-row gap-1.5 sm:gap-3 sm:items-baseline">
-      <span className="text-[10px] text-gold tracking-[0.2em] uppercase shrink-0">
+      <span className="text-[10px] text-prism tracking-[0.2em] uppercase shrink-0">
         Prism drafts · you confirm
       </span>
       <span className="text-xs text-muted leading-relaxed">

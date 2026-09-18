@@ -60,12 +60,12 @@ export function CompassStages({ status }: { status: string }) {
             <li key={s.key} className="flex-1 min-w-0">
               <div
                 className={`h-0.5 w-full rounded-full mb-2 transition-colors ${
-                  done ? "bg-gold/50" : active ? "bg-gold" : "bg-borderline"
+                  done ? "bg-accent/50" : active ? "bg-accent" : "bg-borderline"
                 }`}
               />
               <span
                 className={`block text-xs tracking-wider uppercase truncate ${
-                  active ? "text-gold" : done ? "text-muted" : "text-muted/50"
+                  active ? "text-accent" : done ? "text-muted" : "text-muted/50"
                 }`}
               >
                 {done ? "✓ " : ""}
@@ -77,7 +77,7 @@ export function CompassStages({ status }: { status: string }) {
       </ol>
 
       <p className="text-sm text-muted leading-relaxed">
-        <span className="text-gold">Now: {STAGES[current].name}.</span>{" "}
+        <span className="text-accent">Now: {STAGES[current].name}.</span>{" "}
         {STAGES[current].detail}
       </p>
     </section>

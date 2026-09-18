@@ -33,11 +33,11 @@ export default async function DecisionsPage() {
           <Link
             key={d.id}
             href={`/decisions/${d.id}`}
-            className="block rounded-xl border border-borderline bg-surface p-6 hover:border-gold transition-all"
+            className="block rounded-xl border border-borderline bg-surface p-6 hover:border-accent transition-all"
           >
             <div className="flex items-center justify-between">
               <h2 className="text-xl">{d.title}</h2>
-              <span className="text-xs text-gold tracking-widest uppercase">
+              <span className="text-xs text-accent tracking-widest uppercase">
                 {STATUS_LABEL[d.status] ?? d.status}
               </span>
             </div>

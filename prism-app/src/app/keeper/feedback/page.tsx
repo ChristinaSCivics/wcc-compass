@@ -54,7 +54,7 @@ export default function FeedbackReview() {
           <div key={f.id} className="rounded-xl border border-borderline bg-surface p-5">
             <p className="leading-relaxed whitespace-pre-wrap">{f.message}</p>
             <p className="text-xs text-muted mt-3">
-              <span className="text-gold">{f.name}</span>
+              <span className="text-accent">{f.name}</span>
               {f.page && <> · on <span className="font-mono">{f.page}</span></>}
               {" · "}{new Date(f.created_at).toLocaleString()}
             </p>

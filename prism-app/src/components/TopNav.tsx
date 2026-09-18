@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { PrismMark } from "./PrismMark";
+import { WccMark } from "./WccLogo";
 import { FeedbackWidget } from "./FeedbackWidget";
 
 const LINKS = [
@@ -51,8 +51,8 @@ export function TopNav() {
     <>
     <FeedbackWidget />
     {isTest && (
-      <div className="sticky top-0 z-30 bg-gold/15 border-b border-gold/40 text-center py-1.5 px-4">
-        <span className="text-xs text-gold tracking-widest uppercase">Test mode</span>
+      <div className="sticky top-0 z-30 bg-accent/15 border-b border-accent/40 text-center py-1.5 px-4">
+        <span className="text-xs text-accent tracking-widest uppercase">Test mode</span>
         <span className="text-xs text-muted ml-2">
           this identity is left out of the weave, synthesis, and member counts
         </span>
@@ -61,7 +61,7 @@ export function TopNav() {
     <header className="sticky top-0 z-20 bg-background/90 backdrop-blur border-b border-borderline">
       <nav className="max-w-3xl mx-auto w-full px-6 py-3 flex items-center justify-between">
         <Link href="/dashboard" className="flex items-center gap-2.5 shrink-0">
-          <PrismMark size={22} />
+          <WccMark size={22} />
           <span className="hidden sm:inline text-xs tracking-[0.2em] uppercase text-muted">
             The Compass
           </span>
@@ -74,7 +74,7 @@ export function TopNav() {
                 key={l.href}
                 href={l.href}
                 className={`px-2.5 sm:px-3 py-1.5 rounded-full transition-colors ${
-                  active ? "text-gold bg-surface-raised" : "text-muted hover:text-foreground"
+                  active ? "text-accent bg-surface-raised" : "text-muted hover:text-foreground"
                 }`}
               >
                 {l.label}
@@ -83,7 +83,7 @@ export function TopNav() {
           })}
           <button
             onClick={signOut}
-            className="ml-1 px-2.5 py-1.5 text-muted/60 hover:text-gold transition-colors"
+            className="ml-1 px-2.5 py-1.5 text-muted/60 hover:text-accent transition-colors"
             title="Sign out"
           >
             Leave
