@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { TopNav } from "@/components/TopNav";
 import { getKeeperPassword, clearKeeperPassword, rememberKeeper } from "@/lib/keeperClient";
+import { KeeperGate } from "@/components/KeeperGate";
 
 type Member = {
   id: string;
@@ -27,10 +28,7 @@ export default function Members() {
 
   const load = useCallback(async () => {
     const keeperPassword = getKeeperPassword();
-    if (!keeperPassword) {
-      setError("Keeper password required.");
-      return;
-    }
+    if (!keeperPassword) return;
     const res = await fetch("/api/keeper/members", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -38,7 +36,7 @@ export default function Members() {
     });
     if (res.status === 403) {
       clearKeeperPassword();
-      setError("That keeper password wasn't right — reload to try again.");
+      setError("That password wasn't right.");
       return;
     }
     if (!res.ok) {
@@ -94,8 +92,7 @@ export default function Members() {
         — that identity is sandboxed from the start.
       </p>
 
-      {error && <p className="text-red-400 text-sm">{error}</p>}
-      {!error && members === null && <p className="text-muted text-sm">Loading…</p>}
+      {members === null && <KeeperGate error={error} onSubmit={() => void load()} />}
 
       {members && (
         <div className="flex flex-wrap gap-6 mb-8 text-sm">

@@ -1,55 +1,52 @@
 "use client";
 
-/** Ask for the keeper password once per browser session. */
+/**
+ * Keeper credentials, held for the browser session.
+ *
+ * This used to ask with window.prompt, which browsers can suppress, can't be
+ * styled, gives no way to correct a typo, and tells you nothing when it's
+ * wrong. The pages now render a real form instead, so this is just storage.
+ */
+const PASSWORD_KEY = "keeper_password";
+const KEEPER_FLAG = "wcc_keeper";
+
+function safe<T>(fn: () => T, fallback: T): T {
+  try {
+    return fn();
+  } catch {
+    return fallback;
+  }
+}
+
+/** The password entered this session, if there is one. Never prompts. */
 export function getKeeperPassword(): string | null {
-  const existing = sessionStorage.getItem("keeper_password");
-  if (existing) return existing;
-  const entered = window.prompt(
-    "Keeper password (shared with circle keepers — actions are recorded under your name):"
-  );
-  if (!entered) return null;
-  sessionStorage.setItem("keeper_password", entered);
-  return entered;
+  return safe(() => sessionStorage.getItem(PASSWORD_KEY), null);
+}
+
+export function setKeeperPassword(value: string) {
+  safe(() => sessionStorage.setItem(PASSWORD_KEY, value), undefined);
 }
 
 export function clearKeeperPassword() {
-  try {
-    sessionStorage.removeItem("keeper_password");
-  } catch {
-    // private windows can refuse storage; nothing to clear then
-  }
+  safe(() => sessionStorage.removeItem(PASSWORD_KEY), undefined);
 }
 
 /**
- * Remembers that this browser belongs to a keeper, so the keeper tools can be
- * linked from inside the app instead of typed from memory. Set only after the
- * server has actually accepted the password — a wrong guess marks nothing.
+ * Remembers that this browser belongs to a keeper, so the tools can be linked
+ * from inside the app instead of typed from memory. Set only once the server
+ * has actually accepted the password — a wrong guess marks nothing.
  *
- * Deliberately separate from the password itself: this survives the session so
- * the link stays, while the password still has to be re-entered each session.
+ * Deliberately separate from the password: this survives the session so the
+ * link stays, while the password is still re-entered each session.
  */
-const KEEPER_FLAG = "wcc_keeper";
-
 export function rememberKeeper() {
-  try {
-    localStorage.setItem(KEEPER_FLAG, "1");
-  } catch {
-    // no storage, no shortcut — the URLs still work
-  }
+  safe(() => localStorage.setItem(KEEPER_FLAG, "1"), undefined);
 }
 
 export function isKnownKeeper(): boolean {
-  try {
-    return localStorage.getItem(KEEPER_FLAG) === "1";
-  } catch {
-    return false;
-  }
+  return safe(() => localStorage.getItem(KEEPER_FLAG) === "1", false);
 }
 
 export function forgetKeeper() {
-  try {
-    localStorage.removeItem(KEEPER_FLAG);
-  } catch {
-    // nothing to forget
-  }
+  safe(() => localStorage.removeItem(KEEPER_FLAG), undefined);
 }

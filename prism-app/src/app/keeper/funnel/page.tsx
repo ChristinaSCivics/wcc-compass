@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { TopNav } from "@/components/TopNav";
 import { getKeeperPassword, clearKeeperPassword, rememberKeeper } from "@/lib/keeperClient";
+import { KeeperGate } from "@/components/KeeperGate";
 
 type Bar = { label: string; count: number };
 type Person = {
@@ -30,18 +31,14 @@ export default function Funnel() {
   const [data, setData] = useState<Data | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const [loading, setLoading] = useState(false);
 
   // Loaded on a click rather than on mount: the keeper password comes from a
   // window.prompt, and firing that at whoever opens the page — plus fetching
   // inside an effect — is both worse UX and the thing the lint rule is about.
   async function load() {
-    setLoading(true);
     setError(null);
     const keeperPassword = getKeeperPassword();
     if (!keeperPassword) {
-      setError("Keeper password required.");
-      setLoading(false);
       return;
     }
     const res = await fetch("/api/keeper/funnel", {
@@ -49,10 +46,9 @@ export default function Funnel() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ keeperPassword }),
     });
-    setLoading(false);
     if (res.status === 403) {
       clearKeeperPassword();
-      setError("That keeper password wasn't right — try again.");
+      setError("That password wasn't right.");
       return;
     }
     if (!res.ok) {
@@ -76,17 +72,8 @@ export default function Funnel() {
         {data ? ` ${data.testExcluded} test ${data.testExcluded === 1 ? "account" : "accounts"} excluded.` : ""}
       </p>
 
-      {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
-
       {!data && (
-        <button
-          onClick={() => void load()}
-          disabled={loading}
-          className="border border-accent text-accent rounded-full px-6 py-2.5
-                     hover:bg-accent hover:text-background transition-all disabled:opacity-40"
-        >
-          {loading ? "Counting…" : "Show the numbers"}
-        </button>
+        <KeeperGate error={error} onSubmit={() => void load()} />
       )}
 
       {data && (
