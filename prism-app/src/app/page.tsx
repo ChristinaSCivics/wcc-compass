@@ -53,8 +53,8 @@ export default function Landing() {
           </h1>
 
           <p className="mt-7 text-lg sm:text-xl text-muted max-w-lg leading-relaxed">
-            Almost nobody gets asked. Tell us, and we&apos;ll show you what you turn out
-            to share with everyone else who did.
+            Your answer becomes part of humanity&apos;s first shared vision — and the plan
+            we build to get there.
           </p>
 
           <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
