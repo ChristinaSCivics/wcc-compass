@@ -20,6 +20,7 @@ type Row = {
   created_at: string;
   hash: string;
   prev_hash: string;
+  profiles: { is_test: boolean } | null;
 };
 
 /** What each event means, said the way you'd say it out loud. */
@@ -49,11 +50,16 @@ export default async function AuditPage() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("audit_log")
-    .select("id, event_type, entity_type, created_at, hash, prev_hash")
+    .select("id, event_type, entity_type, created_at, hash, prev_hash, profiles(is_test)")
     .order("id", { ascending: true })
     .limit(500);
 
-  const rows = (data ?? []) as Row[];
+  const rows = ((data ?? []) as unknown as (Omit<Row, "profiles"> & {
+    profiles: { is_test: boolean } | { is_test: boolean }[] | null;
+  })[]).map((r) => ({
+    ...r,
+    profiles: Array.isArray(r.profiles) ? (r.profiles[0] ?? null) : r.profiles,
+  })) as Row[];
 
   // Walk the chain: each entry should carry the previous entry's hash. This is
   // checked here, on this page, every time it loads — not asserted in prose.
@@ -66,7 +72,14 @@ export default async function AuditPage() {
   }
   const intact = rows.length > 0 && firstBreak === null;
 
-  const newestFirst = [...rows].reverse();
+  // Sandbox activity is set aside here exactly as it is in the weave and the
+  // member counts. Crucially it is NOT deleted: removing entries would break
+  // the chain this page exists to demonstrate, so verification above runs over
+  // every entry and only the display is filtered.
+  const visible = rows.filter((r) => !r.profiles?.is_test);
+  const setAside = rows.length - visible.length;
+
+  const newestFirst = [...visible].reverse();
 
   // Group by day so the record reads as a history, not a dump.
   const byDay = new Map<string, Row[]>();
@@ -123,6 +136,14 @@ export default async function AuditPage() {
           What&apos;s checked here is the linkage between entries. A future phase anchors
           the chain to a public blockchain, so it can be verified without trusting this
           server at all.
+          {setAside > 0 && (
+            <>
+              {" "}
+              {setAside} {setAside === 1 ? "entry is" : "entries are"} from sandbox
+              accounts and {setAside === 1 ? "isn't" : "aren't"} listed below — they stay
+              in the chain, which is why the count above is higher than what you can see.
+            </>
+          )}
         </p>
       </section>
 
