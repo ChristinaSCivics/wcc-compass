@@ -7,11 +7,16 @@ import { createClient } from "@/lib/supabase/client";
  * Upgrade an anonymous identity to a returnable one (email + password).
  * Everything they've done — conversations, vision — carries over; same person,
  * now reachable from any device via "Have a password?" on the entry page.
+ *
+ * It asks for an email anyway, so it offers the mastermind here too rather
+ * than making someone fill in a second form later. Unticked by default, and
+ * the copy below only promises what is actually true depending on the choice.
  */
 export function SaveSpot() {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [wantsCall, setWantsCall] = useState(false);
   const [state, setState] = useState<"idle" | "busy" | "done">("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -26,6 +31,18 @@ export function SaveSpot() {
       setState("idle");
       return;
     }
+
+    // Best effort, and deliberately after the account is safe: failing to add
+    // someone to a call list must never cost them the thing they came here to
+    // do, which is not lose their work.
+    if (wantsCall) {
+      await fetch("/api/mastermind", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, optIn: false }),
+      }).catch(() => {});
+    }
+
     setState("done");
   }
 
@@ -37,6 +54,11 @@ export function SaveSpot() {
           You can now return from any device — entry page → &ldquo;Have a password?&rdquo; →{" "}
           <span className="text-accent">{email}</span>.
         </p>
+        {wantsCall && (
+          <p className="text-sm text-muted mt-2">
+            We&apos;ll send you the link for the first mastermind too.
+          </p>
+        )}
       </div>
     );
   }
@@ -75,6 +97,18 @@ export function SaveSpot() {
             className="w-full bg-surface-raised border border-borderline rounded-lg px-4 py-3
                        focus:outline-none focus:border-accent transition-colors"
           />
+          <label className="flex items-start gap-3 cursor-pointer pt-1">
+            <input
+              type="checkbox"
+              checked={wantsCall}
+              onChange={(e) => setWantsCall(e.target.checked)}
+              className="w-4 h-4 mt-0.5 accent-teal shrink-0"
+            />
+            <span className="text-sm text-muted leading-relaxed">
+              Also invite me to the first mastermind — a group call for everyone
+              who&apos;s been through the Compass.
+            </span>
+          </label>
           <button
             type="submit"
             disabled={state === "busy"}
@@ -85,7 +119,9 @@ export function SaveSpot() {
           </button>
           {error && <p className="text-red-400 text-sm">{error}</p>}
           <p className="text-xs text-muted">
-            Your email is only for signing back in — we send nothing to it.
+            {wantsCall
+              ? "Your email is for signing back in, and for the mastermind link. Nothing else."
+              : "Your email is only for signing back in — we send nothing to it."}
           </p>
         </form>
       )}
