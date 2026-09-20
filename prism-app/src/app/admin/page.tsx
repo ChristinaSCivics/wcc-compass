@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { AdminNav } from "@/components/AdminNav";
+import { getAdminName } from "@/lib/adminIdentity";
 import { KeeperGate } from "@/components/KeeperGate";
 import {
   getKeeperPassword,
@@ -52,42 +53,48 @@ export default function Admin() {
 
   return (
     <>
-    <AdminNav />
-    <main className="min-h-screen max-w-3xl mx-auto w-full px-6 py-10">
-      <h1 className="text-4xl mb-3">Admin</h1>
-      <p className="text-muted mb-8 text-sm max-w-xl leading-relaxed">
-        {unlocked
-          ? "Signed in for this browser session. Every action you take here is recorded under your own name, not the password's."
-          : "Sign in once and the tools below open without asking again."}
-      </p>
+    {unlocked && <AdminNav />}
+    {unlocked ? (
+      <main className="min-h-screen max-w-4xl mx-auto w-full px-6 py-10">
+        <h1 className="text-4xl mb-2">
+          {getAdminName() ? `Hello, ${getAdminName()}` : "Admin"}
+        </h1>
+        <p className="text-muted mb-8 text-sm max-w-xl leading-relaxed">
+          Signed in for this browser session. Pick a tool from the top, or start here.
+        </p>
 
-      {!unlocked ? (
-        <KeeperGate error={error} onSubmit={() => void check()} busy={checking} />
-      ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-4 sm:grid-cols-2">
           <Tool
             href="/admin/members"
-            title="Who's here"
-            sub="Everyone who has entered, how far they came, and which identities are sandboxes. Flag a test account to pull it out of the weave, the synthesis and the counts."
+            title="People"
+            sub="Everyone who has entered, how far they came, and which identities are sandboxes."
           />
           <Tool
             href="/admin/funnel"
-            title="How far people get"
-            sub="Arrivals, where people stop, how much they actually said, and where they came from."
+            title="Journey"
+            sub="Where people stop, how much they said, and where they came from."
           />
           <Tool
             href="/admin/feedback"
             title="Feedback"
-            sub="What people have sent from the widget on every page."
+            sub="What people sent from the widget on every page."
           />
           <Tool
-            href="/collective"
-            title="The collective vision"
-            sub="Weave on demand, rather than waiting for the automatic one."
+            href="/admin/technical"
+            title="Technical"
+            sub="Models, scheduled jobs, call counts, and how it all fits together."
           />
         </div>
-      )}
-    </main>
+
+        <p className="text-xs text-muted/70 mt-10 leading-relaxed">
+          To walk the product without touching the collective, enter through{" "}
+          <a href="/test" className="text-accent underline">/test</a> — that identity is
+          sandboxed from the start.
+        </p>
+      </main>
+    ) : (
+      <KeeperGate error={error} onSubmit={() => void check()} busy={checking} />
+    )}
     </>
   );
 }

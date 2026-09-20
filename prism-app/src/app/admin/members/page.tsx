@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AdminNav } from "@/components/AdminNav";
 import { DateRange, withinRange, type Range } from "@/components/DateRange";
+import { getAdminName } from "@/lib/adminIdentity";
 import { getKeeperPassword, clearKeeperPassword, rememberKeeper } from "@/lib/keeperClient";
 
 type Member = {
@@ -66,6 +67,7 @@ export default function Members() {
         keeperPassword: getKeeperPassword(),
         userId: m.id,
         isTest: !m.isTest,
+        actorName: getAdminName(),
       }),
     });
     setPending(null);

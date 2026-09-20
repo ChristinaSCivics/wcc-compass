@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkKeeper } from "@/lib/keeper";
 import { audit } from "@/lib/audit";
@@ -87,11 +86,10 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
-  const { keeperPassword, userId, isTest } = await req.json();
+  // Admins no longer need a participant session, so there may be nobody signed
+  // in to attribute this to. The name picked at the admin door stands in — a
+  // signature rather than proof, and recorded as such.
+  const { keeperPassword, userId, isTest, actorName } = await req.json();
   if (!checkKeeper(keeperPassword)) {
     return NextResponse.json({ error: "keeper password required" }, { status: 403 });
   }
@@ -99,18 +97,17 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "userId and isTest are required" }, { status: 400 });
   }
 
-  const admin = createAdminClient();
-  const { data: actor } = await admin
-    .from("profiles").select("display_name").eq("id", user.id).single();
+  const signedAs =
+    typeof actorName === "string" && actorName.trim() ? actorName.trim() : null;
 
+  const admin = createAdminClient();
   const { error } = await admin.from("profiles").update({ is_test: isTest }).eq("id", userId);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // the shared keeper password hides nothing about WHO acted
-  await audit("profile.test_flag_changed", "profile", userId, user.id, {
+  await audit("profile.test_flag_changed", "profile", userId, null, {
     is_test: isTest,
-    by_name: actor?.display_name ?? "unknown",
-    via: "keeper_password",
+    by_name: signedAs ?? "an admin holding the shared password",
+    via: signedAs ? "admin_signed_as" : "keeper_password",
   });
 
   return NextResponse.json({ ok: true });
