@@ -1,16 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
-import { getKeeperPassword, clearKeeperPassword } from "@/lib/keeperClient";
+import { getKeeperPassword, clearKeeperPassword, isKnownKeeper } from "@/lib/keeperClient";
 
+/**
+ * Weave now, for a keeper who doesn't want to wait for the automatic one.
+ *
+ * It used to be a bordered button in the first card on the page, which put a
+ * piece of machinery in the spot where a visitor should be meeting the map.
+ * Prism re-weaves on its own now, so this is a quiet link at the foot of the
+ * page — and only on browsers the server has already accepted as a keeper's,
+ * read through useSyncExternalStore so the server snapshot of `false` keeps
+ * hydration consistent.
+ */
 export function WeaveButton({ hasVisions }: { hasVisions: boolean }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
+  const keeper = useSyncExternalStore(
+    () => () => {},
+    () => isKnownKeeper(),
+    () => false
+  );
 
   async function weave() {
     const keeperPassword = getKeeperPassword();
-    if (!keeperPassword) return;
+    if (!keeperPassword) {
+      // Marked as a keeper's browser, but the password hasn't been entered
+      // this session — send them to the door rather than failing silently.
+      router.push("/admin");
+      return;
+    }
     setBusy(true);
     const res = await fetch("/api/weave", {
       method: "POST",
@@ -20,7 +40,7 @@ export function WeaveButton({ hasVisions }: { hasVisions: boolean }) {
     setBusy(false);
     if (res.status === 403) {
       clearKeeperPassword();
-      alert("That keeper password wasn't right — try again.");
+      router.push("/admin");
       return;
     }
     if (!res.ok) {
@@ -30,17 +50,16 @@ export function WeaveButton({ hasVisions }: { hasVisions: boolean }) {
     router.refresh();
   }
 
-  if (!hasVisions) return null;
+  if (!hasVisions || !keeper) return null;
 
   return (
     <button
       onClick={weave}
       disabled={busy}
-      title="Keeper action — requires the keeper password"
-      className="border border-accent text-accent rounded-full px-5 py-2 text-sm
-                 hover:bg-accent hover:text-background transition-all disabled:opacity-40"
+      className="text-xs text-amber underline underline-offset-4
+                 hover:text-accent transition-colors disabled:opacity-40"
     >
-      {busy ? "Prism is weaving…" : "⚿ Ask Prism to weave the vision"}
+      {busy ? "Prism is weaving…" : "Weave now"}
     </button>
   );
 }

@@ -51,15 +51,16 @@ export function TopNav() {
   return (
     <>
     <FeedbackWidget />
+    <div className="sticky top-0 z-30 bg-background/95 backdrop-blur">
     {isTest && (
       // Loud on purpose. A sandbox identity that looks like a real one is how
       // test visions end up counted as real voices on the map.
-      <div className="sticky top-0 z-30 bg-amber/20 border-b-2 border-amber text-center py-2 px-4
+      <div className="bg-amber/20 border-b-2 border-amber text-center py-2 px-4
                       flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
         <span className="text-xs text-amber tracking-[0.2em] uppercase font-medium">
           ◆ Test mode
         </span>
-        <span className="text-xs text-muted">
+        <span className="hidden sm:inline text-xs text-muted">
           sandboxed — left out of the weave, the synthesis and the member counts
         </span>
         <button
@@ -79,22 +80,27 @@ export function TopNav() {
         </button>
       </div>
     )}
-    <header className="sticky top-0 z-20 bg-background/90 backdrop-blur border-b border-borderline">
-      <nav className="max-w-3xl mx-auto w-full px-6 py-3 flex items-center justify-between">
+    <header className="bg-background/90 backdrop-blur border-b border-borderline">
+      {/* Six items in one row is wider than a phone, and the whole page was
+          scrolling sideways to fit them. Below sm the links drop to their own
+          full-width row instead — nothing hidden, nothing to scroll. */}
+      <nav className="max-w-3xl mx-auto w-full px-4 sm:px-6 py-3 flex items-center
+                      justify-center sm:justify-between flex-wrap gap-y-2">
         <Link href="/dashboard" className="flex items-center gap-2.5 shrink-0">
           <WccMark size={22} />
-          <span className="hidden sm:inline text-xs tracking-[0.2em] uppercase text-muted">
+          <span className="text-xs tracking-[0.2em] uppercase text-muted">
             The Compass
           </span>
         </Link>
-        <div className="flex items-center gap-1 sm:gap-2 text-sm">
+        <div className="flex items-center justify-center gap-0.5 sm:gap-2 text-xs sm:text-sm
+                        w-full sm:w-auto">
           {LINKS.map((l) => {
             const active = pathname === l.href || (l.href !== "/dashboard" && pathname.startsWith(l.href));
             return (
               <Link
                 key={l.href}
                 href={l.href}
-                className={`px-2.5 sm:px-3 py-1.5 rounded-full transition-colors ${
+                className={`px-2 sm:px-3 py-1.5 rounded-full whitespace-nowrap transition-colors ${
                   active ? "text-accent bg-surface-raised" : "text-muted hover:text-foreground"
                 }`}
               >
@@ -104,7 +110,7 @@ export function TopNav() {
           })}
           <button
             onClick={signOut}
-            className="ml-1 px-2.5 py-1.5 text-muted/60 hover:text-accent transition-colors"
+            className="px-2 sm:px-3 sm:ml-1 py-1.5 text-muted/60 hover:text-accent transition-colors"
             title="Sign out"
           >
             Leave
@@ -112,6 +118,7 @@ export function TopNav() {
         </div>
       </nav>
     </header>
+    </div>
     </>
   );
 }

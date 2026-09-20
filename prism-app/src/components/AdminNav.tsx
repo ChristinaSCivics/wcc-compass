@@ -36,20 +36,23 @@ export function AdminNav() {
 
   return (
     <header className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-borderline">
-      <nav className="max-w-4xl mx-auto w-full px-6 py-3 flex items-center gap-4 flex-wrap">
+      <nav className="max-w-4xl mx-auto w-full px-4 sm:px-6 py-3 flex items-center
+                      justify-between gap-x-4 gap-y-2 flex-wrap">
         <Link href="/admin" className="flex items-center gap-2.5 shrink-0">
           <WccMark size={20} />
           <span className="text-xs tracking-[0.2em] uppercase text-muted">Admin</span>
         </Link>
 
-        <div className="flex items-center gap-1 text-sm flex-1 min-w-0 overflow-x-auto">
+        <div className="order-3 sm:order-none basis-full sm:basis-0 sm:flex-1 min-w-0
+                        flex flex-wrap items-center justify-center sm:justify-start
+                        gap-1 text-xs sm:text-sm">
           {TOOLS.map((t) => {
             const active = pathname === t.href;
             return (
               <Link
                 key={t.href}
                 href={t.href}
-                className={`px-3 py-1.5 rounded-full whitespace-nowrap transition-colors ${
+                className={`px-2 sm:px-3 py-1.5 rounded-full whitespace-nowrap transition-colors ${
                   active ? "text-accent bg-surface-raised" : "text-muted hover:text-foreground"
                 }`}
               >

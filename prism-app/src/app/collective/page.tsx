@@ -117,7 +117,6 @@ export default async function CollectivePage() {
               )}
             </p>
           </div>
-          <WeaveButton hasVisions={(totalCount ?? 0) > 0} />
         </div>
       </section>
 
@@ -213,6 +212,20 @@ export default async function CollectivePage() {
           )}
         </div>
       )}
+      <footer className="mt-12 border-t border-borderline pt-5 text-xs text-muted leading-relaxed">
+        <p className="max-w-xl">
+          <span className="text-foreground">How this gets woven.</span> When a vision is
+          confirmed it joins the map, and Prism reads every vision on it and writes the
+          picture above — the threads people share, the many ways they want to live, and the
+          tensions worth keeping. It happens on its own: a new voice makes this weaving
+          out of date, and the next one is written within the half hour. Nobody edits it by
+          hand, and every weaving is kept, so you can see how the picture changed as people
+          arrived.
+        </p>
+        <div className="mt-3">
+          <WeaveButton hasVisions={(totalCount ?? 0) > 0} />
+        </div>
+      </footer>
     </main>
     </>
   );

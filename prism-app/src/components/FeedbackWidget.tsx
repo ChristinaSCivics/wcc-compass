@@ -48,7 +48,7 @@ export function FeedbackWidget({ anchored }: { anchored?: boolean } = {}) {
       {open && (
         <form
           onSubmit={submit}
-          className="w-72 rounded-xl border border-borderline bg-surface-raised p-4 shadow-xl fade-up"
+          className="w-[min(18rem,calc(100vw-2.5rem))] rounded-xl border border-borderline bg-surface-raised p-4 shadow-xl fade-up"
         >
           {state === "sent" ? (
             <p className="text-sm text-accent text-center py-4">

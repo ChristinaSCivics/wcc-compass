@@ -221,22 +221,22 @@ function Table({
       {rows.map((m) => (
         <div
           key={m.id}
-          className="flex items-baseline gap-4 border-b border-borderline py-3 text-sm flex-wrap"
+          className="flex items-baseline gap-x-4 gap-y-2 border-b border-borderline py-3 text-sm flex-wrap"
         >
-          <div className="flex-1 min-w-[12rem]">
+          <div className="flex-1 basis-full sm:basis-auto sm:min-w-[12rem] min-w-0">
             <span className={m.isTest ? "text-muted" : "text-accent"}>{m.name}</span>
             {m.saved && <span className="text-xs text-muted ml-2">· saved spot</span>}
             {m.role !== "member" && (
               <span className="text-xs text-muted ml-2">· {m.role}</span>
             )}
-            <div className="text-xs text-muted mt-1">
+            <div className="text-xs text-muted mt-1 break-words">
               joined {new Date(m.joinedAt).toLocaleDateString()}
               {m.joinedFrom && <> · {m.joinedFrom}</>}
               {m.lastActive && <> · last active {new Date(m.lastActive).toLocaleDateString()}</>}
             </div>
           </div>
 
-          <div className="text-xs text-muted shrink-0 w-40">
+          <div className="text-xs text-muted shrink-0 w-full sm:w-40">
             <div>
               vision:{" "}
               <span className={m.visionStatus === "confirmed" ? "text-accent" : ""}>
