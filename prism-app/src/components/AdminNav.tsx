@@ -20,6 +20,7 @@ const TOOLS = [
   { href: "/admin/funnel", label: "Journey" },
   { href: "/admin/feedback", label: "Feedback" },
   { href: "/admin/technical", label: "Technical" },
+  { href: "/audit", label: "Record" },
 ];
 
 export function AdminNav() {

@@ -6,6 +6,7 @@ import { TopNav } from "@/components/TopNav";
 import { WeaveButton } from "./WeaveButton";
 import { scrubNames } from "@/lib/anonymize";
 import { AutoWeave } from "@/components/AutoWeave";
+import { placesFrom, listPlaces } from "@/lib/places";
 
 /** The collective map: who's on it, and Prism's latest weaving of all confirmed visions. */
 export default async function CollectivePage() {
@@ -20,6 +21,9 @@ export default async function CollectivePage() {
     { data: roster },
     { count: onBehalfCount },
     { data: newestConfirmed },
+    { data: arrivals },
+    { count: conversationCount },
+    { count: weaveCount },
   ] = await Promise.all([
       supabase
         .from("collective_syntheses")
@@ -56,6 +60,17 @@ export default async function CollectivePage() {
         .order("confirmed_at", { ascending: false })
         .limit(1)
         .maybeSingle(),
+      // How far the circle reaches. State-level only — see lib/places.
+      admin
+        .from("vision_profiles")
+        .select("profiles!vision_profiles_user_id_fkey!inner(joined_from, is_test)")
+        .eq("status", "confirmed")
+        .eq("profiles.is_test", false),
+      admin
+        .from("conversations")
+        .select("id, profiles!inner(is_test)", { count: "exact", head: true })
+        .eq("profiles.is_test", false),
+      admin.from("collective_syntheses").select("id", { count: "exact", head: true }),
     ]);
 
   const isConfirmed = mine?.status === "confirmed";
@@ -66,6 +81,9 @@ export default async function CollectivePage() {
       new Date(newestConfirmed.confirmed_at).getTime() >
         new Date(weaves[0].created_at).getTime());
   const weave = weaves?.[0];
+  const places = placesFrom(
+    (arrivals ?? []).map((a: any) => (Array.isArray(a.profiles) ? a.profiles[0] : a.profiles)?.joined_from)
+  );
   const c = scrubNames(
     (weave?.content ?? null) as any,
     (roster ?? []).map((p) => p.display_name as string | null)
@@ -116,6 +134,12 @@ export default async function CollectivePage() {
                 </>
               )}
             </p>
+            {places.length > 0 && (
+              <p className="text-sm text-muted mt-3">
+                <span className="text-foreground">From </span>
+                {listPlaces(places)}.
+              </p>
+            )}
           </div>
         </div>
       </section>
@@ -222,7 +246,19 @@ export default async function CollectivePage() {
           hand, and every weaving is kept, so you can see how the picture changed as people
           arrived.
         </p>
-        <div className="mt-3">
+        <p className="max-w-xl mt-3">
+          <span className="text-foreground">What has happened so far.</span>{" "}
+          {conversationCount ?? 0} {conversationCount === 1 ? "conversation" : "conversations"} with
+          Prism, {totalCount ?? 0} {(totalCount ?? 0) === 1 ? "vision" : "visions"} confirmed,{" "}
+          {weaveCount ?? 0} {weaveCount === 1 ? "weaving" : "weavings"} of the collective picture.
+          Every one of those left a mark in{" "}
+          <Link href="/audit" className="text-accent underline underline-offset-4">
+            the open record
+          </Link>{" "}
+          — no names, and each entry carrying the fingerprint of the one before it, so the
+          history can&rsquo;t be quietly rewritten.
+        </p>
+        <div className="mt-4">
           <WeaveButton hasVisions={(totalCount ?? 0) > 0} />
         </div>
       </footer>

@@ -44,6 +44,11 @@ export async function proxy(request: NextRequest) {
     path.startsWith("/login") ||
     path === "/test" ||
     path.startsWith("/auth") ||
+    // The record is the one page that has to be readable without belonging to
+    // anything: it carries no names, and "open" that asks you to sign in first
+    // isn't open. A keeper reaching it from the admin nav has no participant
+    // session either, and was being bounced to /login for it.
+    path === "/audit" ||
     path.startsWith("/about");
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();

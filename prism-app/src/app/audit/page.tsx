@@ -1,5 +1,8 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { TopNav } from "@/components/TopNav";
+import { WccLogo } from "@/components/WccLogo";
 
 /**
  * The open record.
@@ -11,6 +14,11 @@ import { TopNav } from "@/components/TopNav";
  *
  * Now: plain English, no names, and the chain is actually walked here — so the
  * claim on the page is one the page itself checks.
+ *
+ * Read with the service-role client and open to anyone. A record that asks you
+ * to sign in before you can inspect it isn't open, and RLS returns nothing at
+ * all to a visitor who hasn't. Nothing here identifies anyone: what happened is
+ * public, who did it is not.
  */
 
 type Row = {
@@ -48,7 +56,8 @@ function phrase(eventType: string): string {
 
 export default async function AuditPage() {
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data } = await createAdminClient()
     .from("audit_log")
     .select("id, event_type, entity_type, created_at, hash, prev_hash, profiles(is_test)")
     .order("id", { ascending: true })
@@ -95,7 +104,16 @@ export default async function AuditPage() {
 
   return (
     <>
-    <TopNav />
+    {user ? (
+      <TopNav />
+    ) : (
+      <nav className="flex items-center justify-between px-6 py-5 max-w-3xl mx-auto w-full gap-4">
+        <Link href="/"><WccLogo height={24} /></Link>
+        <Link href="/login" className="text-sm text-accent hover:text-foreground transition-colors">
+          Enter &rarr;
+        </Link>
+      </nav>
+    )}
     <main className="min-h-screen max-w-3xl mx-auto w-full px-6 py-10">
       <h1 className="text-4xl mb-3">In the open, in the light</h1>
       <p className="text-muted mb-8 max-w-xl leading-relaxed">

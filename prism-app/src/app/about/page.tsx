@@ -92,7 +92,11 @@ export default async function About() {
           </P>
           <P>
             Every significant event — a vision confirmed, a decision recorded — is written
-            to an open log that any member can read, and that is built so it can&apos;t be
+            to{" "}
+            <Link href="/audit" className="text-accent underline underline-offset-4">
+              an open log
+            </Link>{" "}
+            that anyone can read without signing in, and that is built so it can&apos;t be
             quietly rewritten after the fact. The code and Prism&apos;s full instructions
             are public, so anyone can check exactly what it was told to do. We&apos;d rather
             be checkable than trusted.
