@@ -97,17 +97,11 @@ export default function Members() {
     <AdminNav />
     <main className="min-h-screen max-w-4xl mx-auto w-full px-6 py-10">
       <h1 className="text-4xl mb-3">Who&rsquo;s here</h1>
-      <p className="text-muted mb-4 text-sm max-w-2xl leading-relaxed">
-        Everyone who has entered the Compass. Marking someone as a test account
-        removes them from the weave, decision synthesis, and the member counts —
-        their conversations are kept, just set aside. Keeper-only page.
-      </p>
-      <p className="text-sm text-muted mb-8">
-        To walk the system without touching the collective, enter through{" "}
-        <a href="/test" className="text-accent underline">
-          /test
-        </a>{" "}
-        — that identity is sandboxed from the start.
+      <p className="text-muted mb-8 text-sm max-w-2xl leading-relaxed">
+        Everyone who has entered. Marking someone as a test sets their work aside — kept,
+        but out of the weave, the synthesis and the counts. To try things yourself without
+        touching the collective, enter at{" "}
+        <a href="/test" className="text-accent underline">/test</a>.
       </p>
 
       {members === null && !error && <p className="text-muted text-sm">Loading…</p>}
@@ -154,11 +148,10 @@ export default function Members() {
             <Stat label="test accounts" value={test.length} />
           </div>
           <p className="text-xs text-muted mb-8 max-w-2xl leading-relaxed">
-            Entering without an account makes a new identity every time — a second
-            browser, a phone, or coming back after signing out each make one. So
-            &ldquo;entries&rdquo; counts arrivals, not people. Rows sharing a name are
-            marked below; the people figure groups by name, which is the only signal
-            we have for who is who.
+            Entering without an account makes a new identity each time — a second browser,
+            a phone, or a return after signing out. So <em>entries</em> counts arrivals and{" "}
+            <em>people</em> groups them by name, which is all we have to go on. Repeats are
+            marked below.
           </p>
         </>
       )}

@@ -84,10 +84,10 @@ export default function Contacts() {
     <main className="min-h-screen max-w-4xl mx-auto w-full px-6 py-10">
       <h1 className="text-4xl mb-3">Who we can reach</h1>
       <p className="text-muted mb-6 text-sm max-w-2xl leading-relaxed">
-        Three different things, kept apart. A name with no email is someone we can&rsquo;t
-        contact at all — close the tab and they&rsquo;re gone. A saved spot is an email
-        given so they could come back to their own vision. A mastermind signup is an email
-        given for the call, which is a different promise. Test accounts are left out.
+        A name with no email is someone we can&rsquo;t contact at all. A saved spot is an
+        email given to come back to their own vision. A mastermind signup is an email given
+        for the call — a different promise, so it&rsquo;s counted separately. Test accounts
+        are left out.
       </p>
 
       {error && <p className="text-red-400 text-sm mb-4">{error}</p>}

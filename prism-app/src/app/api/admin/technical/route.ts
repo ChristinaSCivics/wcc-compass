@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
       e.event_type === "collective.woven" &&
       (e.payload as { via?: string } | null)?.via === "auto_stale"
   );
+  const lastWeave = rows.find((e) => e.event_type === "collective.woven")?.created_at ?? null;
 
   return NextResponse.json({
     models: {
@@ -67,6 +68,7 @@ export async function POST(req: NextRequest) {
       lastDraftRun: lastCron,
       draftsFromCron: cronDrafts.length,
       autoWeaves: autoWeaves.length,
+      lastWeave,
     },
     // The audit log only goes back to when auditing shipped, so counts before
     // that are simply absent rather than zero.

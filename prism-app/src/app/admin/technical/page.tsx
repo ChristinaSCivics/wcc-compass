@@ -15,7 +15,12 @@ type Data = {
     syntheses: number;
   };
   conversations: number;
-  cron: { lastDraftRun: string | null; draftsFromCron: number; autoWeaves: number };
+  cron: {
+    lastDraftRun: string | null;
+    draftsFromCron: number;
+    autoWeaves: number;
+    lastWeave: string | null;
+  };
   auditWindowFrom: string | null;
   auditTruncated: boolean;
 };
@@ -59,8 +64,8 @@ export default function Technical() {
     <AdminNav />
     <main className="min-h-screen max-w-4xl mx-auto w-full px-6 py-10">
       <h1 className="text-4xl mb-3">Under the hood</h1>
-      <p className="text-muted mb-8 text-sm max-w-2xl leading-relaxed">
-        What runs, what it costs to run, and where everything lives.
+      <p className="text-muted mb-8 text-sm">
+        What runs, when, and what it&apos;s been doing.
       </p>
 
       {error && <p className="text-red-400 text-sm">{error}</p>}
@@ -72,11 +77,9 @@ export default function Technical() {
             <Row label="Conversation, synthesis, the weave" value={data.models.conversation} />
             <Row label="Turning a transcript into a draft" value={data.models.extraction} />
             <P>
-              These are different jobs. The conversation is the product — following what
-              someone said and writing it back in their voice. Extraction is transcription
-              into a known shape, inventing nothing, and it&apos;s the call made most often,
-              so it runs on the cheaper model. Both are one environment variable from
-              changing, including to a local model later.
+              Two different jobs. The conversation has to follow someone and write back in
+              their voice; extraction only shapes a transcript into known fields, so it
+              runs on the cheaper model. Either is one environment variable from changing.
             </P>
           </Section>
 
@@ -87,77 +90,71 @@ export default function Technical() {
             <Row label="Collective weaves" value={data.calls.weaves.toLocaleString()} />
             <Row label="Decision syntheses" value={data.calls.syntheses.toLocaleString()} />
             <P>
-              Counted from records the app already keeps. <strong>Token usage isn&apos;t
-              recorded anywhere</strong>, so these are honest call counts and not a bill —
-              a long conversation and a short one both count as one turn each. If the
-              number matters, it&apos;s worth logging usage per response.
+              <strong>These are calls, not a bill.</strong> Token usage isn&apos;t recorded
+              anywhere, so a long conversation and a short one each count as one turn.
             </P>
             {data.auditWindowFrom && (
               <P>
-                Draft, weave and synthesis counts come from the audit log, which starts{" "}
-                {new Date(data.auditWindowFrom).toLocaleDateString()}. Anything earlier is
+                Counted from the record, which starts{" "}
+                {new Date(data.auditWindowFrom).toLocaleDateString()} — anything earlier is
                 absent rather than zero.
-                {data.auditTruncated && " The log is longer than this page reads."}
+                {data.auditTruncated && " The record is longer than this page reads."}
               </P>
             )}
           </Section>
 
-          <Section title="Scheduled jobs">
-            <Row
-              label="Draft abandoned conversations"
-              value="every 10 minutes · GitHub Actions"
-            />
-            <Row
-              label="Last time it drafted anything"
-              value={
-                data.cron.lastDraftRun
+          <Section title="What runs on its own">
+            <Job
+              name="Draft abandoned conversations"
+              when="Every 10 minutes, on the clock"
+              where="GitHub Actions"
+              only="Only drafts a conversation that has been quiet for 10 minutes with at
+                    least two exchanges and no draft yet. A run that finds nothing makes no
+                    model call and costs nothing — that's most runs."
+              stats={[
+                ["Last time it drafted something", data.cron.lastDraftRun
                   ? new Date(data.cron.lastDraftRun).toLocaleString()
-                  : "not yet"
-              }
+                  : "not yet"],
+                ["Drafts it has rescued", data.cron.draftsFromCron.toLocaleString()],
+              ]}
             />
-            <Row label="Drafts it has rescued" value={data.cron.draftsFromCron.toLocaleString()} />
-            <Row label="Automatic re-weaves" value={data.cron.autoWeaves.toLocaleString()} />
+            <Job
+              name="Re-weave the collective vision"
+              when="Only when the map has changed"
+              where="Not a cron job"
+              only="Nothing runs on a timer here. When someone opens the collective page,
+                    the page checks whether a vision has been confirmed since the last
+                    weaving. If none has, nothing happens. If one has, Prism weaves once —
+                    and then not again for 30 minutes however many people visit."
+              stats={[
+                ["Last weaving", data.cron.lastWeave
+                  ? new Date(data.cron.lastWeave).toLocaleString()
+                  : "not yet"],
+                ["Woven automatically", data.cron.autoWeaves.toLocaleString()],
+                ["Woven in total", data.calls.weaves.toLocaleString()],
+              ]}
+            />
             <P>
-              The job looks for conversations that have gone quiet for ten minutes with at
-              least two things said, and drafts them once. It runs from GitHub Actions
-              rather than Vercel Cron, which is once a day on the current plan. A quiet run
-              that finds nothing is the normal case and costs nothing.
-            </P>
-            <P>
-              Re-weaving happens when someone opens the collective page and voices have
-              joined since the last weaving — at most once every 30 minutes, so a busy day
-              batches up instead of paying per visitor.
+              A keeper can force a weaving from the foot of the collective page, which
+              skips the 30-minute wait. Nothing else calls a model without someone doing
+              something first.
             </P>
           </Section>
 
           <Section title="How it fits together">
-            <P>
-              <strong>Next.js 16</strong> on Vercel, <strong>React 19</strong>,{" "}
-              <strong>Tailwind 4</strong>. The design system is CSS custom properties in{" "}
-              <code className="text-accent">globals.css</code> — the palette is nine
-              variables, which is why rebranding is a token swap rather than a refactor.
-            </P>
-            <P>
-              <strong>Supabase</strong> holds everything: Postgres with row-level security,
-              and anonymous auth so a visitor needs no account. Two clients — one that
-              respects RLS for anything acting as a person, one service-role client for
-              counts and cross-user work. The audit chain&apos;s hashes are computed by a
-              Postgres trigger under an advisory lock, which is why the chain can&apos;t
-              fork.
-            </P>
-            <P>
-              <strong>Prism</strong> is the Anthropic API plus prompts kept in the public
-              repo as plain TypeScript. Every extracted record is stamped with a hash of the
-              prompt that produced it, so you can tell which version of the interview
-              produced which vision.
-            </P>
-            <P>
-              <strong>Deploys are manual</strong> — pushing to git does not deploy. The live
-              site is one deployment reachable at three addresses:
-              worldcocreation.com/demo redirects to demo.worldcocreation.com, which points
-              at the same build as the Vercel URL.
-            </P>
+            <Row label="App" value="Next.js 16 · React 19 · Tailwind 4, on Vercel" />
+            <Row label="Data" value="Supabase Postgres · row-level security · anonymous auth" />
+            <Row label="Prism" value="Anthropic API · prompts in the public repo" />
+            <Row label="Deploys" value="manual — pushing to git does not deploy" />
             <Row label="Conversations held" value={data.conversations.toLocaleString()} />
+            <P>
+              The palette is nine CSS variables in{" "}
+              <code className="text-accent">globals.css</code>, so a rebrand is a token
+              swap. Every drafted record is stamped with a hash of the prompt that made it.
+              The record&apos;s hashes are computed by a Postgres trigger under a lock, so
+              the chain can&apos;t fork. One deployment serves worldcocreation.com/demo,
+              demo.worldcocreation.com and the Vercel URL.
+            </P>
           </Section>
         </>
       )}
@@ -180,6 +177,33 @@ function Row({ label, value }: { label: string; value: string }) {
     <div className="flex items-baseline justify-between gap-4 text-sm border-b border-borderline py-2 last:border-0">
       <span className="text-muted">{label}</span>
       <span className="tabular-nums text-right">{value}</span>
+    </div>
+  );
+}
+
+/** One thing that happens without a person asking, and the rule that governs it. */
+function Job({
+  name, when, where, only, stats,
+}: {
+  name: string;
+  when: string;
+  where: string;
+  only: string;
+  stats: [string, string][];
+}) {
+  return (
+    <div className="border-b border-borderline pb-5 mb-5 last:border-0 last:pb-0 last:mb-0">
+      <div className="flex items-baseline justify-between gap-4 flex-wrap">
+        <h3 className="text-foreground">{name}</h3>
+        <span className="text-xs text-accent">{when}</span>
+      </div>
+      <p className="text-xs text-muted/70 mb-2">{where}</p>
+      {/* Written across several lines in the source; a JSX attribute keeps every
+          one of those newlines, so they're collapsed back to sentences here. */}
+      <p className="text-sm text-muted leading-relaxed mb-3">{only.replace(/\s+/g, " ")}</p>
+      {stats.map(([label, value]) => (
+        <Row key={label} label={label} value={value} />
+      ))}
     </div>
   );
 }
