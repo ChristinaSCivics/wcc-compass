@@ -46,6 +46,7 @@ const PHRASING: Record<string, string> = {
   "decision_input.visibility": "Someone changed who can see their input",
   "feedback.submitted": "Someone sent feedback on the prototype",
   "member.upgraded": "Someone turned a temporary identity into a permanent account",
+  "fibery.synced": "A keeper pushed contact details to the WCC workspace",
 };
 
 function phrase(eventType: string): string {
