@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { TopNav } from "@/components/TopNav";
+import { AdminNav } from "@/components/AdminNav";
 import { getKeeperPassword, clearKeeperPassword, rememberKeeper } from "@/lib/keeperClient";
 
 type Bar = { label: string; count: number };
@@ -67,7 +67,7 @@ export default function Funnel() {
 
   return (
     <>
-    <TopNav />
+    <AdminNav />
     <main className="min-h-screen max-w-4xl mx-auto w-full px-6 py-10">
       <h1 className="text-4xl mb-3">How far people get</h1>
       <p className="text-muted mb-8 text-sm max-w-2xl leading-relaxed">

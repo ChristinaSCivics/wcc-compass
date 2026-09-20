@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { checkKeeper } from "@/lib/keeper";
 
 /**
@@ -10,10 +9,6 @@ import { checkKeeper } from "@/lib/keeper";
  * after a page has tried and failed to load its data.
  */
 export async function POST(req: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
   const { keeperPassword } = await req.json();
   if (!checkKeeper(keeperPassword)) {
     return NextResponse.json({ error: "wrong password" }, { status: 403 });

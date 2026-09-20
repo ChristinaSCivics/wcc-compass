@@ -35,8 +35,9 @@ export function KeeperGate({
         Keeper only
       </span>
       <p className="text-sm text-muted leading-relaxed mb-4">
-        Shared with circle keepers. Whatever you do with it is recorded under your
-        own name, not the password&apos;s.
+        Shared with circle keepers. Anything you change is written to the open
+        record — under your name if you&apos;re signed in, and as the shared password
+        if you aren&apos;t.
       </p>
       <input
         type="password"

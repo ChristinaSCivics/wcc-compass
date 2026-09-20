@@ -15,10 +15,9 @@ import { audit } from "@/lib/audit";
 type Row = { user_id: string };
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
+  // The keeper password is the gate. Requiring a signed-in participant as well
+  // stopped nobody — a session is five seconds and a name away — but it did
+  // force an admin onto the collective map to read a roster.
   const { keeperPassword } = await req.json();
   if (!checkKeeper(keeperPassword)) {
     return NextResponse.json({ error: "keeper password required" }, { status: 403 });

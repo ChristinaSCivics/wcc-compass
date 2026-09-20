@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { TopNav } from "@/components/TopNav";
+import { AdminNav } from "@/components/AdminNav";
 import { KeeperGate } from "@/components/KeeperGate";
 import {
   getKeeperPassword,
@@ -52,7 +52,7 @@ export default function Admin() {
 
   return (
     <>
-    <TopNav />
+    <AdminNav />
     <main className="min-h-screen max-w-3xl mx-auto w-full px-6 py-10">
       <h1 className="text-4xl mb-3">Admin</h1>
       <p className="text-muted mb-8 text-sm max-w-xl leading-relaxed">

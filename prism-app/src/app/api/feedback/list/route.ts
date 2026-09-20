@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkKeeper } from "@/lib/keeper";
 
-/** Keeper-only: read all feedback with names and pages. */
+/**
+ * Keeper-only: read all feedback with names and pages.
+ *
+ * Gated on the keeper password alone. The signed-in check that used to sit
+ * here added no security — anyone could obtain a session in seconds by typing
+ * a name at /login — while forcing an admin to create a participant identity
+ * on the collective map just to read a list.
+ */
 export async function POST(req: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
   const { keeperPassword } = await req.json();
   if (!checkKeeper(keeperPassword)) {
     return NextResponse.json({ error: "keeper password required" }, { status: 403 });

@@ -25,8 +25,19 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
+
+  // The admin tools are gated by the keeper password, not by being a
+  // participant. Sending an admin to /login first made them create an identity
+  // on the collective map just to look at a dashboard — two gates for one job,
+  // and the wrong one first.
+  const isAdmin = path.startsWith("/admin") || path.startsWith("/api/admin");
+
   const isPublic =
-    path === "/" || path.startsWith("/login") || path.startsWith("/auth") || path.startsWith("/about");
+    isAdmin ||
+    path === "/" ||
+    path.startsWith("/login") ||
+    path.startsWith("/auth") ||
+    path.startsWith("/about");
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";

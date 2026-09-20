@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkKeeper } from "@/lib/keeper";
 
@@ -25,10 +24,6 @@ type Joined = {
 };
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
   const { keeperPassword } = await req.json();
   if (!checkKeeper(keeperPassword)) {
     return NextResponse.json({ error: "keeper password required" }, { status: 403 });
