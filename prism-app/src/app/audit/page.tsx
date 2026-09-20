@@ -1,8 +1,6 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { TopNav } from "@/components/TopNav";
-import { WccLogo } from "@/components/WccLogo";
+import { RecordHeader } from "@/components/RecordHeader";
 
 /**
  * The open record.
@@ -112,16 +110,7 @@ export default async function AuditPage() {
 
   return (
     <>
-    {user ? (
-      <TopNav />
-    ) : (
-      <nav className="flex items-center justify-between px-6 py-5 max-w-3xl mx-auto w-full gap-4">
-        <Link href="/"><WccLogo height={24} /></Link>
-        <Link href="/login" className="text-sm text-accent hover:text-foreground transition-colors">
-          Enter &rarr;
-        </Link>
-      </nav>
-    )}
+    <RecordHeader signedIn={!!user} />
     <main className="min-h-screen max-w-3xl mx-auto w-full px-6 py-10">
       <h1 className="text-4xl mb-3">In the open, in the light</h1>
       <p className="text-muted mb-8 max-w-xl leading-relaxed">
