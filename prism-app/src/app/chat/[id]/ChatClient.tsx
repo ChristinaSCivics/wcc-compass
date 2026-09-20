@@ -176,7 +176,6 @@ export function ChatClient({
 
   return (
     <main className="min-h-screen flex flex-col max-w-3xl mx-auto w-full">
-      <FeedbackWidget />
       <header className="flex items-center justify-between px-6 py-4 border-b border-borderline sticky top-0 bg-background/90 backdrop-blur z-10">
         <Link
           href={kind === "decision" && decisionId ? `/decisions/${decisionId}` : "/dashboard"}
@@ -261,10 +260,12 @@ export function ChatClient({
         <div ref={bottomRef} />
       </div>
 
-      <form
-        onSubmit={(e) => { e.preventDefault(); void send(input); }}
-        className="sticky bottom-0 bg-background/90 backdrop-blur border-t border-borderline p-4 flex flex-wrap gap-3"
-      >
+      <div className="sticky bottom-0 relative">
+        <FeedbackWidget anchored />
+        <form
+          onSubmit={(e) => { e.preventDefault(); void send(input); }}
+          className="bg-background/90 backdrop-blur border-t border-borderline p-4 flex flex-wrap gap-3"
+        >
         {messages.length >= 2 && !finishing && (
           <p className="w-full text-xs text-muted text-center -mt-1">
             Stop whenever you like —{" "}
@@ -296,7 +297,8 @@ export function ChatClient({
         >
           Send
         </button>
-      </form>
+        </form>
+      </div>
     </main>
   );
 }

@@ -4,7 +4,14 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 
 /** Floating feedback whisper — pilot phase: the circle is co-building this tool. */
-export function FeedbackWidget() {
+/**
+ * `anchored` pins the button just above its container instead of to the
+ * viewport. On the conversation screen the composer owns the bottom of the
+ * screen, and on a phone this button sat directly on top of Send — the one
+ * control the whole screen exists for. Anchoring rather than nudging it up by
+ * a fixed distance means it stays clear however tall the composer grows.
+ */
+export function FeedbackWidget({ anchored }: { anchored?: boolean } = {}) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
@@ -31,7 +38,13 @@ export function FeedbackWidget() {
   }
 
   return (
-    <div className="fixed bottom-5 right-5 z-30 flex flex-col items-end gap-2">
+    <div
+      className={`z-30 flex flex-col items-end gap-2 ${
+        anchored
+          ? "absolute bottom-full right-5 mb-3"
+          : "fixed bottom-5 right-5"
+      }`}
+    >
       {open && (
         <form
           onSubmit={submit}
