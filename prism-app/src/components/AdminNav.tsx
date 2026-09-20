@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { WccMark } from "./WccLogo";
 import { clearKeeperPassword, forgetKeeper } from "@/lib/keeperClient";
 
@@ -12,8 +12,15 @@ import { clearKeeperPassword, forgetKeeper } from "@/lib/keeperClient";
  * identity at all, so links to Home, Collective and Decisions would just bounce
  * them to the entry page. This shows where they are and how to leave.
  */
+const TOOLS = [
+  { href: "/admin/members", label: "Who's here" },
+  { href: "/admin/funnel", label: "How far" },
+  { href: "/admin/feedback", label: "Feedback" },
+];
+
 export function AdminNav() {
   const router = useRouter();
+  const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-20 bg-background/90 backdrop-blur border-b border-borderline">
@@ -22,10 +29,20 @@ export function AdminNav() {
           <WccMark size={22} />
           <span className="text-xs tracking-[0.2em] uppercase text-muted">Admin</span>
         </Link>
-        <div className="flex items-center gap-4 text-sm">
-          <Link href="/admin" className="text-muted hover:text-accent transition-colors">
-            All tools
-          </Link>
+        <div className="flex items-center gap-1 sm:gap-2 text-sm">
+          {TOOLS.map((t) => (
+            <Link
+              key={t.href}
+              href={t.href}
+              className={`px-2.5 sm:px-3 py-1.5 rounded-full transition-colors ${
+                pathname === t.href
+                  ? "text-accent bg-surface-raised"
+                  : "text-muted hover:text-foreground"
+              }`}
+            >
+              {t.label}
+            </Link>
+          ))}
           <button
             onClick={() => {
               clearKeeperPassword();
@@ -33,7 +50,7 @@ export function AdminNav() {
               router.push("/admin");
               router.refresh();
             }}
-            className="text-muted/60 hover:text-accent transition-colors"
+            className="ml-1 px-2.5 py-1.5 text-muted/60 hover:text-accent transition-colors"
             title="Forget the keeper password on this browser"
           >
             Sign out

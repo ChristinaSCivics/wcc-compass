@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AdminNav } from "@/components/AdminNav";
+import { DateRange, withinRange, type Range } from "@/components/DateRange";
 import { getKeeperPassword, clearKeeperPassword } from "@/lib/keeperClient";
 
 type Item = { id: string; message: string; page: string | null; created_at: string; name: string };
@@ -12,6 +13,7 @@ export default function FeedbackReview() {
   const router = useRouter();
   const [items, setItems] = useState<Item[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [range, setRange] = useState<Range>({ since: null, until: null });
 
   useEffect(() => {
     (async () => {
@@ -38,6 +40,10 @@ export default function FeedbackReview() {
     })();
   }, [router]);
 
+  const shown = (items ?? []).filter(
+    (f) => (!range.since && !range.until) || withinRange(f.created_at, range)
+  );
+
   return (
     <>
     <AdminNav />
@@ -48,11 +54,20 @@ export default function FeedbackReview() {
       </p>
 
       {error && <p className="text-red-400 text-sm">{error}</p>}
+      <DateRange
+        range={range}
+        onChange={setRange}
+        count={items ? `${shown.length} of ${items.length} shown` : undefined}
+      />
+
       {!error && items === null && <p className="text-muted text-sm">Loading…</p>}
       {items?.length === 0 && <p className="text-muted text-sm">No feedback yet.</p>}
+      {!!items?.length && shown.length === 0 && (
+        <p className="text-muted text-sm">Nothing in this window.</p>
+      )}
 
       <div className="space-y-4">
-        {items?.map((f) => (
+        {shown.map((f) => (
           <div key={f.id} className="rounded-xl border border-borderline bg-surface p-5">
             <p className="leading-relaxed whitespace-pre-wrap">{f.message}</p>
             <p className="text-xs text-muted mt-3">

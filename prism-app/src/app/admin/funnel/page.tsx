@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AdminNav } from "@/components/AdminNav";
+import { DateRange, type Range } from "@/components/DateRange";
 import { getKeeperPassword, clearKeeperPassword, rememberKeeper } from "@/lib/keeperClient";
 
 type Bar = { label: string; count: number };
@@ -31,6 +32,7 @@ export default function Funnel() {
   const router = useRouter();
   const [data, setData] = useState<Data | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [range, setRange] = useState<Range>({ since: null, until: null });
 
 
   // Signing in happens at /admin now, so by the time anyone is here they
@@ -44,7 +46,7 @@ export default function Funnel() {
     const res = await fetch("/api/admin/funnel", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ keeperPassword }),
+      body: JSON.stringify({ keeperPassword, since: range.since, until: range.until }),
     });
     if (res.status === 403) {
       clearKeeperPassword();
@@ -57,7 +59,7 @@ export default function Funnel() {
     }
     rememberKeeper();
     setData(await res.json());
-  }, [router]);
+  }, [router, range]);
 
   useEffect(() => {
     void load();
@@ -77,6 +79,12 @@ export default function Funnel() {
       </p>
 
       {!data && !error && <p className="text-muted text-sm">Loading…</p>}
+      <DateRange
+        range={range}
+        onChange={setRange}
+        count={data ? `${data.funnel[0]?.count ?? 0} arrived in this window` : undefined}
+      />
+
       {error && <p className="text-red-400 text-sm">{error}</p>}
 
       {data && (

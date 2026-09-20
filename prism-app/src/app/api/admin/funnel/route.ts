@@ -24,7 +24,7 @@ type Joined = {
 };
 
 export async function POST(req: NextRequest) {
-  const { keeperPassword } = await req.json();
+  const { keeperPassword, since, until } = await req.json();
   if (!checkKeeper(keeperPassword)) {
     return NextResponse.json({ error: "keeper password required" }, { status: 403 });
   }
@@ -39,7 +39,27 @@ export async function POST(req: NextRequest) {
       admin.from("mastermind_signups").select("user_id"),
     ]);
 
-  const real = (profiles ?? []).filter((p) => !p.is_test);
+  // The window is applied to arrivals, and everything downstream follows from
+  // that set — so "how far people got" answers for the day you asked about
+  // rather than for all of history.
+  const from = since ? new Date(since).getTime() : null;
+  const to = (() => {
+    if (!until) return null;
+    const d = new Date(until);
+    d.setHours(23, 59, 59, 999);
+    return d.getTime();
+  })();
+  const inWindow = (iso: string | null) => {
+    if (!iso) return false;
+    const t = new Date(iso).getTime();
+    if (from !== null && t < from) return false;
+    if (to !== null && t > to) return false;
+    return true;
+  };
+
+  const real = (profiles ?? [])
+    .filter((p) => !p.is_test)
+    .filter((p) => inWindow(p.created_at as string));
   const realIds = new Set(real.map((p) => p.id));
 
   // Exchanges = what the person actually said. Prism's replies aren't progress.

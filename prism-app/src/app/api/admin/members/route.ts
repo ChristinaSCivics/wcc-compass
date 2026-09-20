@@ -14,6 +14,27 @@ import { audit } from "@/lib/audit";
 
 type Row = { user_id: string };
 
+/**
+ * joined_from is a jsonb record of where someone arrived from — city, region,
+ * device and so on. It used to be handed to the page as-is, which React
+ * refused to render, and the roster died with "this page couldn't load". Turn
+ * it into the one line a human wants to read.
+ */
+type Joined = {
+  city?: string | null;
+  region?: string | null;
+  country?: string | null;
+  device?: string | null;
+};
+
+function whereFrom(value: unknown): string | null {
+  if (!value || typeof value !== "object") return null;
+  const j = value as Joined;
+  const place = [j.city, j.region].filter(Boolean).join(", ");
+  const parts = [place || j.country, j.device].filter(Boolean);
+  return parts.length ? parts.join(" · ") : null;
+}
+
 export async function POST(req: NextRequest) {
   // The keeper password is the gate. Requiring a signed-in participant as well
   // stopped nobody — a session is five seconds and a name away — but it did
@@ -53,7 +74,7 @@ export async function POST(req: NextRequest) {
       role: p.role,
       isTest: p.is_test,
       joinedAt: p.created_at,
-      joinedFrom: p.joined_from ?? null,
+      joinedFrom: whereFrom(p.joined_from),
       visionStatus: vision?.status ?? "none",
       visionHidden: !!vision?.hidden,
       confirmedInputs: (inputs ?? []).filter((i) => i.user_id === p.id && i.confirmed).length,

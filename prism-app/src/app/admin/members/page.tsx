@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AdminNav } from "@/components/AdminNav";
+import { DateRange, withinRange, type Range } from "@/components/DateRange";
 import { getKeeperPassword, clearKeeperPassword, rememberKeeper } from "@/lib/keeperClient";
 
 type Member = {
@@ -26,6 +27,7 @@ export default function Members() {
   const [members, setMembers] = useState<Member[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState<string | null>(null);
+  const [range, setRange] = useState<Range>({ since: null, until: null });
 
   const load = useCallback(async () => {
     const keeperPassword = getKeeperPassword();
@@ -74,8 +76,11 @@ export default function Members() {
     );
   }
 
-  const real = (members ?? []).filter((m) => !m.isTest);
-  const test = (members ?? []).filter((m) => m.isTest);
+  const windowed = (members ?? []).filter(
+    (m) => (!range.since && !range.until) || withinRange(m.joinedAt, range)
+  );
+  const real = windowed.filter((m) => !m.isTest);
+  const test = windowed.filter((m) => m.isTest);
   const onMap = real.filter((m) => m.visionStatus === "confirmed").length;
 
   return (
@@ -97,6 +102,12 @@ export default function Members() {
       </p>
 
       {members === null && !error && <p className="text-muted text-sm">Loading…</p>}
+      <DateRange
+        range={range}
+        onChange={setRange}
+        count={members ? `${windowed.length} of ${members.length} shown` : undefined}
+      />
+
       {error && <p className="text-red-400 text-sm">{error}</p>}
 
       {members && (
