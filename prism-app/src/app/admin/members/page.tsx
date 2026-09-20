@@ -33,6 +33,7 @@ export default function Members() {
   const [peopleCount, setPeopleCount] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState<string | null>(null);
+  const [renaming, setRenaming] = useState<string | null>(null);
   const [range, setRange] = useState<Range>({ since: null, until: null });
   const [sort, setSort] = useState<SortKey>("joined");
   const [desc, setDesc] = useState(true);
@@ -85,6 +86,35 @@ export default function Members() {
     setMembers((prev) =>
       (prev ?? []).map((p) => (p.id === m.id ? { ...p, isTest: !p.isTest } : p))
     );
+  }
+
+  /**
+   * Two entries become one person by making the names match — the roster counts
+   * people by name, because a second browser or a phone is all it takes to mint
+   * a second identity and nothing else can tell they're the same person.
+   */
+  async function rename(m: Member, next: string) {
+    setRenaming(null);
+    if (!next.trim() || next.trim() === m.name) return;
+    setPending(m.id);
+    const res = await fetch("/api/admin/members", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        keeperPassword: getKeeperPassword(),
+        userId: m.id,
+        displayName: next.trim(),
+        actorName: getAdminName(),
+      }),
+    });
+    setPending(null);
+    if (!res.ok) {
+      setError("Couldn't rename that entry.");
+      return;
+    }
+    // Reload rather than patch in place: the people-by-name count and the
+    // repeat markers both change when a name does.
+    void load();
   }
 
   const windowed = (members ?? []).filter(
@@ -154,17 +184,34 @@ export default function Members() {
             Entering without an account makes a new identity each time — a second browser,
             a phone, or a return after signing out. So <em>entries</em> counts arrivals and{" "}
             <em>people</em> groups them by name, which is all we have to go on. Repeats are
-            marked below.
+            marked below; if two entries are the same person under different names, click a
+            name to correct it and they count as one.
           </p>
         </>
       )}
 
-      {!!real.length && <Table rows={real} onFlag={flag} pending={pending} />}
+      {!!real.length && (
+        <Table
+          rows={real}
+          onFlag={flag}
+          onRename={rename}
+          renaming={renaming}
+          setRenaming={setRenaming}
+          pending={pending}
+        />
+      )}
 
       {!!test.length && (
         <>
           <h2 className="text-lg mt-10 mb-3 text-muted">Test accounts</h2>
-          <Table rows={test} onFlag={flag} pending={pending} />
+          <Table
+            rows={test}
+            onFlag={flag}
+            onRename={rename}
+            renaming={renaming}
+            setRenaming={setRenaming}
+            pending={pending}
+          />
         </>
       )}
 
@@ -223,10 +270,13 @@ function cmp(a: Member, b: Member, key: SortKey): number {
 }
 
 function Table({
-  rows, onFlag, pending,
+  rows, onFlag, onRename, renaming, setRenaming, pending,
 }: {
   rows: Member[];
   onFlag: (m: Member) => void;
+  onRename: (m: Member, next: string) => void;
+  renaming: string | null;
+  setRenaming: (id: string | null) => void;
   pending: string | null;
 }) {
   return (
@@ -237,7 +287,27 @@ function Table({
           className="flex items-baseline gap-x-4 gap-y-2 border-b border-borderline py-3 text-sm flex-wrap"
         >
           <div className="flex-1 basis-full sm:basis-auto sm:min-w-[12rem] min-w-0">
-            <span className={m.isTest ? "text-muted" : "text-accent"}>{m.name}</span>
+            {renaming === m.id ? (
+              <input
+                autoFocus
+                defaultValue={m.name}
+                onBlur={(e) => onRename(m, e.currentTarget.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") onRename(m, e.currentTarget.value);
+                  if (e.key === "Escape") setRenaming(null);
+                }}
+                className="bg-surface-raised border border-accent rounded px-2 py-0.5
+                           text-sm text-accent w-40"
+              />
+            ) : (
+              <button
+                onClick={() => setRenaming(m.id)}
+                title="Rename — two entries become one person when the names match"
+                className={`${m.isTest ? "text-muted" : "text-accent"} hover:underline`}
+              >
+                {m.name}
+              </button>
+            )}
             {m.saved && <span className="text-xs text-muted ml-2">· saved spot</span>}
             {m.role !== "member" && (
               <span className="text-xs text-muted ml-2">· {m.role}</span>

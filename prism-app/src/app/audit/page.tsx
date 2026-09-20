@@ -45,6 +45,7 @@ const PHRASING: Record<string, string> = {
   "feedback.submitted": "Someone sent feedback on the prototype",
   "member.upgraded": "Someone turned a temporary identity into a permanent account",
   "fibery.synced": "A keeper pushed contact details to the WCC workspace",
+  "profile.renamed": "A keeper corrected the name on an entry",
   "admin.signed_in": "A keeper signed in to the admin tools",
   "admin.sign_in_failed": "Someone tried the keeper password and got it wrong",
 };

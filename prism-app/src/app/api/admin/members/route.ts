@@ -148,18 +148,56 @@ export async function PATCH(req: NextRequest) {
   // Admins no longer need a participant session, so there may be nobody signed
   // in to attribute this to. The name picked at the admin door stands in — a
   // signature rather than proof, and recorded as such.
-  const { keeperPassword, userId, isTest, actorName } = await req.json();
+  const { keeperPassword, userId, isTest, displayName, actorName } = await req.json();
   if (!checkKeeper(keeperPassword)) {
     return NextResponse.json({ error: "keeper password required" }, { status: 403 });
   }
-  if (typeof userId !== "string" || typeof isTest !== "boolean") {
-    return NextResponse.json({ error: "userId and isTest are required" }, { status: 400 });
+  if (typeof userId !== "string") {
+    return NextResponse.json({ error: "userId is required" }, { status: 400 });
   }
 
   const signedAs =
     typeof actorName === "string" && actorName.trim() ? actorName.trim() : null;
 
   const admin = createAdminClient();
+
+  /**
+   * Renaming an entry.
+   *
+   * People arrive twice — a second browser, a phone — and the app has no way to
+   * know it's the same person. Names are all it has, so two entries become one
+   * person by making the names match: "PeterPan" and "Peter" are one man with
+   * two sessions. This edits what someone typed about themselves, so the old
+   * name and the new one both go into the record under the keeper's signature.
+   */
+  if (typeof displayName === "string") {
+    const next = displayName.trim();
+    if (!next) {
+      return NextResponse.json({ error: "a name is required" }, { status: 400 });
+    }
+    const { data: before } = await admin
+      .from("profiles")
+      .select("display_name")
+      .eq("id", userId)
+      .maybeSingle();
+
+    const { error } = await admin
+      .from("profiles")
+      .update({ display_name: next })
+      .eq("id", userId);
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+    await audit("profile.renamed", "profile", userId, null, {
+      from: before?.display_name ?? null,
+      to: next,
+      by_name: signedAs ?? "an admin holding the shared password",
+    });
+    return NextResponse.json({ ok: true });
+  }
+
+  if (typeof isTest !== "boolean") {
+    return NextResponse.json({ error: "isTest or displayName is required" }, { status: 400 });
+  }
   const { error } = await admin.from("profiles").update({ is_test: isTest }).eq("id", userId);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
