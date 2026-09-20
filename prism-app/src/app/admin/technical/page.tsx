@@ -21,6 +21,11 @@ type Data = {
     autoWeaves: number;
     lastWeave: string | null;
   };
+  admin: {
+    signIns: { at: string; name: string; where: string | null; device: string | null }[];
+    failures: { at: string; name: string | null; where: string | null }[];
+    names: string[];
+  };
   auditWindowFrom: string | null;
   auditTruncated: boolean;
 };
@@ -139,6 +144,47 @@ export default function Technical() {
               skips the 30-minute wait. Nothing else calls a model without someone doing
               something first.
             </P>
+          </Section>
+
+          <Section title="Who has been in here">
+            <p className="text-sm text-muted leading-relaxed mb-4">
+              One password, shared between three people, so the name is the one picked at
+              the door — a signature, not proof. Every sign-in and every wrong guess is
+              written to the record.
+            </p>
+            {!data.admin.signIns.length && (
+              <p className="text-sm text-muted">
+                No sign-ins recorded yet — this started counting when the door began
+                writing them down.
+              </p>
+            )}
+            {data.admin.signIns.map((s, i) => (
+              <Row
+                key={`${s.at}-${i}`}
+                label={`${s.name}${s.where ? ` · ${s.where}` : ""}${s.device ? ` · ${s.device}` : ""}`}
+                value={new Date(s.at).toLocaleString()}
+              />
+            ))}
+            {!!data.admin.failures.length && (
+              <>
+                <p className="text-sm text-amber mt-5 mb-2">
+                  {data.admin.failures.length} wrong{" "}
+                  {data.admin.failures.length === 1 ? "password" : "passwords"} entered
+                </p>
+                {data.admin.failures.map((f, i) => (
+                  <Row
+                    key={`${f.at}-${i}`}
+                    label={`${f.name ?? "no name given"}${f.where ? ` · ${f.where}` : ""}`}
+                    value={new Date(f.at).toLocaleString()}
+                  />
+                ))}
+                <P>
+                  A few of these are someone mistyping. A run of them from somewhere none
+                  of us is means the password has got out, and it&apos;s one environment
+                  variable to change.
+                </P>
+              </>
+            )}
           </Section>
 
           <Section title="How it fits together">

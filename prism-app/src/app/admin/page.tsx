@@ -30,7 +30,7 @@ export default function Admin() {
     const res = await fetch("/api/admin/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ keeperPassword }),
+      body: JSON.stringify({ keeperPassword, actorName: getAdminName() }),
     }).catch(() => null);
     setChecking(false);
 

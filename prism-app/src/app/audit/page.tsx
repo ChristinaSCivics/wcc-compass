@@ -47,6 +47,8 @@ const PHRASING: Record<string, string> = {
   "feedback.submitted": "Someone sent feedback on the prototype",
   "member.upgraded": "Someone turned a temporary identity into a permanent account",
   "fibery.synced": "A keeper pushed contact details to the WCC workspace",
+  "admin.signed_in": "A keeper signed in to the admin tools",
+  "admin.sign_in_failed": "Someone tried the keeper password and got it wrong",
 };
 
 function phrase(eventType: string): string {
@@ -83,10 +85,15 @@ export default async function AuditPage() {
   const intact = rows.length > 0 && firstBreak === null;
 
   // Sandbox activity is set aside here exactly as it is in the weave and the
-  // member counts. Crucially it is NOT deleted: removing entries would break
-  // the chain this page exists to demonstrate, so verification above runs over
-  // every entry and only the display is filtered.
-  const visible = rows.filter((r) => !r.profiles?.is_test);
+  // member counts, and so are the admin door's own entries — who signed in to
+  // the tools isn't what this page is for, and publishing failed password
+  // attempts helps nobody. Crucially neither is deleted: removing entries would
+  // break the chain this page exists to demonstrate, so verification above runs
+  // over every entry and only the display is filtered. Keepers see the door
+  // entries in full under Technical.
+  const visible = rows.filter(
+    (r) => !r.profiles?.is_test && !r.event_type.startsWith("admin.")
+  );
   const setAside = rows.length - visible.length;
 
   const newestFirst = [...visible].reverse();
@@ -158,9 +165,10 @@ export default async function AuditPage() {
           {setAside > 0 && (
             <>
               {" "}
-              {setAside} {setAside === 1 ? "entry is" : "entries are"} from sandbox
-              accounts and {setAside === 1 ? "isn't" : "aren't"} listed below — they stay
-              in the chain, which is why the count above is higher than what you can see.
+              {setAside} {setAside === 1 ? "entry is" : "entries are"} from sandbox accounts
+              or from keepers opening the admin tools, and {setAside === 1 ? "isn't" : "aren't"}{" "}
+              listed below — they stay in the chain, which is why the count above is higher
+              than what you can see.
             </>
           )}
         </p>

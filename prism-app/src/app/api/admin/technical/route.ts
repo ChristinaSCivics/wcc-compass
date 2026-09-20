@@ -51,6 +51,34 @@ export async function POST(req: NextRequest) {
   );
   const lastWeave = rows.find((e) => e.event_type === "collective.woven")?.created_at ?? null;
 
+  // Who has been in the admin tools, and who tried and failed. One password is
+  // shared between three people, so the name is a signature rather than proof —
+  // the page says as much.
+  type Payload = { by_name?: string; tried_name?: string; place?: string; city?: string; device?: string };
+  const signIns = rows
+    .filter((e) => e.event_type === "admin.signed_in")
+    .slice(0, 25)
+    .map((e) => {
+      const p = (e.payload ?? {}) as Payload;
+      return {
+        at: e.created_at,
+        name: p.by_name ?? "no name given",
+        where: [p.city, p.place].filter(Boolean).join(", ") || null,
+        device: p.device ?? null,
+      };
+    });
+  const failures = rows
+    .filter((e) => e.event_type === "admin.sign_in_failed")
+    .slice(0, 25)
+    .map((e) => {
+      const p = (e.payload ?? {}) as Payload;
+      return {
+        at: e.created_at,
+        name: p.tried_name ?? null,
+        where: [p.city, p.place].filter(Boolean).join(", ") || null,
+      };
+    });
+
   return NextResponse.json({
     models: {
       conversation: PRISM_MODEL,
@@ -69,6 +97,13 @@ export async function POST(req: NextRequest) {
       draftsFromCron: cronDrafts.length,
       autoWeaves: autoWeaves.length,
       lastWeave,
+    },
+    admin: {
+      signIns,
+      failures,
+      // Distinct signatures seen, which is the closest thing to "how many of us
+      // actually use this".
+      names: [...new Set(signIns.map((s) => s.name))],
     },
     // The audit log only goes back to when auditing shipped, so counts before
     // that are simply absent rather than zero.
