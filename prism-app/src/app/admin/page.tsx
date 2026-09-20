@@ -75,6 +75,11 @@ export default function Admin() {
             sub="Where people stop, how much they said, and where they came from."
           />
           <Tool
+            href="/admin/contacts"
+            title="Emails"
+            sub="Who gave an email, who is in the mastermind, and who we can't reach at all."
+          />
+          <Tool
             href="/admin/feedback"
             title="Feedback"
             sub="What people sent from the widget on every page."

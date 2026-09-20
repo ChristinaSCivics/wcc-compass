@@ -58,6 +58,21 @@ export async function POST(req: NextRequest) {
   const countBy = (rows: Row[] | null, id: string) =>
     (rows ?? []).filter((r) => r.user_id === id).length;
 
+  /**
+   * Entering without an account mints a new identity every time — a different
+   * browser, a different phone, or coming back after signing out all make one.
+   * So the row count is a count of entries, not of people, and reading it as
+   * people badly overstates the circle. Names are the only signal we have for
+   * who is who, so rows are grouped by name and both numbers are reported.
+   */
+  const key = (name: string | null) => (name ?? "").trim().toLowerCase();
+  const nameCounts = new Map<string, number>();
+  for (const p of profiles ?? []) {
+    if (p.is_test) continue;
+    const k = key(p.display_name);
+    if (k) nameCounts.set(k, (nameCounts.get(k) ?? 0) + 1);
+  }
+
   const members = (profiles ?? []).map((p) => {
     const vision = (visions ?? []).find((v) => v.user_id === p.id);
     const mine = (convos ?? []).filter((c) => c.user_id === p.id);
@@ -79,10 +94,12 @@ export async function POST(req: NextRequest) {
       confirmedInputs: (inputs ?? []).filter((i) => i.user_id === p.id && i.confirmed).length,
       conversations: countBy(convos as Row[] | null, p.id),
       lastActive,
+      // How many identities carry this same name, this one included.
+      sameName: p.is_test ? 1 : nameCounts.get(key(p.display_name)) ?? 1,
     };
   });
 
-  return NextResponse.json({ members });
+  return NextResponse.json({ members, peopleCount: nameCounts.size });
 }
 
 export async function PATCH(req: NextRequest) {

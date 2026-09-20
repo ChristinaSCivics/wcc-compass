@@ -20,12 +20,14 @@ type Member = {
   confirmedInputs: number;
   conversations: number;
   lastActive: string | null;
+  sameName: number;
 };
 
 /** Keeper-only roster. Not linked in the nav — share the URL with keepers. */
 export default function Members() {
   const router = useRouter();
   const [members, setMembers] = useState<Member[] | null>(null);
+  const [peopleCount, setPeopleCount] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState<string | null>(null);
   const [range, setRange] = useState<Range>({ since: null, until: null });
@@ -53,7 +55,9 @@ export default function Members() {
       return;
     }
     rememberKeeper();
-    setMembers((await res.json()).members);
+    const body = await res.json();
+    setMembers(body.members);
+    setPeopleCount(body.peopleCount ?? null);
   }, [router]);
 
   useEffect(() => { void load(); }, [load]);
@@ -142,11 +146,21 @@ export default function Members() {
       {error && <p className="text-red-400 text-sm">{error}</p>}
 
       {members && (
-        <div className="flex flex-wrap gap-6 mb-8 text-sm">
-          <Stat label="members" value={real.length} />
-          <Stat label="on the map" value={onMap} />
-          <Stat label="test accounts" value={test.length} />
-        </div>
+        <>
+          <div className="flex flex-wrap gap-6 mb-2 text-sm">
+            {peopleCount !== null && <Stat label="people, by name" value={peopleCount} />}
+            <Stat label="entries" value={real.length} />
+            <Stat label="on the map" value={onMap} />
+            <Stat label="test accounts" value={test.length} />
+          </div>
+          <p className="text-xs text-muted mb-8 max-w-2xl leading-relaxed">
+            Entering without an account makes a new identity every time — a second
+            browser, a phone, or coming back after signing out each make one. So
+            &ldquo;entries&rdquo; counts arrivals, not people. Rows sharing a name are
+            marked below; the people figure groups by name, which is the only signal
+            we have for who is who.
+          </p>
+        </>
       )}
 
       {!!real.length && <Table rows={real} onFlag={flag} pending={pending} />}
@@ -228,6 +242,11 @@ function Table({
             {m.saved && <span className="text-xs text-muted ml-2">· saved spot</span>}
             {m.role !== "member" && (
               <span className="text-xs text-muted ml-2">· {m.role}</span>
+            )}
+            {m.sameName > 1 && (
+              <span className="text-xs text-amber/80 ml-2">
+                · 1 of {m.sameName} entries under this name
+              </span>
             )}
             <div className="text-xs text-muted mt-1 break-words">
               joined {new Date(m.joinedAt).toLocaleDateString()}
