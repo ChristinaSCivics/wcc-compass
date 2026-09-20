@@ -27,14 +27,19 @@ export function ChatClient({
   const [finishing, setFinishing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const autoDrafted = useRef(false);
+  const drafting = useRef(false);
   const opened = useRef(false);
   // Exchange count the banked background draft reflects, so Finish can skip a
   // second identical extraction when nothing has been said since.
   const draftedAt = useRef<number | null>(null);
 
-  // Where most people finish. Also the point past which we quietly bank a draft.
+  // Where most people finish — used for the progress rail, not for drafting.
   const TYPICAL = kind === "decision" ? 6 : 7;
+
+  // Drafting starts well before anyone is "done", and refreshes as the
+  // conversation grows, so what's banked is never far behind what was said.
+  const FIRST_DRAFT_AT = 2;
+  const REDRAFT_EVERY = 3;
   const exchanges = messages.filter((m) => m.role === "user").length;
 
   useEffect(() => {
@@ -55,14 +60,25 @@ export function ChatClient({
 
   // A conversation that is never "finished" used to produce nothing at all —
   // one tester talked for 27 messages and no draft was ever written, because
-  // drafting only happened on an explicit button press she never found. Once
-  // there's clearly enough to work with, bank a draft in the background so the
-  // work survives even if she closes the tab. Silent by design: it does not
-  // navigate, and it never touches an already-confirmed vision.
+  // drafting only happened on an explicit button press she never found.
+  //
+  // So bank a draft early and keep it current. Waiting for a "complete"
+  // conversation is what lost the work in the first place: someone who says
+  // three things and closes the tab should still exist on the map. A thin
+  // draft is not wrong, it is just thin — and the next one overwrites it with
+  // everything said since.
+  //
+  // Silent by design: it does not navigate, and it never touches an
+  // already-confirmed vision.
   useEffect(() => {
-    if (autoDrafted.current || busy || finishing) return;
-    if (exchanges < TYPICAL) return;
-    autoDrafted.current = true;
+    if (drafting.current || busy || finishing) return;
+    const banked = draftedAt.current;
+    const due =
+      banked === null
+        ? exchanges >= FIRST_DRAFT_AT
+        : exchanges - banked >= REDRAFT_EVERY;
+    if (!due) return;
+    drafting.current = true;
     const at = exchanges;
     void fetch("/api/extract", {
       method: "POST",
@@ -74,8 +90,11 @@ export function ChatClient({
       })
       .catch(() => {
         // Best-effort only. The explicit Finish button remains the real path.
+      })
+      .finally(() => {
+        drafting.current = false;
       });
-  }, [exchanges, busy, finishing, conversationId, TYPICAL]);
+  }, [exchanges, busy, finishing, conversationId]);
 
   /** Put a notice in the trailing assistant bubble, or add one if there isn't a blank one. */
   function notice(text: string) {
