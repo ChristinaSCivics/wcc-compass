@@ -19,6 +19,9 @@ type Member = {
   visionHidden: boolean;
   confirmedInputs: number;
   conversations: number;
+  said: number;
+  furthest: string;
+  askedForCall: boolean;
   lastActive: string | null;
   sameName: number;
 };
@@ -180,12 +183,13 @@ function Stat({ label, value }: { label: string; value: number }) {
   );
 }
 
-type SortKey = "name" | "joined" | "active" | "progress" | "conversations";
+type SortKey = "name" | "joined" | "active" | "progress" | "said" | "conversations";
 
 const SORTS: { key: SortKey; label: string; defaultDesc: boolean }[] = [
   { key: "joined", label: "Joined", defaultDesc: true },
   { key: "active", label: "Last active", defaultDesc: true },
   { key: "progress", label: "How far", defaultDesc: true },
+  { key: "said", label: "How much said", defaultDesc: true },
   { key: "conversations", label: "Conversations", defaultDesc: true },
   { key: "name", label: "Name", defaultDesc: false },
 ];
@@ -206,8 +210,10 @@ function cmp(a: Member, b: Member, key: SortKey): number {
     case "progress":
       return (
         (PROGRESS[a.visionStatus] ?? 0) - (PROGRESS[b.visionStatus] ?? 0) ||
-        a.conversations - b.conversations
+        a.said - b.said
       );
+    case "said":
+      return a.said - b.said;
     case "conversations":
       return a.conversations - b.conversations || a.confirmedInputs - b.confirmedInputs;
     case "joined":
@@ -248,18 +254,17 @@ function Table({
             </div>
           </div>
 
-          <div className="text-xs text-muted shrink-0 w-full sm:w-40">
-            <div>
-              vision:{" "}
-              <span className={m.visionStatus === "confirmed" ? "text-accent" : ""}>
-                {m.visionStatus}
-              </span>
-              {m.visionHidden && " (hidden)"}
+          <div className="text-xs text-muted shrink-0 w-full sm:w-48">
+            <div className={m.visionStatus === "confirmed" ? "text-accent" : ""}>
+              {m.furthest}
             </div>
             <div>
-              {m.conversations} conversation{m.conversations === 1 ? "" : "s"} ·{" "}
-              {m.confirmedInputs} input{m.confirmedInputs === 1 ? "" : "s"}
+              said {m.said} · {m.conversations} conversation
+              {m.conversations === 1 ? "" : "s"} · {m.confirmedInputs} input
+              {m.confirmedInputs === 1 ? "" : "s"}
+              {m.visionHidden && " · vision hidden"}
             </div>
+            {m.askedForCall && <div className="text-accent/80">asked for the call</div>}
           </div>
 
           <button

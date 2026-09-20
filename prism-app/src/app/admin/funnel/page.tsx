@@ -7,23 +7,12 @@ import { DateRange, type Range } from "@/components/DateRange";
 import { getKeeperPassword, clearKeeperPassword, rememberKeeper } from "@/lib/keeperClient";
 
 type Bar = { label: string; count: number };
-type Person = {
-  name: string;
-  joinedAt: string;
-  city: string | null;
-  region: string | null;
-  device: string | null;
-  exchanges: number;
-  furthest: string;
-  askedForCall: boolean;
-};
 type Data = {
   funnel: { step: string; count: number }[];
   depth: Bar[];
   devices: Bar[];
   regions: Bar[];
   cities: Bar[];
-  people: Person[];
   testExcluded: number;
 };
 
@@ -131,39 +120,11 @@ export default function Funnel() {
             <MiniSection title="City"><Bars rows={data.cities.slice(0, 6)} /></MiniSection>
           </div>
 
-          <Section title="Everyone, most recent first">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-muted text-xs uppercase tracking-widest">
-                    <th className="py-2 pr-4 font-normal">Name</th>
-                    <th className="py-2 pr-4 font-normal">Arrived</th>
-                    <th className="py-2 pr-4 font-normal">From</th>
-                    <th className="py-2 pr-4 font-normal">Said</th>
-                    <th className="py-2 pr-4 font-normal">Got as far as</th>
-                    <th className="py-2 font-normal">Call</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.people.map((p, i) => (
-                    <tr key={i} className="border-t border-borderline">
-                      <td className="py-2 pr-4">{p.name}</td>
-                      <td className="py-2 pr-4 text-muted whitespace-nowrap">
-                        {new Date(p.joinedAt).toLocaleDateString()}
-                      </td>
-                      <td className="py-2 pr-4 text-muted whitespace-nowrap">
-                        {[p.city, p.region].filter(Boolean).join(", ") || "—"}
-                        {p.device && <span className="text-muted/60"> · {p.device}</span>}
-                      </td>
-                      <td className="py-2 pr-4 tabular-nums">{p.exchanges}</td>
-                      <td className="py-2 pr-4">{p.furthest}</td>
-                      <td className="py-2">{p.askedForCall ? "✓" : ""}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Section>
+          <p className="text-sm text-muted mt-8 leading-relaxed">
+            This page is about the shape of the journey. For the people themselves —
+            who they are, how far each one got, and what you can do about it — see{" "}
+            <a href="/admin/members" className="text-accent underline">People</a>.
+          </p>
 
           <p className="text-xs text-muted/70 mt-10 leading-relaxed">
             What this can&apos;t tell you: which buttons someone pressed, or the order

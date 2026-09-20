@@ -13,6 +13,10 @@ import { checkKeeper } from "@/lib/keeper";
  *
  * What this cannot show: which buttons someone pressed, or the order they
  * visited pages in. That needs event tracking we don't do.
+ *
+ * Shapes only — no per-person list. That used to live here as well as on the
+ * People page, which meant two rosters to keep honest; People is the one with
+ * the sorting and the test flag on it, so it kept the job.
  */
 
 type Joined = {
@@ -114,32 +118,6 @@ export async function POST(req: NextRequest) {
     return [...out.entries()].sort((a, b) => b[1] - a[1]).map(([label, count]) => ({ label, count }));
   };
 
-  const people = real
-    .map((p) => {
-      const v = visionByUser.get(p.id);
-      const deepest = deepestByUser.get(p.id) ?? 0;
-      return {
-        name: p.display_name as string,
-        joinedAt: p.created_at as string,
-        city: joined(p).city ?? null,
-        region: joined(p).region ?? null,
-        device: joined(p).device ?? null,
-        exchanges: deepest,
-        furthest:
-          v?.status === "confirmed"
-            ? "confirmed a vision"
-            : v
-              ? "reached a draft"
-              : deepest > 0
-                ? "talked to Prism"
-                : startedByUser.has(p.id)
-                  ? "opened a conversation"
-                  : "arrived only",
-        askedForCall: signedUp.has(p.id),
-      };
-    })
-    .sort((a, b) => (a.joinedAt < b.joinedAt ? 1 : -1));
-
   return NextResponse.json({
     funnel: [
       { step: "Arrived", count: arrived },
@@ -154,7 +132,6 @@ export async function POST(req: NextRequest) {
     devices: tally("device"),
     regions: tally("region"),
     cities: tally("city"),
-    people,
     testExcluded: (profiles ?? []).length - real.length,
   });
 }

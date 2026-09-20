@@ -44,16 +44,44 @@ export async function POST(req: NextRequest) {
   }
 
   const admin = createAdminClient();
-  const [{ data: profiles }, { data: visions }, { data: inputs }, { data: convos }] =
-    await Promise.all([
+  const [
+    { data: profiles },
+    { data: visions },
+    { data: inputs },
+    { data: convos },
+    { data: msgs },
+    { data: signups },
+  ] = await Promise.all([
       admin
         .from("profiles")
         .select("id, display_name, email, role, is_test, created_at, joined_from")
         .order("created_at", { ascending: true }),
       admin.from("vision_profiles").select("user_id, status, hidden, confirmed_at"),
       admin.from("decision_inputs").select("user_id, confirmed"),
-      admin.from("conversations").select("user_id, kind, status, created_at"),
+      admin.from("conversations").select("id, user_id, kind, status, created_at"),
+      // What people actually said. Prism's replies aren't progress, so only the
+      // person's own messages are counted — this used to live on the Journey
+      // page over a second copy of the same roster.
+      admin.from("messages").select("conversation_id, role"),
+      admin.from("mastermind_signups").select("user_id"),
     ]);
+
+  const saidPerConvo = new Map<string, number>();
+  for (const m of msgs ?? []) {
+    if (m.role !== "user") continue;
+    saidPerConvo.set(m.conversation_id, (saidPerConvo.get(m.conversation_id) ?? 0) + 1);
+  }
+  // The deepest single conversation, not the sum: someone who came back three
+  // times and said one thing each time didn't get further than someone who
+  // said three things once.
+  const deepest = new Map<string, number>();
+  for (const c of convos ?? []) {
+    deepest.set(
+      c.user_id,
+      Math.max(deepest.get(c.user_id) ?? 0, saidPerConvo.get(c.id) ?? 0)
+    );
+  }
+  const askedForCall = new Set((signups ?? []).map((s) => s.user_id).filter(Boolean));
 
   const countBy = (rows: Row[] | null, id: string) =>
     (rows ?? []).filter((r) => r.user_id === id).length;
@@ -75,6 +103,8 @@ export async function POST(req: NextRequest) {
 
   const members = (profiles ?? []).map((p) => {
     const vision = (visions ?? []).find((v) => v.user_id === p.id);
+    const said = deepest.get(p.id) ?? 0;
+    const startedOne = (convos ?? []).some((c) => c.user_id === p.id);
     const mine = (convos ?? []).filter((c) => c.user_id === p.id);
     const lastActive = mine
       .map((c) => c.created_at)
@@ -93,6 +123,18 @@ export async function POST(req: NextRequest) {
       visionHidden: !!vision?.hidden,
       confirmedInputs: (inputs ?? []).filter((i) => i.user_id === p.id && i.confirmed).length,
       conversations: countBy(convos as Row[] | null, p.id),
+      said,
+      furthest:
+        vision?.status === "confirmed"
+          ? "confirmed a vision"
+          : vision
+            ? "reached a draft"
+            : said > 0
+              ? "talked to Prism"
+              : startedOne
+                ? "opened a conversation"
+                : "arrived only",
+      askedForCall: askedForCall.has(p.id),
       lastActive,
       // How many identities carry this same name, this one included.
       sameName: p.is_test ? 1 : nameCounts.get(key(p.display_name)) ?? 1,
