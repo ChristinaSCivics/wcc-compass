@@ -36,6 +36,7 @@ export async function proxy(request: NextRequest) {
     isAdmin ||
     path === "/" ||
     path.startsWith("/login") ||
+    path === "/test" ||
     path.startsWith("/auth") ||
     path.startsWith("/about");
   if (!user && !isPublic) {

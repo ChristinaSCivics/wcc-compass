@@ -28,6 +28,8 @@ export default function Members() {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState<string | null>(null);
   const [range, setRange] = useState<Range>({ since: null, until: null });
+  const [sort, setSort] = useState<SortKey>("joined");
+  const [desc, setDesc] = useState(true);
 
   const load = useCallback(async () => {
     const keeperPassword = getKeeperPassword();
@@ -79,8 +81,9 @@ export default function Members() {
   const windowed = (members ?? []).filter(
     (m) => (!range.since && !range.until) || withinRange(m.joinedAt, range)
   );
-  const real = windowed.filter((m) => !m.isTest);
-  const test = windowed.filter((m) => m.isTest);
+  const ordered = [...windowed].sort((a, b) => cmp(a, b, sort) * (desc ? -1 : 1));
+  const real = ordered.filter((m) => !m.isTest);
+  const test = ordered.filter((m) => m.isTest);
   const onMap = real.filter((m) => m.visionStatus === "confirmed").length;
 
   return (
@@ -95,8 +98,8 @@ export default function Members() {
       </p>
       <p className="text-sm text-muted mb-8">
         To walk the system without touching the collective, enter through{" "}
-        <a href="/login?test=1" className="text-accent underline">
-          /login?test=1
+        <a href="/test" className="text-accent underline">
+          /test
         </a>{" "}
         — that identity is sandboxed from the start.
       </p>
@@ -107,6 +110,32 @@ export default function Members() {
         onChange={setRange}
         count={members ? `${windowed.length} of ${members.length} shown` : undefined}
       />
+
+      {members && (
+        <div className="flex flex-wrap items-center gap-2 mb-5 text-xs">
+          <span className="text-muted">Sort by</span>
+          {SORTS.map((o) => (
+            <button
+              key={o.key}
+              onClick={() => {
+                if (sort === o.key) setDesc((d) => !d);
+                else {
+                  setSort(o.key);
+                  setDesc(o.defaultDesc);
+                }
+              }}
+              className={`rounded-full px-3 py-1.5 transition-colors ${
+                sort === o.key
+                  ? "bg-accent text-background"
+                  : "border border-borderline text-muted hover:text-foreground"
+              }`}
+            >
+              {o.label}
+              {sort === o.key && (desc ? " ↓" : " ↑")}
+            </button>
+          ))}
+        </div>
+      )}
 
       {error && <p className="text-red-400 text-sm">{error}</p>}
 
@@ -140,6 +169,42 @@ function Stat({ label, value }: { label: string; value: number }) {
       <span className="text-muted ml-2">{label}</span>
     </div>
   );
+}
+
+type SortKey = "name" | "joined" | "active" | "progress" | "conversations";
+
+const SORTS: { key: SortKey; label: string; defaultDesc: boolean }[] = [
+  { key: "joined", label: "Joined", defaultDesc: true },
+  { key: "active", label: "Last active", defaultDesc: true },
+  { key: "progress", label: "How far", defaultDesc: true },
+  { key: "conversations", label: "Conversations", defaultDesc: true },
+  { key: "name", label: "Name", defaultDesc: false },
+];
+
+/** How far someone got, as something orderable. */
+const PROGRESS: Record<string, number> = { none: 0, draft: 1, confirmed: 2 };
+
+function cmp(a: Member, b: Member, key: SortKey): number {
+  switch (key) {
+    case "name":
+      return a.name.localeCompare(b.name);
+    case "active":
+      // Never active sorts as the oldest possible, so it lands at the far end
+      // rather than jumbling in among real timestamps.
+      return (
+        new Date(a.lastActive ?? 0).getTime() - new Date(b.lastActive ?? 0).getTime()
+      );
+    case "progress":
+      return (
+        (PROGRESS[a.visionStatus] ?? 0) - (PROGRESS[b.visionStatus] ?? 0) ||
+        a.conversations - b.conversations
+      );
+    case "conversations":
+      return a.conversations - b.conversations || a.confirmedInputs - b.confirmedInputs;
+    case "joined":
+    default:
+      return new Date(a.joinedAt).getTime() - new Date(b.joinedAt).getTime();
+  }
 }
 
 function Table({
