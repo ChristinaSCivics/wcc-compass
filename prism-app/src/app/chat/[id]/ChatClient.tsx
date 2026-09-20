@@ -36,10 +36,10 @@ export function ChatClient({
   // Where most people finish — used for the progress rail, not for drafting.
   const TYPICAL = kind === "decision" ? 6 : 7;
 
-  // Drafting starts well before anyone is "done", and refreshes as the
-  // conversation grows, so what's banked is never far behind what was said.
+  // One early draft, as insurance for a phone that dies thirty seconds in.
+  // Everything after this is handled by the scheduled job, which drafts once
+  // when a conversation goes quiet rather than repeatedly while it's alive.
   const FIRST_DRAFT_AT = 2;
-  const REDRAFT_EVERY = 3;
   const exchanges = messages.filter((m) => m.role === "user").length;
 
   useEffect(() => {
@@ -72,12 +72,8 @@ export function ChatClient({
   // already-confirmed vision.
   useEffect(() => {
     if (drafting.current || busy || finishing) return;
-    const banked = draftedAt.current;
-    const due =
-      banked === null
-        ? exchanges >= FIRST_DRAFT_AT
-        : exchanges - banked >= REDRAFT_EVERY;
-    if (!due) return;
+    if (draftedAt.current !== null) return;
+    if (exchanges < FIRST_DRAFT_AT) return;
     drafting.current = true;
     const at = exchanges;
     void fetch("/api/extract", {

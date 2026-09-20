@@ -4,10 +4,11 @@ import { createClient } from "@/lib/supabase/server";
 import { audit } from "@/lib/audit";
 import { EXTRACTION_PROMPT } from "@/lib/prompts/onboarding";
 import { DECISION_INPUT_EXTRACTION_PROMPT } from "@/lib/prompts/decision";
+import { EXTRACT_MODEL } from "@/lib/models";
 
 export const maxDuration = 120;
 
-const MODEL = process.env.PRISM_MODEL || "claude-sonnet-4-6";
+
 
 /**
  * Second pass: extract a structured DRAFT from a completed conversation.
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
   const isDecision = conversation.kind === "decision";
   const anthropic = new Anthropic();
   const response = await anthropic.messages.create({
-    model: MODEL,
+    model: EXTRACT_MODEL,
     max_tokens: 4096,
     system: isDecision ? DECISION_INPUT_EXTRACTION_PROMPT : EXTRACTION_PROMPT,
     messages: [{ role: "user", content: `Interview transcript:\n\n${transcript}` }],

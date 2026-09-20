@@ -32,8 +32,14 @@ export async function proxy(request: NextRequest) {
   // and the wrong one first.
   const isAdmin = path.startsWith("/admin") || path.startsWith("/api/admin");
 
+  // The scheduled job has no browser and no session. It carries its own bearer
+  // secret, checked by the route itself — a stronger credential than the
+  // anonymous session this redirect would otherwise demand.
+  const isCron = path.startsWith("/api/cron");
+
   const isPublic =
     isAdmin ||
+    isCron ||
     path === "/" ||
     path.startsWith("/login") ||
     path === "/test" ||
