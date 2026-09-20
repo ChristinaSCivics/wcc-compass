@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { WccMark } from "@/components/WccLogo";
 import { DemoBadge } from "@/components/DemoBadge";
-import { isTestArmed, armTestMode, disarmTestMode } from "@/lib/testMode";
+import { isTestArmed, armTestMode, disarmTestMode, looksLikeTest } from "@/lib/testMode";
 
 /**
  * Lightweight entry for the pilot: give us a name, and you're in.
@@ -54,7 +54,9 @@ export default function Enter() {
     setBusy(true);
     const supabase = createClient();
     const { error } = await supabase.auth.signInAnonymously({
-      options: { data: { display_name: name.trim(), is_test: testMode } },
+      options: {
+        data: { display_name: name.trim(), is_test: testMode || looksLikeTest(name) },
+      },
     });
     setBusy(false);
     if (error) {
@@ -161,6 +163,12 @@ export default function Enter() {
           {busy ? "Opening the door…" : "Enter →"}
         </button>
         {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+        {!testMode && looksLikeTest(name) && (
+          <p className="text-xs text-amber text-center leading-relaxed">
+            That name reads as a test, so this identity will be sandboxed — it won&apos;t
+            join the collective map. Use a different name if you meant it for real.
+          </p>
+        )}
         <p className="text-xs text-muted mt-1 text-center">
           No account needed.{" "}
           <a href="/about#privacy" className="underline hover:text-accent transition-colors">
