@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { WccLogo, WccMark } from "@/components/WccLogo";
+import { Video } from "@/components/Video";
 import { mastermindDate, MASTERMIND } from "@/lib/mastermind";
 
 /**
@@ -10,7 +11,7 @@ import { mastermindDate, MASTERMIND } from "@/lib/mastermind";
  * reads as a list of notices rather than an invitation.
  *
  * The mastermind now lives below the fold as its own section, which is also
- * where it was asked to go: bottom of the page, and Prism raises it at the end
+ * where it was asked to go: bottom of the page, and PRiSM raises it at the end
  * of a conversation.
  */
 export default function Landing() {
@@ -73,6 +74,22 @@ export default function Landing() {
       </section>
 
       {/* ---- below the fold ---- */}
+      {/* Kept out of the hero on purpose: the fold asks one question and offers
+          one way in, and a video there is a second thing to decide about. */}
+      <section className="border-t border-borderline px-6 sm:px-10 py-16">
+        <div className="max-w-2xl mx-auto w-full">
+          <span className="block text-[10px] text-muted tracking-[0.18em] uppercase mb-4">
+            New here?
+          </span>
+          <Video
+            id="5jIYwjGAoYM"
+            title="World Co-Creation Brief Overview"
+            note="A short introduction to what this is"
+            kicker="World Co-Creation Studios"
+          />
+        </div>
+      </section>
+
       <section className="border-t border-borderline px-6 sm:px-10 py-16">
         <div className="max-w-4xl mx-auto w-full grid gap-10 sm:grid-cols-2">
           <div>

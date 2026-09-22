@@ -101,7 +101,7 @@ export function DecisionActions({
               className="border border-accent text-accent rounded-full px-6 py-2
                          hover:bg-accent hover:text-background transition-all"
             >
-              Continue my interview with Prism
+              Continue my interview with PRiSM
             </button>
           ) : (
             <button
@@ -110,7 +110,7 @@ export function DecisionActions({
               className="border border-accent text-accent rounded-full px-6 py-2
                          hover:bg-accent hover:text-background transition-all disabled:opacity-40"
             >
-              {busy ? "Opening…" : "Add my voice — interview with Prism"}
+              {busy ? "Opening…" : "Add my voice — interview with PRiSM"}
             </button>
           )
         )}
@@ -126,7 +126,7 @@ export function DecisionActions({
             className="border border-borderline text-muted rounded-full px-6 py-2
                        hover:border-accent hover:text-accent transition-all disabled:opacity-40"
           >
-            {busy ? "Prism is synthesizing…" : "⚿ Run Prism synthesis"}
+            {busy ? "PRiSM is synthesizing…" : "⚿ Run PRiSM synthesis"}
           </button>
         )}
 
@@ -149,7 +149,7 @@ export function DecisionActions({
             <span className="block text-sm">Visible to other confirmed members</span>
             <span className="block text-xs text-muted mt-1">
               Turn this off to hide your name and individual input from other
-              members. It always still counts toward Prism&apos;s synthesis.
+              members. It always still counts toward PRiSM&apos;s synthesis.
             </span>
           </span>
           <input

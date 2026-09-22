@@ -115,7 +115,7 @@ export function YourPiece({ vision, compact }: { vision: Vision; compact?: boole
       )}
 
       {capacity && <Row label="What you can give">{capacity}</Row>}
-      {hostSpark && <Row label="Something Prism noticed">{hostSpark}</Row>}
+      {hostSpark && <Row label="Something PRiSM noticed">{hostSpark}</Row>}
 
       <p className="text-xs text-muted/70 leading-relaxed">
         Edit any of this on your vision above — it comes from your confirmed words,

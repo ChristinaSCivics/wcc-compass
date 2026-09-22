@@ -11,7 +11,7 @@ import { YourPiece } from "@/components/YourPiece";
 
 /**
  * The essentials stay open; everything else is one click away. A visitor who
- * gave Prism two minutes shouldn't meet sixteen textareas — but nothing is
+ * gave PRiSM two minutes shouldn't meet sixteen textareas — but nothing is
  * removed, so anyone who went deep still finds all of it.
  */
 const VISION_GROUPS: FieldGroup[] = [
@@ -123,14 +123,14 @@ export default function VisionReview() {
         {status === "confirmed" ? "Your confirmed vision" : "Is this true to you?"}
       </h1>
       <p className="text-muted mb-4 leading-relaxed">
-        Prism drafted this from your conversation — but a draft is not your voice.
+        PRiSM drafted this from your conversation — but a draft is not your voice.
         Correct anything, rewrite anything, delete anything. Only what you confirm
         becomes part of the collective map.
       </p>
       <p className="text-sm text-muted mb-6">
         Stopped early, or want to go deeper?{" "}
         <a href="/journey" className="text-accent underline">
-          Keep talking with Prism
+          Keep talking with PRiSM
         </a>{" "}
         — your conversation is still open, and drafting again updates this page.
       </p>
@@ -142,7 +142,7 @@ export default function VisionReview() {
       {!loading && onBehalf && (
         <div className="mb-8 rounded-xl border border-amber/50 bg-surface-raised p-5">
           <p className="text-sm leading-relaxed">
-            You talked to Prism but never got as far as a draft — the way out of the
+            You talked to PRiSM but never got as far as a draft — the way out of the
             conversation was too easy to miss, and that was our fault. So we drafted this
             from what you said and put it on the map on your behalf, rather than lose your
             voice entirely.
@@ -157,7 +157,7 @@ export default function VisionReview() {
       {!loading && newerDraft && !viewingDraft && (
         <div className="mb-8 rounded-xl border border-amber/50 bg-surface-raised p-5">
           <p className="text-sm leading-relaxed">
-            You kept talking with Prism after confirming this. There&apos;s a newer draft
+            You kept talking with PRiSM after confirming this. There&apos;s a newer draft
             waiting — your confirmed vision stays exactly as it is unless you choose to
             replace it.
           </p>
@@ -211,7 +211,7 @@ export default function VisionReview() {
         </>
       ) : (
         <p className="text-muted">
-          No draft yet — <Link href="/journey" className="text-accent">begin your conversation with Prism</Link>.
+          No draft yet — <Link href="/journey" className="text-accent">begin your conversation with PRiSM</Link>.
         </p>
       )}
     </main>

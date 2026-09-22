@@ -95,7 +95,7 @@ export default async function DecisionPage({ params }: { params: Promise<{ id: s
           <SynthesisView synthesis={decision.synthesis} />
           <div className="mt-6">
             <PrismPromise>
-              This synthesis is Prism&apos;s reading of the confirmed voices. It becomes the
+              This synthesis is PRiSM&apos;s reading of the confirmed voices. It becomes the
               circle&apos;s direction only when the circle ratifies it — and it can be sent back.
             </PrismPromise>
           </div>

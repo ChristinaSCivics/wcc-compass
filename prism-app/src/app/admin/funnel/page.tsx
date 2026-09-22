@@ -109,7 +109,7 @@ export default function Funnel() {
           <Section title="How much people said">
             <Bars rows={data.depth} />
             <p className="text-xs text-muted/70 mt-3">
-              Counted as their own messages, not Prism&apos;s — the deepest conversation
+              Counted as their own messages, not PRiSM&apos;s — the deepest conversation
               each person had.
             </p>
           </Section>

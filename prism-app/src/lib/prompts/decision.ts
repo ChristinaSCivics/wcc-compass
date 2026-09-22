@@ -2,7 +2,7 @@ import { PRISM_IDENTITY } from "./shared";
 
 /**
  * Decision engine — founding-circle pilot.
- * Prism facilitates one real group decision toward an all-win outcome.
+ * PRiSM facilitates one real group decision toward an all-win outcome.
  * Two modes: per-stakeholder interview, then cross-stakeholder synthesis.
  */
 
@@ -58,7 +58,7 @@ This draft will be shown to the stakeholder to edit and approve before it enters
 /**
  * Synthesis: runs over ALL confirmed stakeholder inputs + confirmed vision
  * profiles. Produces the all-win analysis the group reviews together.
- * Prism proposes; humans ratify.
+ * PRiSM proposes; humans ratify.
  */
 export function synthesisPrompt(decisionTitle: string) {
   return `${PRISM_IDENTITY}

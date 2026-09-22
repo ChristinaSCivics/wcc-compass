@@ -2,7 +2,7 @@
  * Which model does which job.
  *
  * These are not the same task. The conversation and the syntheses are the
- * product — Prism has to follow what someone actually said, notice when two
+ * product — PRiSM has to follow what someone actually said, notice when two
  * people mean different things by one word, and write it back in their voice.
  * Extraction is transcription: take a transcript that already exists and put
  * it in a shape, inventing nothing. That is exactly the work a small model is

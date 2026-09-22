@@ -31,15 +31,15 @@ type Row = {
 
 /** What each event means, said the way you'd say it out loud. */
 const PHRASING: Record<string, string> = {
-  "conversation.started": "Someone began a conversation with Prism",
-  "vision.drafted": "Prism drafted a vision from a conversation",
+  "conversation.started": "Someone began a conversation with PRiSM",
+  "vision.drafted": "PRiSM drafted a vision from a conversation",
   "vision.confirmed": "Someone confirmed their vision in their own words",
   "vision.visibility": "Someone changed who can see their vision",
-  "collective.woven": "Prism wove the collective vision from every confirmed voice",
+  "collective.woven": "PRiSM wove the collective vision from every confirmed voice",
   "decision.opened": "A decision was opened to the circle",
-  "decision.synthesized": "Prism proposed a synthesis across every confirmed input",
+  "decision.synthesized": "PRiSM proposed a synthesis across every confirmed input",
   "decision.decided": "The circle ratified an outcome",
-  "decision_input.drafted": "Prism drafted someone's input to a decision",
+  "decision_input.drafted": "PRiSM drafted someone's input to a decision",
   "decision_input.confirmed": "Someone confirmed their input to a decision",
   "decision_input.visibility": "Someone changed who can see their input",
   "feedback.submitted": "Someone sent feedback on the prototype",

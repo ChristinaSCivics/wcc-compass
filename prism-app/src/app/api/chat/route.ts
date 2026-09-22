@@ -9,7 +9,7 @@ export const maxDuration = 120;
 const MODEL = process.env.PRISM_MODEL || "claude-sonnet-4-6";
 
 /**
- * Streaming chat with Prism.
+ * Streaming chat with PRiSM.
  * Persists the user message before calling the model and the assistant
  * message after the stream completes — the transcript is the durable asset.
  */
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
   const stream = anthropic.messages.stream({
     model: MODEL,
     // a ceiling, not an allocation — 2048 risked cutting a long reply mid-sentence,
-    // which reads as Prism stalling
+    // which reads as PRiSM stalling
     max_tokens: 8192,
     system: `${system}\n\nThe member you are speaking with is named: ${profile?.display_name ?? "unknown — ask them"}.`,
     messages: (history ?? []).map((m) => ({
@@ -82,8 +82,8 @@ export async function POST(req: NextRequest) {
         console.error("chat stream failed:", e);
         const note =
           full.length > 0
-            ? "\n\n— Prism lost the thread there. Ask again and it'll continue."
-            : "Prism couldn't reach the model just then. Please try again.";
+            ? "\n\n— PRiSM lost the thread there. Ask again and it'll continue."
+            : "PRiSM couldn't reach the model just then. Please try again.";
         full += note;
         try {
           controller.enqueue(encoder.encode(note));
@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
           // the client already hung up; nothing to send
         }
       } finally {
-        // persist Prism's reply once complete
+        // persist PRiSM's reply once complete
         if (full.length > 0) {
           await supabase.from("messages").insert({
             conversation_id: conversationId, role: "assistant", content: full,

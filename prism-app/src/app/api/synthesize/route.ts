@@ -11,8 +11,8 @@ export const maxDuration = 300;
 const MODEL = process.env.PRISM_MODEL || "claude-sonnet-4-6";
 
 /**
- * Run Prism synthesis across ALL confirmed stakeholder inputs for a decision.
- * Facilitator/admin action. Prism proposes; the group ratifies on the decision page.
+ * Run PRiSM synthesis across ALL confirmed stakeholder inputs for a decision.
+ * Facilitator/admin action. PRiSM proposes; the group ratifies on the decision page.
  */
 export async function POST(req: NextRequest) {
   const supabase = await createClient();

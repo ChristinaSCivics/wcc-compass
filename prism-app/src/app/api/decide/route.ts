@@ -5,7 +5,7 @@ import { audit } from "@/lib/audit";
 import { checkKeeper } from "@/lib/keeper";
 
 /**
- * Record the group's ratified outcome. Prism proposed; humans decided.
+ * Record the group's ratified outcome. PRiSM proposed; humans decided.
  * Keeper-password gated; the recording person's name goes on the permanent record.
  */
 export async function POST(req: NextRequest) {

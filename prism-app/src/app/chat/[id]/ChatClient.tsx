@@ -46,10 +46,10 @@ export function ChatClient({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Prism opens the conversation if it's brand new.
+  // PRiSM opens the conversation if it's brand new.
   // The ref guard matters: this effect is invoked twice under React's dev
   // StrictMode, and `busy` has not flushed by the second call, so the opener
-  // was being sent twice — a visitor's first impression was Prism greeting
+  // was being sent twice — a visitor's first impression was PRiSM greeting
   // them twice over, with a stray "Hello" bubble of their own.
   useEffect(() => {
     if (opened.current) return;
@@ -116,7 +116,7 @@ export function ChatClient({
 
     // Every exit path has to release the input. A mid-stream failure used to
     // escape this function with busy still true, which left the composer stuck
-    // on "Prism is listening…" with no way back except a reload.
+    // on "PRiSM is listening…" with no way back except a reload.
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -145,10 +145,10 @@ export function ChatClient({
       }
       // a stream that closed without a single word is a failure, not a short answer
       if (received === 0) {
-        notice("Prism went quiet there — say that again and it'll pick back up.");
+        notice("PRiSM went quiet there — say that again and it'll pick back up.");
       }
     } catch {
-      notice("Something interrupted Prism — everything you've said is saved. Try again.");
+      notice("Something interrupted PRiSM — everything you've said is saved. Try again.");
     } finally {
       setBusy(false);
     }
@@ -182,8 +182,8 @@ export function ChatClient({
     } catch (e) {
       setError(
         e instanceof Error
-          ? `Prism couldn't draft that — ${e.message}`
-          : "Prism couldn't draft that — please try again."
+          ? `PRiSM couldn't draft that — ${e.message}`
+          : "PRiSM couldn't draft that — please try again."
       );
       setFinishing(false);
     }
@@ -198,7 +198,7 @@ export function ChatClient({
         >
           <WccMark />
           <span className="text-sm text-muted group-hover:text-accent transition-colors">
-            ← {kind === "decision" ? "Back to the decision" : "Your vision — with Prism"}
+            ← {kind === "decision" ? "Back to the decision" : "Your vision — with PRiSM"}
           </span>
         </Link>
         {/* Available from the first exchange — a draft from a short conversation
@@ -213,7 +213,7 @@ export function ChatClient({
                 : "text-accent hover:bg-accent hover:text-background"
             }`}
           >
-            {finishing ? "Prism is drafting…" : "Finish & review draft"}
+            {finishing ? "PRiSM is drafting…" : "Finish & review draft"}
           </button>
         )}
       </header>
@@ -237,7 +237,7 @@ export function ChatClient({
             <div className="mx-auto w-fit animate-pulse">
               <WccMark size={44} />
             </div>
-            <p className="mt-5 text-lg">Prism is writing up your vision…</p>
+            <p className="mt-5 text-lg">PRiSM is writing up your vision…</p>
             <p className="mt-2 text-sm text-muted leading-relaxed">
               It&apos;s reading back everything you said, in your own words. This usually
               takes about ten seconds.
@@ -266,7 +266,7 @@ export function ChatClient({
               }`}
             >
               {m.role === "assistant" && (
-                <span className="block text-xs text-accent mb-1 tracking-widest uppercase">Prism</span>
+                <span className="block text-xs text-accent mb-1 tracking-widest uppercase">PRiSM</span>
               )}
               {m.content || <span className="text-muted">…</span>}
             </div>
@@ -300,7 +300,7 @@ export function ChatClient({
             }
           }}
           rows={2}
-          placeholder={busy ? "Prism is listening…" : "Speak freely…"}
+          placeholder={busy ? "PRiSM is listening…" : "Speak freely…"}
           className="flex-1 bg-surface border border-borderline rounded-xl px-4 py-3 resize-none
                      focus:outline-none focus:border-accent transition-colors"
         />

@@ -9,7 +9,7 @@ import { getKeeperPassword, clearKeeperPassword, isKnownKeeper } from "@/lib/kee
  *
  * It used to be a bordered button in the first card on the page, which put a
  * piece of machinery in the spot where a visitor should be meeting the map.
- * Prism re-weaves on its own now, so this is a quiet link at the foot of the
+ * PRiSM re-weaves on its own now, so this is a quiet link at the foot of the
  * page — and only on browsers the server has already accepted as a keeper's,
  * read through useSyncExternalStore so the server snapshot of `false` keeps
  * hydration consistent.
@@ -59,7 +59,7 @@ export function WeaveButton({ hasVisions }: { hasVisions: boolean }) {
       className="text-xs text-amber underline underline-offset-4
                  hover:text-accent transition-colors disabled:opacity-40"
     >
-      {busy ? "Prism is weaving…" : "Weave now"}
+      {busy ? "PRiSM is weaving…" : "Weave now"}
     </button>
   );
 }

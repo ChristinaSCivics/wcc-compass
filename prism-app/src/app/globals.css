@@ -78,7 +78,7 @@ h1, h2, h3, .serif {
 
 /*
  * PRiSM: white light in, ordered spectrum out. Never a flat fill — so where
- * Prism itself speaks, the mark and the label take the mark's own gradient
+ * PRiSM itself speaks, the mark and the label take the mark's own gradient
  * rather than a single colour borrowed from somewhere else.
  */
 .prism-text {

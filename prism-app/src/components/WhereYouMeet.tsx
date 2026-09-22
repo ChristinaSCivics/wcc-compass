@@ -7,7 +7,7 @@ import type { ThreadEcho } from "@/lib/threads";
  *
  * Honesty rule: the thread matches are word-level echoes between your own
  * confirmed words and the weave. They are shown WITH the matching words so you
- * can dismiss a bad match at a glance. Prism is not claiming to know you.
+ * can dismiss a bad match at a glance. PRiSM is not claiming to know you.
  */
 
 export type OpenDecision = { id: string; title: string };

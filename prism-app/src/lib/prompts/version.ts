@@ -2,7 +2,7 @@ import { createHash } from "crypto";
 
 /**
  * Human label for the current question set — bump this when the circle
- * meaningfully changes Prism's questions (e.g. "v2-after-circle-review").
+ * meaningfully changes PRiSM's questions (e.g. "v2-after-circle-review").
  * The content hash is appended automatically, so even unlabeled edits
  * are distinguishable in the data.
  */

@@ -7,7 +7,7 @@
  * the collective weave, and point at one concrete thing they could do next.
  *
  * This is deliberately a WORD-LEVEL ECHO, not an inference about the person.
- * The UI must say so — Prism does not get to quietly decide what someone means.
+ * The UI must say so — PRiSM does not get to quietly decide what someone means.
  */
 
 export type WeaveThread = {

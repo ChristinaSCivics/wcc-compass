@@ -21,7 +21,7 @@ const STAGES = [
     key: "synthesis",
     name: "Synthesis",
     detail:
-      "Prism reads across every confirmed voice at once, looking for shared ground, words being used two different ways, tensions that are genuinely real, and pathways that could meet everyone's underlying needs.",
+      "PRiSM reads across every confirmed voice at once, looking for shared ground, words being used two different ways, tensions that are genuinely real, and pathways that could meet everyone's underlying needs.",
   },
   {
     key: "review",

@@ -4,7 +4,7 @@
  * Where you are, and that you can stop.
  *
  * Two failures showed up in testing. People went twenty-plus exchanges deep
- * and disengaged before Prism offered to stop — and one tester talked for 27
+ * and disengaged before PRiSM offered to stop — and one tester talked for 27
  * messages that never became a draft at all, because the only way out was a
  * button in the header she never noticed.
  *

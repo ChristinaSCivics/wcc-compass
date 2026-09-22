@@ -83,7 +83,7 @@ export default async function Dashboard() {
           href: "/vision",
           eyebrow: "Waiting on you",
           title: "Review and confirm your vision",
-          sub: "Prism drafted it from your conversation. Only you can make it true — edit anything, then confirm.",
+          sub: "PRiSM drafted it from your conversation. Only you can make it true — edit anything, then confirm.",
           cta: "Review the draft",
         }
       : vision?.status === "confirmed"
@@ -91,14 +91,14 @@ export default async function Dashboard() {
             href: "/collective",
             eyebrow: "Your vision is on the map",
             title: "See what everyone is reaching for",
-            sub: "Prism weaves every confirmed vision into one picture — the threads we share, and the many ways we want to live.",
+            sub: "PRiSM weaves every confirmed vision into one picture — the threads we share, and the many ways we want to live.",
             cta: "Open the collective vision",
           }
         : {
             href: activeOnboarding ? `/chat/${activeOnboarding.id}` : "/journey",
             eyebrow: activeOnboarding ? "Picked up where you left off" : "Start here",
             title: activeOnboarding
-              ? "Continue your conversation with Prism"
+              ? "Continue your conversation with PRiSM"
               : "Describe the life you'd actually want",
             sub: "Dream big — completely unbounded. A few minutes, and you can stop whenever you like.",
             cta: activeOnboarding ? "Continue" : "Begin",

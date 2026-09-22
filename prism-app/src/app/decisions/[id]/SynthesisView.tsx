@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-/** Renders Prism's synthesis for group review. Prism proposes; the group decides. */
+/** Renders PRiSM's synthesis for group review. PRiSM proposes; the group decides. */
 export function SynthesisView({ synthesis }: { synthesis: any }) {
   return (
     <section className="space-y-6 mt-4">
-      <h2 className="text-2xl">Prism&apos;s synthesis</h2>
+      <h2 className="text-2xl">PRiSM&apos;s synthesis</h2>
       <p className="text-sm text-muted -mt-4">
         A proposal, not a verdict. Check it against your own words.
       </p>
@@ -75,7 +75,7 @@ export function SynthesisView({ synthesis }: { synthesis: any }) {
       )}
 
       {!!synthesis.honest_notes?.length && (
-        <Block title="Prism's honest notes">
+        <Block title="PRiSM's honest notes">
           <ul className="list-disc list-inside space-y-1 text-sm text-muted">
             {synthesis.honest_notes.map((n: string, i: number) => <li key={i}>{n}</li>)}
           </ul>

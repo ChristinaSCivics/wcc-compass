@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
     .filter((p) => inWindow(p.created_at as string));
   const realIds = new Set(real.map((p) => p.id));
 
-  // Exchanges = what the person actually said. Prism's replies aren't progress.
+  // Exchanges = what the person actually said. PRiSM's replies aren't progress.
   const userMsgsByConvo = new Map<string, number>();
   for (const m of msgs ?? []) {
     if (m.role !== "user") continue;

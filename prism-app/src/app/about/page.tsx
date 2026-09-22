@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { WccLogo, WccMark } from "@/components/WccLogo";
+import { Video } from "@/components/Video";
 import { TopNav } from "@/components/TopNav";
 import { createClient } from "@/lib/supabase/server";
 
@@ -46,31 +47,40 @@ export default async function About() {
           </p>
         </header>
 
+        <div className="mb-12">
+          <Video
+            id="hRE6s3Ri5UY"
+            title="The Plan At World Co-Creation"
+            note="Peter Pantazis on where this is going"
+            kicker="World Co-Creation Studios"
+          />
+        </div>
+
         <Section title="How it works">
-          <Step n="01" title="You talk to Prism">
-            Prism is an AI facilitator. It asks about the life you&apos;d want, what&apos;s
+          <Step n="01" title="You talk to PRiSM">
+            PRiSM is an AI facilitator. It asks about the life you&apos;d want, what&apos;s
             standing in the way, what you&apos;d fix about the world, and what you&apos;d
             want to contribute. It follows what you say rather than working through a form,
             and when you use a big word — freedom, community, enough — it asks what{" "}
             <em>you</em> mean by it. A few minutes is plenty. You can stop at any point.
           </Step>
           <Step n="02" title="You decide what's true">
-            Prism writes up what it heard. Then you edit it — rewrite it, cut it, correct
+            PRiSM writes up what it heard. Then you edit it — rewrite it, cut it, correct
             it. Nothing becomes your vision until you say it is. That is the part most
             systems skip, and it&apos;s the part that matters most.
           </Step>
           <Step n="03" title="Your vision joins the others">
-            Prism reads across everyone&apos;s confirmed visions and finds the threads
+            PRiSM reads across everyone&apos;s confirmed visions and finds the threads
             running through them — and, just as importantly, the genuinely different ways
             people want to live. The goal is not one vision everybody signs. It&apos;s a
             picture of a world with room for all of them.
           </Step>
           <Step n="04" title="And when there's something to decide">
             The same approach handles disagreement. Everyone is interviewed separately, so
-            nobody anchors on the loudest voice. Prism looks for where people actually
+            nobody anchors on the loudest voice. PRiSM looks for where people actually
             agree, where they&apos;re using one word two different ways, and where the
             conflict is real — then proposes ways forward that meet what everyone
-            underneath is actually asking for. People decide. Prism never does.
+            underneath is actually asking for. People decide. PRiSM never does.
           </Step>
         </Section>
 
@@ -97,16 +107,16 @@ export default async function About() {
               an open log
             </Link>{" "}
             that anyone can read without signing in, and that is built so it can&apos;t be
-            quietly rewritten after the fact. The code and Prism&apos;s full instructions
+            quietly rewritten after the fact. The code and PRiSM&apos;s full instructions
             are public, so anyone can check exactly what it was told to do. We&apos;d rather
             be checkable than trusted.
           </P>
         </Section>
 
-        <Section title="What Prism will not do">
+        <Section title="What PRiSM will not do">
           <Ul
             items={[
-              "Hold a position. Prism has no view on any party, ideology, religion or way of life, and won't acquire one. Ask it and it'll tell you so.",
+              "Hold a position. PRiSM has no view on any party, ideology, religion or way of life, and won't acquire one. Ask it and it'll tell you so.",
               "Sort you. It never labels what you said as left or right, progressive or conservative. Your values are recorded in your words.",
               "Improve you. When it reflects your vision back, it quotes or closely paraphrases. It doesn't tidy up what you meant.",
               "Decide anything. It drafts, suggests and synthesises. A person confirms — always.",

@@ -8,7 +8,7 @@ import { scrubNames } from "@/lib/anonymize";
 import { AutoWeave } from "@/components/AutoWeave";
 import { placesFrom, listPlaces } from "@/lib/places";
 
-/** The collective map: who's on it, and Prism's latest weaving of all confirmed visions. */
+/** The collective map: who's on it, and PRiSM's latest weaving of all confirmed visions. */
 export default async function CollectivePage() {
   const supabase = await createClient();
   const admin = createAdminClient();
@@ -96,7 +96,7 @@ export default async function CollectivePage() {
     <main className="min-h-screen max-w-3xl mx-auto w-full px-6 py-10 horizon">
       <h1 className="text-4xl mb-3">The collective vision</h1>
       <p className="text-muted mb-8 max-w-xl leading-relaxed">
-        Every confirmed vision joins the map. Prism weaves them — finding the threads we
+        Every confirmed vision joins the map. PRiSM weaves them — finding the threads we
         share and honoring the many ways we want to live. Not one vision for everyone;
         a world with room for all of ours.
       </p>
@@ -152,7 +152,7 @@ export default async function CollectivePage() {
 
       {!weave && (
         <p className="text-sm text-muted">
-          No weaving yet. Once visions are on the map, a keeper asks Prism to weave them —
+          No weaving yet. Once visions are on the map, a keeper asks PRiSM to weave them —
           and the collective picture appears here, in the open.
         </p>
       )}
@@ -228,7 +228,7 @@ export default async function CollectivePage() {
           )}
 
           {!!c.honest_notes?.length && (
-            <Block title="Prism's honest notes">
+            <Block title="PRiSM's honest notes">
               <ul className="space-y-1 text-sm text-muted">
                 {c.honest_notes.map((n: string, i: number) => <li key={i}>{n}</li>)}
               </ul>
@@ -239,7 +239,7 @@ export default async function CollectivePage() {
       <footer className="mt-12 border-t border-borderline pt-5 text-xs text-muted leading-relaxed">
         <p className="max-w-xl">
           <span className="text-foreground">How this gets woven.</span> When a vision is
-          confirmed it joins the map, and Prism reads every vision on it and writes the
+          confirmed it joins the map, and PRiSM reads every vision on it and writes the
           picture above — the threads people share, the many ways they want to live, and the
           tensions worth keeping. It happens on its own: a new voice makes this weaving
           out of date, and the next one is written within the half hour. Nobody edits it by
@@ -249,7 +249,7 @@ export default async function CollectivePage() {
         <p className="max-w-xl mt-3">
           <span className="text-foreground">What has happened so far.</span>{" "}
           {conversationCount ?? 0} {conversationCount === 1 ? "conversation" : "conversations"} with
-          Prism, {totalCount ?? 0} {(totalCount ?? 0) === 1 ? "vision" : "visions"} confirmed,{" "}
+          PRiSM, {totalCount ?? 0} {(totalCount ?? 0) === 1 ? "vision" : "visions"} confirmed,{" "}
           {weaveCount ?? 0} {weaveCount === 1 ? "weaving" : "weavings"} of the collective picture.
           Every one of those left a mark in{" "}
           <Link href="/audit" className="text-accent underline underline-offset-4">

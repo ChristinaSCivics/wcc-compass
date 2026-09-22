@@ -48,7 +48,7 @@ export default function ConfirmDecisionInput({ params }: { params: Promise<{ id:
         <span className="text-sm text-muted">Your input — review &amp; confirm</span>
       </header>
 
-      <h1 className="text-3xl mb-3">Did Prism hear you right?</h1>
+      <h1 className="text-3xl mb-3">Did PRiSM hear you right?</h1>
       <p className="text-muted mb-10 leading-relaxed">
         This is what enters the synthesis as <em>your</em> voice. Edit until it&apos;s true.
       </p>

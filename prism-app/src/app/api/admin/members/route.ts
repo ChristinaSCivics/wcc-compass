@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
       admin.from("vision_profiles").select("user_id, status, hidden, confirmed_at"),
       admin.from("decision_inputs").select("user_id, confirmed"),
       admin.from("conversations").select("id, user_id, kind, status, created_at"),
-      // What people actually said. Prism's replies aren't progress, so only the
+      // What people actually said. PRiSM's replies aren't progress, so only the
       // person's own messages are counted — this used to live on the Journey
       // page over a second copy of the same roster.
       admin.from("messages").select("conversation_id, role"),
@@ -130,7 +130,7 @@ export async function POST(req: NextRequest) {
           : vision
             ? "reached a draft"
             : said > 0
-              ? "talked to Prism"
+              ? "talked to PRiSM"
               : startedOne
                 ? "opened a conversation"
                 : "arrived only",

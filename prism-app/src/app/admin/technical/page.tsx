@@ -129,7 +129,7 @@ export default function Technical() {
               where="Not a cron job"
               only="Nothing runs on a timer here. When someone opens the collective page,
                     the page checks whether a vision has been confirmed since the last
-                    weaving. If none has, nothing happens. If one has, Prism weaves once —
+                    weaving. If none has, nothing happens. If one has, PRiSM weaves once —
                     and then not again for 30 minutes however many people visit."
               stats={[
                 ["Last weaving", data.cron.lastWeave
@@ -190,7 +190,7 @@ export default function Technical() {
           <Section title="How it fits together">
             <Row label="App" value="Next.js 16 · React 19 · Tailwind 4, on Vercel" />
             <Row label="Data" value="Supabase Postgres · row-level security · anonymous auth" />
-            <Row label="Prism" value="Anthropic API · prompts in the public repo" />
+            <Row label="PRiSM" value="Anthropic API · prompts in the public repo" />
             <Row label="Deploys" value="manual — pushing to git does not deploy" />
             <Row label="Conversations held" value={data.conversations.toLocaleString()} />
             <P>
