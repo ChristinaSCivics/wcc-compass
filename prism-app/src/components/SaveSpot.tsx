@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 /**
  * Upgrade an anonymous identity to a returnable one (email + password).
  * Everything they've done — conversations, vision — carries over; same person,
- * now reachable from any device via "Have a password?" on the entry page.
+ * now reachable from any device via the sign-in link on the entry page.
  *
  * It asks for an email anyway, so it offers the mastermind here too rather
  * than making someone fill in a second form later. Unticked by default, and
@@ -63,7 +63,8 @@ export function SaveSpot() {
       <div className="rounded-xl border border-accent bg-surface-raised p-6 accent-glow fade-up">
         <h2 className="text-xl mb-1">Your spot is saved ◈</h2>
         <p className="text-sm text-muted">
-          You can now return from any device — entry page → &ldquo;Have a password?&rdquo; →{" "}
+          You can now return from any device — at the entry page choose{" "}
+          &ldquo;Saved a spot here before? Sign in&rdquo; and use{" "}
           <span className="text-accent">{email}</span>.
         </p>
         {wantsCall && (
