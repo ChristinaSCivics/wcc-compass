@@ -22,7 +22,7 @@ export default function Landing() {
       <nav className="flex items-center justify-between px-6 sm:px-10 py-6 gap-4">
         <div className="flex items-center gap-3">
           <WccLogo height={30} />
-          <span className="text-[10px] tracking-[0.18em] uppercase text-amber/80 whitespace-nowrap">
+          <span className="text-xs tracking-[0.16em] uppercase text-amber/80 whitespace-nowrap">
             v0.1
           </span>
         </div>
@@ -96,7 +96,7 @@ export default function Landing() {
       <section className="border-t border-borderline px-6 sm:px-10 py-16">
         <div className="max-w-4xl mx-auto w-full grid gap-10 sm:grid-cols-2">
           <div>
-            <span className="block text-[10px] text-teal tracking-[0.18em] uppercase mb-3">
+            <span className="block text-xs text-teal tracking-[0.16em] uppercase mb-3">
               What happens next
             </span>
             <h2 className="text-2xl mb-2">Come to the first mastermind</h2>
@@ -127,7 +127,7 @@ export default function Landing() {
           </div>
 
           <div className="sm:border-l sm:border-borderline sm:pl-10">
-            <span className="block text-[10px] text-amber/80 tracking-[0.18em] uppercase mb-3">
+            <span className="block text-xs text-amber/80 tracking-[0.16em] uppercase mb-3">
               v0.1 · Early demo
             </span>
             <p className="text-sm text-muted leading-relaxed">
@@ -146,9 +146,7 @@ export default function Landing() {
 
       <section className="border-t border-borderline px-6 sm:px-10 py-16">
         <div className="max-w-2xl mx-auto w-full">
-          <span className="block text-[10px] text-teal tracking-[0.18em] mb-4">
-            Our goal with PRiSM
-          </span>
+          <h2 className="text-teal text-lg mb-4">Our goal with PRiSM</h2>
           <Video
             id="rynS0YGBWzE"
             title="The Future of PRiSM"

@@ -47,7 +47,7 @@ export function CompassStages({ status }: { status: string }) {
     <section className="rounded-xl border border-borderline bg-surface p-6 mb-8">
       <div className="flex items-baseline justify-between gap-3 mb-4 flex-wrap">
         <h2 className="text-lg">How this decision moves</h2>
-        <span className="text-[10px] text-muted tracking-[0.2em] uppercase">
+        <span className="text-xs text-muted tracking-[0.18em] uppercase">
           The Compass process
         </span>
       </div>

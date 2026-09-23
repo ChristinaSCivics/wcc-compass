@@ -55,38 +55,41 @@ export function MastermindSignup({
   }
 
   return (
-    <form onSubmit={submit} className="rounded-xl border border-borderline bg-surface p-6">
-      <span className="block text-[10px] text-teal tracking-[0.18em] uppercase mb-2">
-        Come to the first mastermind
-      </span>
-      <p className="text-sm text-muted leading-relaxed">
+    <form
+      onSubmit={submit}
+      className={`rounded-xl border border-borderline bg-surface ${compact ? "p-4" : "p-6"}`}
+    >
+      <h2 className="text-teal text-lg">Come to the first mastermind</h2>
+      <p className="text-sm text-muted leading-relaxed mt-1">
         {compact
           ? "A group call for everyone who's shared a vision. Leave your email and we'll send the link."
           : "A group call for everyone who's shared a vision. We open on what we found we share."}
         {when && <span className="text-foreground"> {when}.</span>}
       </p>
 
-      <div className="mt-4 flex flex-col sm:flex-row gap-3">
+      <div className={`flex gap-2 ${compact ? "mt-3" : "mt-4 sm:gap-3"}`}>
         <input
           type="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@example.com"
-          className="flex-1 bg-surface-raised border border-borderline rounded-xl px-4 py-3
-                     focus:outline-none focus:border-teal transition-colors"
+          className={`flex-1 min-w-0 bg-surface-raised border border-borderline rounded-xl
+                      focus:outline-none focus:border-teal transition-colors
+                      ${compact ? "px-3 py-2.5 text-sm" : "px-4 py-3"}`}
         />
         <button
           type="submit"
           disabled={state === "sending"}
-          className="shrink-0 border border-teal text-teal rounded-xl px-6 py-3
-                     hover:bg-teal hover:text-background transition-all disabled:opacity-40"
+          className={`shrink-0 border border-teal text-teal rounded-xl
+                      hover:bg-teal hover:text-background transition-all disabled:opacity-40
+                      ${compact ? "px-4 py-2.5 text-sm" : "px-6 py-3"}`}
         >
           {state === "sending" ? "Saving…" : "Invite me"}
         </button>
       </div>
 
-      <label className="flex items-start gap-3 mt-4 cursor-pointer">
+      <label className={`flex items-start gap-3 cursor-pointer ${compact ? "mt-2.5" : "mt-4"}`}>
         <input
           type="checkbox"
           checked={optIn}
@@ -98,7 +101,7 @@ export function MastermindSignup({
         </span>
       </label>
 
-      <p className="text-xs text-muted/70 mt-4">
+      <p className={`text-xs text-muted/70 ${compact ? "mt-2" : "mt-4"}`}>
         We&apos;ll only use it to send you the link.
       </p>
 

@@ -135,7 +135,7 @@ export default function Admin() {
             </div>
 
             <div className="rounded-xl border border-borderline bg-surface px-5 py-4 mb-8">
-              <span className="block text-[10px] text-muted tracking-[0.18em] uppercase mb-2">
+              <span className="block text-xs text-muted tracking-[0.16em] uppercase mb-2">
                 Last 7 days
               </span>
               <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm">

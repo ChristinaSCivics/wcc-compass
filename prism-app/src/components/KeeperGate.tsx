@@ -52,7 +52,7 @@ export function KeeperGate({
           Shared password, so the record needs to know who you are.
         </p>
 
-        <label className="block text-left text-[10px] text-teal tracking-[0.18em] uppercase mb-2">
+        <label className="block text-left text-xs text-teal tracking-[0.16em] uppercase mb-2">
           You are
         </label>
         <select
@@ -82,7 +82,7 @@ export function KeeperGate({
           />
         )}
 
-        <label className="block text-left text-[10px] text-teal tracking-[0.18em] uppercase mb-2">
+        <label className="block text-left text-xs text-teal tracking-[0.16em] uppercase mb-2">
           Password
         </label>
         <input

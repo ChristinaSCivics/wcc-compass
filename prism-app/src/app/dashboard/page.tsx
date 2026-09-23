@@ -109,11 +109,11 @@ export default async function Dashboard() {
     <>
     <TopNav />
     <main className="min-h-screen horizon px-6 py-10 max-w-3xl mx-auto w-full">
-      <header className="flex items-start gap-4 mb-8">
+      <header className="flex items-start gap-4 mb-6">
         <WccMark size={44} className="shrink-0 mt-1 hidden sm:block" />
         <div>
           <DemoBadge />
-          <h1 className="text-4xl mt-2">Welcome, {profile?.display_name}</h1>
+          <h1 className="text-3xl sm:text-4xl mt-2">Welcome, {profile?.display_name}</h1>
           <p className="text-muted mt-1">
             {vision?.status === "confirmed"
               ? "Your vision is part of the collective map."
@@ -127,15 +127,15 @@ export default async function Dashboard() {
       {/* ---- the one thing to do next ---- */}
       <Link
         href={primary.href}
-        className="block rounded-2xl border border-accent bg-surface-raised p-7 accent-glow
+        className="block rounded-2xl border border-accent bg-surface-raised p-5 sm:p-7 accent-glow
                    transition-all hover:bg-surface"
       >
-        <span className="block text-[10px] text-accent tracking-[0.18em] uppercase mb-2">
+        <span className="block text-xs text-accent tracking-[0.16em] uppercase mb-2">
           {primary.eyebrow}
         </span>
-        <h2 className="text-2xl mb-2">{primary.title}</h2>
+        <h2 className="text-xl sm:text-2xl mb-2">{primary.title}</h2>
         <p className="text-sm text-muted leading-relaxed max-w-xl">{primary.sub}</p>
-        <span className="inline-block mt-5 text-sm text-accent">{primary.cta} →</span>
+        <span className="inline-block mt-4 text-sm text-accent">{primary.cta} →</span>
       </Link>
 
       {/* ---- what's yours ---- */}
@@ -154,7 +154,7 @@ export default async function Dashboard() {
           address, so it's the only thing asked for here. Returning from another
           device is a real but secondary want, and lives quietly below. */}
       {!signup && (
-        <div className="mt-6">
+        <div className="mt-5">
           <MastermindSignup when={mastermindDate()} compact />
         </div>
       )}
@@ -162,10 +162,8 @@ export default async function Dashboard() {
       {/* Peter asked for this one "on the demo home page under the mastermind
           signup". The signup form lives here, so here it is — it's also on the
           public landing page, for the people who never come through the door. */}
-      <div className="mt-6">
-        <span className="block text-[10px] text-teal tracking-[0.18em] mb-3">
-          Our goal with PRiSM
-        </span>
+      <div className="mt-5">
+        <h2 className="text-teal text-lg mb-3">Our goal with PRiSM</h2>
         <Video
           id="rynS0YGBWzE"
           title="The Future of PRiSM"
@@ -175,7 +173,7 @@ export default async function Dashboard() {
 
       {/* ---- everything else, deliberately quiet ---- */}
       <nav className="mt-12 pt-6 border-t border-borderline">
-        <span className="block text-[10px] text-muted tracking-[0.18em] uppercase mb-4">
+        <span className="block text-xs text-muted tracking-[0.16em] uppercase mb-4">
           Elsewhere
         </span>
         <div className="grid gap-3 sm:grid-cols-3">

@@ -13,7 +13,7 @@ export function DemoBadge({ variant = "inline" }: { variant?: "full" | "inline" 
   if (variant === "full") {
     return (
       <div className="rounded-lg border border-borderline bg-surface/70 px-4 py-3 max-w-xl">
-        <span className="text-[10px] text-amber tracking-[0.2em] uppercase">
+        <span className="text-xs text-amber tracking-[0.18em] uppercase">
           v0.1 · Early demo
         </span>
         <p className="text-sm text-muted leading-relaxed mt-1.5">
@@ -25,7 +25,7 @@ export function DemoBadge({ variant = "inline" }: { variant?: "full" | "inline" 
   }
 
   return (
-    <p className="text-[10px] tracking-[0.2em] uppercase text-amber">
+    <p className="text-xs tracking-[0.18em] uppercase text-amber">
       v0.1 · Early demo
       <span className="text-muted normal-case tracking-normal ml-2 text-xs">
         an early look at what we&apos;re building
