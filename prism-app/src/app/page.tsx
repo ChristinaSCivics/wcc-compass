@@ -39,16 +39,21 @@ export default function Landing() {
       {/* ---- the fold: one question, one way in ---- */}
       <section className="relative flex-1 min-h-[calc(100dvh-6rem)] flex flex-col justify-center
                           px-6 sm:px-10 pb-20 horizon fade-up overflow-hidden">
-        {/* Brand presence without another line in the stack. */}
+        {/* Brand presence without another line in the stack. Stands down where
+            the video takes that side of the fold. */}
         <div
           className="pointer-events-none absolute -right-16 sm:right-4 top-1/2 -translate-y-1/2
-                     opacity-[0.07] hidden sm:block"
+                     opacity-[0.07] hidden sm:block lg:hidden"
           aria-hidden
         >
           <WccMark size={460} />
         </div>
 
-        <div className="relative max-w-4xl mx-auto w-full">
+        <div
+          className="relative max-w-6xl mx-auto w-full grid gap-10 lg:gap-14
+                     lg:grid-cols-[minmax(0,1.1fr)_minmax(0,28rem)] lg:items-center"
+        >
+        <div>
           <h1 className="text-[2.75rem] sm:text-6xl lg:text-7xl leading-[1.05] max-w-3xl">
             How do <span className="text-accent italic">you</span> actually want to live?
           </h1>
@@ -71,46 +76,23 @@ export default function Landing() {
             </span>
           </div>
 
-          {/* The overview sat a full screen below the fold with nothing to say
-              it was there, so people who wanted it never found it. */}
-          <a
-            href="#overview"
-            className="mt-8 inline-flex items-center gap-2 text-sm text-muted
-                       hover:text-accent transition-colors"
-          >
-            <span
-              className="flex h-7 w-7 items-center justify-center rounded-full border border-borderline"
-              aria-hidden
-            >
-              <svg width="9" height="10" viewBox="0 0 20 22">
-                <path d="M0 0v22l20-11z" fill="currentColor" />
-              </svg>
-            </span>
-            Or watch the 90-second overview
-          </a>
+        </div>
+
+        {/* Peter's overview lived a full screen below the fold, and the people
+            who wanted it — Peter included — never found it. It sits beside the
+            question now, where it can be seen without being in the way of the
+            answer. */}
+        <div className="w-full">
+          <Video
+            id="5jIYwjGAoYM"
+            title="World Co-Creation Brief Overview"
+            note="90 seconds on what this is"
+          />
+        </div>
         </div>
       </section>
 
       {/* ---- below the fold ---- */}
-      {/* Kept out of the hero on purpose: the fold asks one question and offers
-          one way in, and a video there is a second thing to decide about. */}
-      <section
-        id="overview"
-        className="border-t border-borderline px-6 sm:px-10 py-16 scroll-mt-4"
-      >
-        <div className="max-w-2xl mx-auto w-full">
-          <span className="block text-[10px] text-muted tracking-[0.18em] uppercase mb-4">
-            New here?
-          </span>
-          <Video
-            id="5jIYwjGAoYM"
-            title="World Co-Creation Brief Overview"
-            note="A short introduction to what this is"
-            kicker="World Co-Creation Studios"
-          />
-        </div>
-      </section>
-
       <section className="border-t border-borderline px-6 sm:px-10 py-16">
         <div className="max-w-4xl mx-auto w-full grid gap-10 sm:grid-cols-2">
           <div>
