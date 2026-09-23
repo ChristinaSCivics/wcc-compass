@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { TopNav } from "@/components/TopNav";
 import { SaveSpot } from "@/components/SaveSpot";
+import { Video } from "@/components/Video";
 import { DemoBadge } from "@/components/DemoBadge";
 import { WccMark } from "@/components/WccLogo";
 import { KeeperLink } from "@/components/KeeperLink";
@@ -157,6 +158,20 @@ export default async function Dashboard() {
           <MastermindSignup when={mastermindDate()} compact />
         </div>
       )}
+
+      {/* Peter asked for this one "on the demo home page under the mastermind
+          signup". The signup form lives here, so here it is — it's also on the
+          public landing page, for the people who never come through the door. */}
+      <div className="mt-6">
+        <span className="block text-[10px] text-teal tracking-[0.18em] uppercase mb-3">
+          Our goal with PRiSM
+        </span>
+        <Video
+          id="rynS0YGBWzE"
+          title="The Future of PRiSM"
+          note="Where this is heading"
+        />
+      </div>
 
       {/* ---- everything else, deliberately quiet ---- */}
       <nav className="mt-12 pt-6 border-t border-borderline">
