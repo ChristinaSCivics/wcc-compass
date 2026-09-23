@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkKeeper } from "@/lib/keeper";
 import { audit } from "@/lib/audit";
+import { emailsByUser } from "@/lib/authEmails";
 
 /**
  * Keeper-only member roster: who is here, how far they've come, and which
@@ -51,6 +52,7 @@ export async function POST(req: NextRequest) {
     { data: convos },
     { data: msgs },
     { data: signups },
+    authEmails,
   ] = await Promise.all([
       admin
         .from("profiles")
@@ -64,6 +66,7 @@ export async function POST(req: NextRequest) {
       // page over a second copy of the same roster.
       admin.from("messages").select("conversation_id, role"),
       admin.from("mastermind_signups").select("user_id"),
+      emailsByUser(),
     ]);
 
   const saidPerConvo = new Map<string, number>();
@@ -113,8 +116,9 @@ export async function POST(req: NextRequest) {
     return {
       id: p.id,
       name: p.display_name ?? "unnamed",
-      // anonymous identities have no email; a saved spot does
-      saved: !!p.email,
+      // anonymous identities have no email; a saved spot does. Auth holds it —
+      // profiles.email was never written by the save-spot flow.
+      saved: !!authEmails.get(p.id) || !!p.email,
       role: p.role,
       isTest: p.is_test,
       joinedAt: p.created_at,

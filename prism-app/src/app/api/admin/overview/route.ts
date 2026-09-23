@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkKeeper } from "@/lib/keeper";
+import { emailsByUser } from "@/lib/authEmails";
 
 /**
  * The numbers the admin door opens with.
@@ -30,6 +31,7 @@ export async function POST(req: NextRequest) {
     { data: signups },
     { data: feedback },
     { data: events },
+    authEmails,
   ] = await Promise.all([
     admin.from("profiles").select("id, display_name, email, is_test, created_at"),
     admin.from("vision_profiles").select("user_id, status, confirmed_at"),
@@ -41,6 +43,7 @@ export async function POST(req: NextRequest) {
       .select("event_type, created_at")
       .order("created_at", { ascending: false })
       .limit(200),
+    emailsByUser(),
   ]);
 
   const real = (profiles ?? []).filter((p) => !p.is_test);
@@ -54,7 +57,8 @@ export async function POST(req: NextRequest) {
   const drafts = realVisions.filter((v) => v.status === "draft").length;
 
   const realSignups = (signups ?? []).filter((s) => realIds.has(s.user_id));
-  const saved = real.filter((p) => p.email).length;
+  const hasEmail = (id: string, email: unknown) => !!authEmails.get(id) || !!email;
+  const saved = real.filter((p) => hasEmail(p.id, p.email)).length;
 
   const since = (iso: string | null | undefined) => !!iso && iso >= week;
   const lastEvent = events?.[0]?.created_at ?? null;
@@ -68,7 +72,7 @@ export async function POST(req: NextRequest) {
     drafts,
     reachable: new Set([
       ...realSignups.map((s) => s.user_id),
-      ...real.filter((p) => p.email).map((p) => p.id),
+      ...real.filter((p) => hasEmail(p.id, p.email)).map((p) => p.id),
     ]).size,
     mastermind: realSignups.length,
     saved,

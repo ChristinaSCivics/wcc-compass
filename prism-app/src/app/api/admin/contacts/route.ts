@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkKeeper } from "@/lib/keeper";
 import { placeOf } from "@/lib/places";
+import { emailsByUser } from "@/lib/authEmails";
 
 /**
  * Keeper-only: who we can actually reach.
@@ -24,7 +25,7 @@ export async function POST(req: NextRequest) {
   }
 
   const admin = createAdminClient();
-  const [{ data: profiles }, { data: signups }, { data: visions }] = await Promise.all([
+  const [{ data: profiles }, { data: signups }, { data: visions }, authEmails] = await Promise.all([
     admin
       .from("profiles")
       .select("id, display_name, email, is_test, created_at, joined_from")
@@ -34,6 +35,7 @@ export async function POST(req: NextRequest) {
       .select("user_id, email, mailing_list_opt_in, created_at")
       .order("created_at", { ascending: false }),
     admin.from("vision_profiles").select("user_id, status"),
+    emailsByUser(),
   ]);
 
   const signupBy = new Map((signups ?? []).map((s) => [s.user_id as string, s]));
@@ -49,7 +51,7 @@ export async function POST(req: NextRequest) {
         // The email on the profile is the saved spot; the one on the signup is
         // what they gave for the call. Usually the same, occasionally not, and
         // when they differ both are worth seeing.
-        savedEmail: (p.email as string | null) ?? null,
+        savedEmail: authEmails.get(p.id) ?? (p.email as string | null) ?? null,
         mastermindEmail: (signup?.email as string | null) ?? null,
         mailingList: !!signup?.mailing_list_opt_in,
         signedUpAt: (signup?.created_at as string | null) ?? null,

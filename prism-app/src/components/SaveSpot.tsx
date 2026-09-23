@@ -32,6 +32,18 @@ export function SaveSpot() {
       return;
     }
 
+    // Mirror it onto the profile. Auth is the source of truth and the admin
+    // views read it there, but the profile row is what the rest of the app
+    // joins against, and leaving it blank made the Emails page report that
+    // nobody had saved a spot while two people had.
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase
+        .from("profiles")
+        .update({ email: email.trim().toLowerCase() })
+        .eq("id", user.id);
+    }
+
     // Best effort, and deliberately after the account is safe: failing to add
     // someone to a call list must never cost them the thing they came here to
     // do, which is not lose their work.

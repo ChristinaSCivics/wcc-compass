@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { checkKeeper } from "@/lib/keeper";
 import { audit } from "@/lib/audit";
 import { placeOf } from "@/lib/places";
+import { emailsByUser } from "@/lib/authEmails";
 import {
   fiberyConfigured,
   fetchPeople,
@@ -42,13 +43,14 @@ type Contact = {
 
 async function allContacts(): Promise<Contact[]> {
   const admin = createAdminClient();
-  const [{ data: profiles }, { data: signups }, { data: visions }] = await Promise.all([
+  const [{ data: profiles }, { data: signups }, { data: visions }, authEmails] = await Promise.all([
     admin
       .from("profiles")
       .select("id, display_name, email, is_test, created_at, joined_from")
       .order("created_at", { ascending: true }),
     admin.from("mastermind_signups").select("user_id, email, created_at"),
     admin.from("vision_profiles").select("user_id, status"),
+    emailsByUser(),
   ]);
 
   const signupBy = new Map((signups ?? []).map((s) => [s.user_id as string, s]));
@@ -59,7 +61,7 @@ async function allContacts(): Promise<Contact[]> {
     .map((p) => {
       const signup = signupBy.get(p.id);
       const mastermindEmail = (signup?.email as string | null) ?? null;
-      const savedEmail = (p.email as string | null) ?? null;
+      const savedEmail = authEmails.get(p.id) ?? (p.email as string | null) ?? null;
       const email = mastermindEmail ?? savedEmail;
       return {
         id: p.id,
