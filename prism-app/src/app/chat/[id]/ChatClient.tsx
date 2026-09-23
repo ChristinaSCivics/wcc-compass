@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { WccMark } from "@/components/WccLogo";
 import { FeedbackWidget } from "@/components/FeedbackWidget";
 import { ConversationProgress } from "@/components/ConversationProgress";
+import { TopNav } from "@/components/TopNav";
 
 type Msg = { id?: string; role: "user" | "assistant"; content: string };
 
@@ -191,32 +192,24 @@ export function ChatClient({
 
   return (
     <main className="min-h-screen flex flex-col max-w-3xl mx-auto w-full">
-      <header className="flex items-center justify-between px-6 py-4 border-b border-borderline sticky top-0 bg-background/90 backdrop-blur z-10">
-        <Link
-          href={kind === "decision" && decisionId ? `/decisions/${decisionId}` : "/dashboard"}
-          className="flex items-center gap-3 group"
-        >
-          <WccMark />
-          <span className="text-sm text-muted group-hover:text-accent transition-colors">
-            ← {kind === "decision" ? "Back to the decision" : "Your vision — with PRiSM"}
-          </span>
-        </Link>
-        {/* Available from the first exchange — a draft from a short conversation
-            is thin, not wrong, and the door out should never be locked. */}
-        {messages.length >= 2 && (
-          <button
-            onClick={finish}
-            disabled={finishing || busy}
-            className={`text-sm border border-accent rounded-full px-4 py-1.5 transition-all disabled:opacity-40 ${
-              exchanges >= TYPICAL
-                ? "bg-accent text-background hover:bg-accent-soft"
-                : "text-accent hover:bg-accent hover:text-background"
-            }`}
-          >
-            {finishing ? "PRiSM is drafting…" : "Finish & review draft"}
-          </button>
+      {/* The way out used to be a back-arrow labelled "Your vision — with
+          PRiSM", which reads as a title rather than a door, and the rest of the
+          site simply wasn't reachable from in here. Full navigation now, the
+          same as every other page — and the finish button lives in the progress
+          rail below, where it already was, instead of in two places. */}
+      <TopNav withFeedback={false} />
+
+      <div className="flex items-center justify-between gap-3 px-6 py-2.5
+                      border-b border-borderline text-xs">
+        <span className="text-muted">
+          {kind === "decision" ? "Your input to a decision" : "Your vision — with PRiSM"}
+        </span>
+        {kind === "decision" && decisionId && (
+          <Link href={`/decisions/${decisionId}`} className="text-accent hover:underline">
+            ← Back to the decision
+          </Link>
         )}
-      </header>
+      </div>
 
       {messages.length >= 2 && (
         <ConversationProgress
@@ -266,7 +259,7 @@ export function ChatClient({
               }`}
             >
               {m.role === "assistant" && (
-                <span className="block text-xs text-accent mb-1 tracking-widest uppercase">PRiSM</span>
+                <span className="block text-xs text-accent mb-1 tracking-widest">PRiSM</span>
               )}
               {m.content || <span className="text-muted">…</span>}
             </div>

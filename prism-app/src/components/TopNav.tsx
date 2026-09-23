@@ -15,7 +15,7 @@ const LINKS = [
   { href: "/about", label: "About" },
 ];
 
-export function TopNav() {
+export function TopNav({ withFeedback = true }: { withFeedback?: boolean } = {}) {
   const pathname = usePathname();
   const router = useRouter();
   const [isTest, setIsTest] = useState(false);
@@ -49,7 +49,7 @@ export function TopNav() {
 
   return (
     <>
-    <FeedbackWidget />
+    {withFeedback && <FeedbackWidget />}
     <div className="sticky top-0 z-30 bg-background/95 backdrop-blur">
     {isTest && (
       // Loud on purpose. A sandbox identity that looks like a real one is how

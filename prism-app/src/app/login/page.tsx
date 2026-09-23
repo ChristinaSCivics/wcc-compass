@@ -53,6 +53,16 @@ export default function Enter() {
     setError(null);
     setBusy(true);
     const supabase = createClient();
+
+    // Starting fresh means starting fresh. With a session already open the
+    // sign-in below can hand back the identity you already had, so test mode —
+    // whose whole job is to show what a first-time visitor sees — could put you
+    // straight back into your own half-finished conversation. Drop the old
+    // session first. Nothing is lost that wasn't already being abandoned: this
+    // path is only reached in the sandbox, or after the "start fresh" warning.
+    const { data: { user: current } } = await supabase.auth.getUser();
+    if (current) await supabase.auth.signOut();
+
     const { error } = await supabase.auth.signInAnonymously({
       options: {
         data: { display_name: name.trim(), is_test: testMode || looksLikeTest(name) },
@@ -181,7 +191,7 @@ export default function Enter() {
         onClick={() => setShowReturning((s) => !s)}
         className="mt-10 text-xs text-muted/60 hover:text-accent transition-colors"
       >
-        {showReturning ? "Hide" : "Have a password?"}
+        {showReturning ? "Hide" : "Saved a spot here before? Sign in"}
       </button>
       {showReturning && (
         <form onSubmit={signIn} className="mt-4 w-full max-w-sm flex flex-col gap-3 fade-up">
