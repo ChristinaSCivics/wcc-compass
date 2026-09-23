@@ -160,7 +160,7 @@ export default async function Dashboard() {
         </div>
       ) : user!.is_anonymous ? (
         <div className="mt-6">
-          <SaveSpot />
+          <SaveSpot when={mastermindDate()} />
         </div>
       ) : null}
 
