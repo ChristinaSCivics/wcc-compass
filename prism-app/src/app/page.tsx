@@ -146,7 +146,7 @@ export default function Landing() {
 
       <section className="border-t border-borderline px-6 sm:px-10 py-16">
         <div className="max-w-2xl mx-auto w-full">
-          <span className="block text-[10px] text-teal tracking-[0.18em] uppercase mb-4">
+          <span className="block text-[10px] text-teal tracking-[0.18em] mb-4">
             Our goal with PRiSM
           </span>
           <Video

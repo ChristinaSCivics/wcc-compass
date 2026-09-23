@@ -163,7 +163,7 @@ export default async function Dashboard() {
           signup". The signup form lives here, so here it is — it's also on the
           public landing page, for the people who never come through the door. */}
       <div className="mt-6">
-        <span className="block text-[10px] text-teal tracking-[0.18em] uppercase mb-3">
+        <span className="block text-[10px] text-teal tracking-[0.18em] mb-3">
           Our goal with PRiSM
         </span>
         <Video
