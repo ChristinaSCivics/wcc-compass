@@ -70,13 +70,34 @@ export default function Landing() {
               A few minutes. Stop whenever you like.
             </span>
           </div>
+
+          {/* The overview sat a full screen below the fold with nothing to say
+              it was there, so people who wanted it never found it. */}
+          <a
+            href="#overview"
+            className="mt-8 inline-flex items-center gap-2 text-sm text-muted
+                       hover:text-accent transition-colors"
+          >
+            <span
+              className="flex h-7 w-7 items-center justify-center rounded-full border border-borderline"
+              aria-hidden
+            >
+              <svg width="9" height="10" viewBox="0 0 20 22">
+                <path d="M0 0v22l20-11z" fill="currentColor" />
+              </svg>
+            </span>
+            Or watch the 90-second overview
+          </a>
         </div>
       </section>
 
       {/* ---- below the fold ---- */}
       {/* Kept out of the hero on purpose: the fold asks one question and offers
           one way in, and a video there is a second thing to decide about. */}
-      <section className="border-t border-borderline px-6 sm:px-10 py-16">
+      <section
+        id="overview"
+        className="border-t border-borderline px-6 sm:px-10 py-16 scroll-mt-4"
+      >
         <div className="max-w-2xl mx-auto w-full">
           <span className="block text-[10px] text-muted tracking-[0.18em] uppercase mb-4">
             New here?
