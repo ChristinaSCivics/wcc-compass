@@ -99,7 +99,7 @@ export function MastermindSignup({
       </label>
 
       <p className="text-xs text-muted/70 mt-4">
-        The call link, and nothing else.
+        We&apos;ll only use it to send you the link.
       </p>
 
       {error && <p className="text-sm text-red-300 mt-3">{error}</p>}
