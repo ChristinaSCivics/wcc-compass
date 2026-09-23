@@ -98,8 +98,8 @@ export default function Landing() {
             </span>
             <h2 className="text-2xl mb-2">Come to the first mastermind</h2>
             <p className="text-sm text-muted leading-relaxed">
-              A group call for everyone who&apos;s been through the Compass. We open on
-              what we found we share, and go from there.
+              A group call for everyone who&apos;s shared a vision. We open on what we
+              found we share.
             </p>
             <p className="mt-4 text-sm">
               {when ? (

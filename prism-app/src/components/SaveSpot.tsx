@@ -8,21 +8,18 @@ import { createClient } from "@/lib/supabase/client";
  * Everything they've done — conversations, vision — carries over; same person,
  * now reachable from any device via the sign-in link on the entry page.
  *
- * It leads with the mastermind now. "Save my spot" asks someone to protect
- * work they haven't done yet, which is a weak reason to type an address, and
- * the call — the actual invitation — was buried behind a click and then a
- * tickbox. The invitation is the headline; keeping their spot is what the same
- * address also buys them. The form is open from the start, because a card that
- * has to be opened before it says anything is a card most people never read.
- *
- * The call is ticked by default since it's what the card is headed with and
- * the button says so; the mailing list is a different promise and stays opt-in
- * elsewhere. Untick it and the copy stops promising an email.
+ * Secondary on purpose. Inventing a password is the heaviest thing the site
+ * asks of anyone and two people have ever done it, so it is no longer in the
+ * way of the invitation — the mastermind asks for one field and this sits
+ * below, folded, for the person who actually wants to come back on their
+ * laptop. The call tickbox stays, since someone who opens this may not have
+ * been asked yet.
  */
 export function SaveSpot({ when }: { when?: string | null }) {
+  const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [wantsCall, setWantsCall] = useState(true);
+  const [wantsCall, setWantsCall] = useState(false);
   const [state, setState] = useState<"idle" | "busy" | "done">("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -87,17 +84,20 @@ export function SaveSpot({ when }: { when?: string | null }) {
   }
 
   return (
-    <div className="rounded-xl border border-teal/50 bg-surface p-6">
-      <form onSubmit={save} className="space-y-3">
-          <span className="block text-[10px] text-teal tracking-[0.18em] uppercase">
-            Come to the first mastermind
-          </span>
-          <h2 className="text-xl">A group call for everyone who&rsquo;s been through it</h2>
-          <p className="text-sm text-muted leading-relaxed">
-            Leave an email and we&rsquo;ll send you the link.
-            {when && <span className="text-foreground"> {when}.</span>} It keeps your
-            spot too — right now your conversation lives only in this browser, and an
-            email and password let you pick it up from any device.
+    <div className="rounded-xl border border-borderline bg-surface/60 px-4 py-3">
+      {!open ? (
+        <button
+          onClick={() => setOpen(true)}
+          className="text-left w-full text-sm text-muted hover:text-accent transition-colors"
+        >
+          Using another device later? Add a password to pick this up there →
+        </button>
+      ) : (
+        <form onSubmit={save} className="space-y-3 fade-up">
+          <h2 className="text-sm">Add a password</h2>
+          <p className="text-xs text-muted leading-relaxed">
+            Your conversation lives in this browser only. An email and password let you
+            sign back in anywhere.
           </p>
           <input
             type="email"
@@ -126,29 +126,25 @@ export function SaveSpot({ when }: { when?: string | null }) {
               className="w-4 h-4 mt-0.5 accent-teal shrink-0"
             />
             <span className="text-sm text-muted leading-relaxed">
-              Invite me to the first mastermind. Untick this and your email only
-              signs you back in.
+              Also invite me to the first mastermind{when ? ` — ${when}` : ""}.
             </span>
           </label>
           <button
             type="submit"
             disabled={state === "busy"}
-            className="w-full border border-teal text-teal rounded-lg py-2.5
-                       hover:bg-teal hover:text-background transition-all disabled:opacity-40"
+            className="w-full border border-accent text-accent rounded-lg py-2.5 text-sm
+                       hover:bg-accent hover:text-background transition-all disabled:opacity-40"
           >
-            {state === "busy"
-              ? "Saving…"
-              : wantsCall
-                ? "Invite me & save my spot"
-                : "Save my spot"}
+            {state === "busy" ? "Saving…" : "Save my spot"}
           </button>
           {error && <p className="text-red-400 text-sm">{error}</p>}
           <p className="text-xs text-muted">
             {wantsCall
               ? "Your email is for signing back in, and for the mastermind link. Nothing else."
               : "Your email is only for signing back in — we send nothing to it."}
-        </p>
-      </form>
+          </p>
+        </form>
+      )}
     </div>
   );
 }

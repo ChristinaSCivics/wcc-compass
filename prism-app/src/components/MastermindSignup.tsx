@@ -61,8 +61,8 @@ export function MastermindSignup({
       </span>
       <p className="text-sm text-muted leading-relaxed">
         {compact
-          ? "A group call for everyone who's been through the Compass. Leave an email and we'll send you the link."
-          : "A group call for everyone who's been through the Compass. We open on what we found we share, and go from there."}
+          ? "A group call for everyone who's shared a vision. Leave your email and we'll send the link."
+          : "A group call for everyone who's shared a vision. We open on what we found we share."}
         {when && <span className="text-foreground"> {when}.</span>}
       </p>
 
@@ -94,14 +94,12 @@ export function MastermindSignup({
           className="w-4 h-4 mt-0.5 accent-teal shrink-0"
         />
         <span className="text-xs text-muted leading-relaxed">
-          Also email me occasionally about what World Co-Creation is building. Separate
-          from the call — you can come to the mastermind without this.
+          Also email me occasionally about what World Co-Creation is building.
         </span>
       </label>
 
-      <p className="text-xs text-muted/70 mt-4 leading-relaxed">
-        Your email is used to send you the call link, and nothing else. We don&apos;t ask
-        for your phone number.
+      <p className="text-xs text-muted/70 mt-4">
+        The call link, and nothing else.
       </p>
 
       {error && <p className="text-sm text-red-300 mt-3">{error}</p>}

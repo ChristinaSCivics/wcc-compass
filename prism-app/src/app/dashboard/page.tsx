@@ -147,22 +147,16 @@ export default async function Dashboard() {
         </div>
       )}
 
-      {/* One ask at a time. Two email forms stacked on top of each other read
-          as nagging, and they compete: "save my spot" protects work already
-          done, the mastermind invites you to something next. So: ask for the
-          call once someone has actually given something — and only if they
-          haven't already been asked at the end of their conversation. For an
-          anonymous visitor the more urgent thing is that their work is living
-          in one browser, so that ask wins. */}
-      {confirmedVision && !signup ? (
+      {/* One ask, and it costs one field. Asking someone to invent a password
+          before they've done anything is the heaviest thing on the site and two
+          people have ever done it; the invitation is the reason to leave an
+          address, so it's the only thing asked for here. Returning from another
+          device is a real but secondary want, and lives quietly below. */}
+      {!signup && (
         <div className="mt-6">
           <MastermindSignup when={mastermindDate()} compact />
         </div>
-      ) : user!.is_anonymous ? (
-        <div className="mt-6">
-          <SaveSpot when={mastermindDate()} />
-        </div>
-      ) : null}
+      )}
 
       {/* ---- everything else, deliberately quiet ---- */}
       <nav className="mt-12 pt-6 border-t border-borderline">
@@ -184,6 +178,11 @@ export default async function Dashboard() {
           <Tile href="/audit" title="The open record" sub="Tamper-evident, readable by all" />
           <KeeperLink />
         </div>
+        {user!.is_anonymous && (
+          <div className="mt-3">
+            <SaveSpot when={mastermindDate()} />
+          </div>
+        )}
       </nav>
     </main>
     </>
