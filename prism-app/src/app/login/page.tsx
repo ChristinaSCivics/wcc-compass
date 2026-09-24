@@ -99,7 +99,13 @@ export default function Enter() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center horizon px-6">
+    <main className="relative min-h-screen flex flex-col items-center justify-center horizon px-6 py-12">
+      <a
+        href="https://worldcocreation.com"
+        className="absolute top-5 right-6 text-xs text-accent/80 hover:text-accent transition-colors"
+      >
+        World Co-Creation ↗
+      </a>
       <WccMark size={48} />
       <h1 className="mt-6 text-3xl">Enter the Compass</h1>
       <div className="mt-3"><DemoBadge /></div>

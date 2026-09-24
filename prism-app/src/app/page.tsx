@@ -31,9 +31,10 @@ export default function Landing() {
               this is the way back, so the two read as one site. */}
           <a
             href="https://worldcocreation.com"
-            className="hidden sm:inline text-muted hover:text-accent transition-colors"
+            className="text-accent/80 hover:text-accent transition-colors whitespace-nowrap"
           >
-            worldcocreation.com ↗
+            <span className="sm:hidden">WCC ↗</span>
+            <span className="hidden sm:inline">World Co-Creation ↗</span>
           </a>
           <Link href="/about" className="text-muted hover:text-accent transition-colors">
             What this is

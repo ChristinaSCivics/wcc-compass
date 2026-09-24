@@ -107,6 +107,16 @@ export function TopNav({ withFeedback = true }: { withFeedback?: boolean } = {})
               </Link>
             );
           })}
+          {/* The Compass is one instrument of a larger thing, and until now
+              nothing inside the product said so or led back to it. */}
+          <a
+            href="https://worldcocreation.com"
+            className="px-2 sm:px-3 py-1.5 whitespace-nowrap text-accent/80
+                       hover:text-accent transition-colors"
+          >
+            <span className="sm:hidden">WCC ↗</span>
+            <span className="hidden sm:inline">World Co-Creation ↗</span>
+          </a>
           <button
             onClick={signOut}
             className="px-2 sm:px-3 sm:ml-1 py-1.5 text-muted/60 hover:text-accent transition-colors"

@@ -105,6 +105,12 @@ export default async function NextSteps() {
         <Link href="/dashboard" className="text-sm text-muted hover:text-accent transition-colors">
           Or go to your home →
         </Link>
+        <a
+          href="https://worldcocreation.com"
+          className="text-sm text-accent/80 hover:text-accent transition-colors"
+        >
+          World Co-Creation ↗
+        </a>
       </div>
     </main>
   );
