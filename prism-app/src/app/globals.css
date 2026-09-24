@@ -1,34 +1,36 @@
 @import "tailwindcss";
 
 /*
- * World Co-Creation brand, per the Brand Guidelines (4 Aug 2026).
+ * World Co-Creation brand, as worldcocreation.com actually ships it.
  *
- * Every value here is from that document, which measured them directly from
- * The Call to My Colleagues deck and WorldCoCreationMark.png. Not sampled from
- * the infographics, which are a different thing and led this app astray once.
+ * These were the Brand Guidelines' charcoal values until the site went live on
+ * a midnight-navy ground with cream type. The guidelines are a document; the
+ * site is the thing people will have just come from, and a demo that looks
+ * like a different product breaks the sentence "experience the demo". So the
+ * core is taken from the live site's own custom properties — --void, --deep,
+ * --chart, --edge, --cream, --gold, --slate — read off the running page.
  *
- * The palette is semantic, and the part that matters here: gold is the
- * Compass. This app is the Compass, so gold is the primary accent. Teal is for
- * eyebrows and section markers. PRiSM is a refracted spectrum and never a flat
- * fill — see .prism-text and .prism-rule below.
+ * Gold survives unchanged: their --gold-2 is #c8a24a, the exact value the
+ * guidelines gave the Compass. Teal stays too — it is the Movement OS colour
+ * from the guidelines, and nothing on the live site occupies that job.
  *
  * "Gold is light, and light is the movement... Don't spend it on decoration."
  */
 
 :root {
-  /* Core UI — measured from the deck */
-  --background: #1a1a1a;       /* charcoal */
-  --surface: #232323;          /* charcoal raised — cards, panels */
-  --surface-raised: #2b2b2b;   /* one step up again, for nesting */
-  --border: #343434;
-  --heading: #ffffff;          /* headings only */
-  --foreground: #d2d2d2;       /* body — never pure white at body size */
-  --muted: #8a8a8a;            /* captions, secondary */
+  /* Core UI — from the live site */
+  --background: #070c18;       /* void — the night sky it opens on */
+  --surface: #0b1426;          /* deep — cards, panels */
+  --surface-raised: #101b31;   /* chart — one step up again, for nesting */
+  --border: #1e2c47;           /* edge */
+  --heading: #f0dfc0;          /* cream — headings and hero copy */
+  --foreground: #d7ccb6;       /* body, a step quieter than cream */
+  --muted: #8496b4;            /* slate — captions, secondary */
 
   /* The Compass */
-  --accent: #c8a24a;           /* gold — the signature accent */
-  --accent-soft: #a8863c;
-  --accent-glow: rgba(200, 162, 74, 0.14);
+  --accent: #d9a85c;           /* gold, as the site uses it */
+  --accent-soft: #c8a24a;      /* the guidelines' gold, one step down */
+  --accent-glow: rgba(217, 168, 92, 0.14);
 
   /* The Movement OS */
   --teal: #2aa6a0;
@@ -57,23 +59,33 @@
   --color-amber: var(--amber);
   --color-ember: var(--ember);
   --color-cyan: var(--cyan);
-  --font-sans: var(--font-inter);
-  --font-serif: var(--font-fraunces);
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-display);
+  --font-mono: var(--font-mono);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-inter), system-ui, sans-serif;
+  font-family: var(--font-body), system-ui, sans-serif;
 }
 
-/* Georgia speaks, Calibri explains — headings carry the voice, and only
-   headings get pure white. Body stays soft white so it doesn't glare. */
+/* Headings carry the voice, and only headings get the full cream. Cormorant
+   runs small and light for its size, so it takes a touch more weight and a
+   little less negative tracking than the face it replaced. */
 h1, h2, h3, .serif {
-  font-family: var(--font-fraunces), Georgia, serif;
-  font-weight: 400;
-  letter-spacing: -0.01em;
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 500;
+  letter-spacing: 0;
   color: var(--heading);
+}
+
+/* The site's chrome is set in mono: small, uppercase, widely letterspaced.
+   Anything letterspaced that far here is one of those labels, so it picks up
+   the same face. Written as an attribute match because Tailwind's arbitrary
+   values escape into selectors that Lightning CSS won't parse here. */
+[class*="tracking-["], .tracking-widest {
+  font-family: var(--font-mono), ui-monospace, monospace;
 }
 
 /*
@@ -101,8 +113,8 @@ h1, h2, h3, .serif {
   background: linear-gradient(
     to bottom,
     transparent 0%,
-    rgba(200, 162, 74, 0.04) 55%,
-    rgba(200, 162, 74, 0.10) 100%
+    rgba(217, 168, 92, 0.04) 55%,
+    rgba(217, 168, 92, 0.10) 100%
   );
 }
 

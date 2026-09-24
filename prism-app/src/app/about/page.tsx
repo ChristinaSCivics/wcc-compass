@@ -189,6 +189,15 @@ export default async function About() {
           >
             {user ? "Back to the Compass →" : "Share your vision →"}
           </Link>
+          <p className="mt-8 text-sm text-muted">
+            The Compass is one instrument of World Co-Creation —{" "}
+            <a
+              href="https://worldcocreation.com"
+              className="text-accent hover:text-foreground transition-colors"
+            >
+              worldcocreation.com ↗
+            </a>
+          </p>
         </footer>
       </article>
     </main>

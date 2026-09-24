@@ -189,6 +189,11 @@ export default async function Dashboard() {
             sub={`${decisions?.length ?? 0} in process`}
           />
           <Tile href="/audit" title="The open record" sub="Tamper-evident, readable by all" />
+          <Tile
+            href="https://worldcocreation.com"
+            title="World Co-Creation ↗"
+            sub="The movement this belongs to"
+          />
           <KeeperLink />
         </div>
         {user!.is_anonymous && (
@@ -203,14 +208,20 @@ export default async function Dashboard() {
 }
 
 function Tile({ href, title, sub }: { href: string; title: string; sub: string }) {
-  return (
-    <Link
-      href={href}
-      className="block rounded-xl border border-borderline bg-surface/60 px-4 py-3
-                 transition-colors hover:border-accent"
-    >
+  const className =
+    "block rounded-xl border border-borderline bg-surface/60 px-4 py-3 " +
+    "transition-colors hover:border-accent";
+  const inside = (
+    <>
       <span className="block text-sm">{title}</span>
       <span className="block text-xs text-muted mt-0.5">{sub}</span>
-    </Link>
+    </>
+  );
+  // Off-site tiles are plain anchors: nothing to prefetch, and the router
+  // shouldn't treat worldcocreation.com as one of our routes.
+  return href.startsWith("http") ? (
+    <a href={href} className={className}>{inside}</a>
+  ) : (
+    <Link href={href} className={className}>{inside}</Link>
   );
 }

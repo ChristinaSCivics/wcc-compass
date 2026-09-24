@@ -26,7 +26,15 @@ export default function Landing() {
             v0.1
           </span>
         </div>
-        <div className="flex items-center gap-6 shrink-0 text-sm">
+        <div className="flex items-center gap-4 sm:gap-6 shrink-0 text-sm">
+          {/* worldcocreation.com sends people here with "Experience the Demo";
+              this is the way back, so the two read as one site. */}
+          <a
+            href="https://worldcocreation.com"
+            className="hidden sm:inline text-muted hover:text-accent transition-colors"
+          >
+            worldcocreation.com ↗
+          </a>
           <Link href="/about" className="text-muted hover:text-accent transition-colors">
             What this is
           </Link>
