@@ -29,6 +29,7 @@ export default async function Dashboard() {
     { data: roster },
     { data: signup },
     { data: connection },
+    { data: connectionConvos },
   ] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", user!.id).single(),
       supabase.from("vision_profiles").select("status, confirmed").eq("user_id", user!.id).maybeSingle(),
@@ -49,9 +50,12 @@ export default async function Dashboard() {
         .eq("user_id", user!.id)
         .maybeSingle(),
       supabase.from("connection_profiles").select("status").eq("user_id", user!.id).maybeSingle(),
+      supabase.from("conversations").select("id")
+        .eq("user_id", user!.id).eq("kind", "connection").eq("status", "active").limit(1),
     ]);
 
   const activeOnboarding = convos?.[0];
+  const activeConnection = connectionConvos?.[0];
 
   // Values -> Action, thin slice. Only meaningful once they have confirmed words
   // of their own to match against.
@@ -142,19 +146,31 @@ export default async function Dashboard() {
 
       {/* Peter: the Connection Interview sits beside the Basic Map as a second
           prompt, under its public title. Either can be done alone. */}
-      <Link
-        href={connection?.status === "confirmed" ? "/connect/review" : "/connect/start"}
-        className="block mt-4 rounded-2xl border border-borderline bg-surface p-5 sm:p-6
-                   transition-all hover:border-accent"
-      >
+      <div className="mt-4 rounded-2xl border border-borderline bg-surface p-5 sm:p-6
+                      transition-all hover:border-accent">
         <span className="block text-xs text-accent tracking-[0.16em] uppercase mb-2">
-          {connection?.status === "confirmed" ? "Your piece is saved" : "About eight minutes"}
+          {connection?.status === "confirmed"
+            ? "Your piece is saved"
+            : activeConnection
+              ? "Picked up where you left off"
+              : "About five minutes"}
         </span>
         <h2 className="text-lg sm:text-xl mb-1 serif">What Piece(s) of the Puzzle Do You Bring?</h2>
         <p className="text-sm text-muted leading-relaxed max-w-xl">
           A short conversation so we can get to know you and find where you fit.
         </p>
-      </Link>
+        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm">
+          {/* /connect/start resumes the open conversation if there is one */}
+          <Link href="/connect/start" className="text-accent hover:underline">
+            {connection?.status === "confirmed" || activeConnection ? "Continue the conversation →" : "Begin →"}
+          </Link>
+          {connection && (
+            <Link href="/connect/review" className="text-muted hover:text-accent">
+              {connection.status === "confirmed" ? "Review your recap and choices" : "Review your recap"}
+            </Link>
+          )}
+        </div>
+      </div>
 
       {/* ---- what's yours ---- */}
       {(confirmedVision || vision?.status === "confirmed") && (

@@ -208,13 +208,18 @@ export default function ConnectionReview() {
               </a>
               .
             </p>
-            <Link
-              href="/dashboard"
-              className="inline-block mt-8 px-7 py-3 border border-accent text-accent rounded-full
-                         hover:bg-accent hover:text-background transition-all"
-            >
-              Back to your home →
-            </Link>
+            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+              <Link
+                href="/dashboard"
+                className="px-7 py-3 border border-accent text-accent rounded-full
+                           hover:bg-accent hover:text-background transition-all"
+              >
+                Back to your home →
+              </Link>
+              <a href="/connect/start" className="text-sm text-muted hover:text-accent transition-colors">
+                Add something — keep talking with PRiSM
+              </a>
+            </div>
           </div>
         ) : (
           <>
