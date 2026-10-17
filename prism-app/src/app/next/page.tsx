@@ -83,6 +83,24 @@ export default async function NextSteps() {
         </p>
       </section>
 
+      {/* Peter's invitation to Part 2: one prominent button, gold on charcoal. */}
+      <section className="mt-12 rounded-2xl bg-[#1A1A1A] px-6 py-8 text-center">
+        <p className="text-[#F2EDE4] leading-relaxed">
+          There&apos;s one more conversation, if you&apos;d like it. It&apos;s about you, and
+          the piece of the puzzle you carry.
+        </p>
+        <Link
+          href="/connect/start"
+          className="mt-5 block sm:inline-block w-full sm:w-auto px-8 py-4 rounded-full
+                     bg-[#C8A24A] text-[#1A1A1A] text-lg font-[Georgia,serif]
+                     transition-all duration-500 hover:-translate-y-0.5
+                     hover:shadow-[0_0_28px_rgba(200,162,74,0.45)]
+                     focus-visible:-translate-y-0.5 focus-visible:shadow-[0_0_28px_rgba(200,162,74,0.45)]"
+        >
+          What Piece(s) of the Puzzle Do You Bring?
+        </Link>
+      </section>
+
       {/* 3 — invite them in */}
       <section className="mt-12">
         <MastermindSignup when={when} />

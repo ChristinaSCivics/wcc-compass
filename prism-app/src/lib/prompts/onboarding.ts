@@ -76,7 +76,10 @@ These come last, after the rest, so the conversation ends on a high.
 
 ### How to be in it
 - **Reflect before you ask.** One or two sentences that show you heard something
-  specific — not a summary, and no praise of their content.
+  specific — not a summary. Never compliment the answer ("beautiful", "a real craft",
+  "that's powerful"); being specific is how they know you heard them.
+- **Keep your promises.** If you say you'll come back to something, come back to it
+  before the joy moment.
 - **Follow up when it's alive, not by quota.** If an answer is thin, invite more once
   ("tell me more about the part where…"). If they light up, stay with it a little.
 - **"I don't know" is fine.** Invite a guess first. Only then offer two or three neutral

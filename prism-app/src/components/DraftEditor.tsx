@@ -40,11 +40,18 @@ export function DraftEditor({
   onConfirm,
   confirming,
   groups,
+  beforeConfirm,
+  confirmLabel = "This is true to me — confirm it",
+  footnote = "Edit anything above first. Confirmation is recorded on the open, tamper-evident log.",
 }: {
   draft: Record<string, unknown>;
   onConfirm: (edited: Record<string, unknown>) => void;
   confirming: boolean;
   groups?: FieldGroup[];
+  /** Rendered between the fields and the confirm button (e.g. consent choices). */
+  beforeConfirm?: React.ReactNode;
+  confirmLabel?: string;
+  footnote?: string;
 }) {
   // simple text fields
   const [fields, setFields] = useState<Record<string, string>>(() => {
@@ -235,6 +242,7 @@ export function DraftEditor({
       ) : (
         orderedKeys.map(renderField)
       )}
+      {beforeConfirm}
       {error && <p className="text-red-400 text-sm">{error}</p>}
       <button
         onClick={() => {
@@ -246,11 +254,9 @@ export function DraftEditor({
         className="w-full border border-accent text-accent rounded-xl py-4 text-lg
                    hover:bg-accent hover:text-background transition-all accent-glow disabled:opacity-40"
       >
-        {confirming ? "Recording…" : "This is true to me — confirm it"}
+        {confirming ? "Recording…" : confirmLabel}
       </button>
-      <p className="text-xs text-muted text-center">
-        Edit anything above first. Confirmation is recorded on the open, tamper-evident log.
-      </p>
+      <p className="text-xs text-muted text-center">{footnote}</p>
     </div>
   );
 }

@@ -28,6 +28,7 @@ export default async function Dashboard() {
     { data: myInputs },
     { data: roster },
     { data: signup },
+    { data: connection },
   ] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", user!.id).single(),
       supabase.from("vision_profiles").select("status, confirmed").eq("user_id", user!.id).maybeSingle(),
@@ -47,6 +48,7 @@ export default async function Dashboard() {
         .select("id")
         .eq("user_id", user!.id)
         .maybeSingle(),
+      supabase.from("connection_profiles").select("status").eq("user_id", user!.id).maybeSingle(),
     ]);
 
   const activeOnboarding = convos?.[0];
@@ -136,6 +138,22 @@ export default async function Dashboard() {
         <h2 className="text-xl sm:text-2xl mb-2">{primary.title}</h2>
         <p className="text-sm text-muted leading-relaxed max-w-xl">{primary.sub}</p>
         <span className="inline-block mt-4 text-sm text-accent">{primary.cta} →</span>
+      </Link>
+
+      {/* Peter: the Connection Interview sits beside the Basic Map as a second
+          prompt, under its public title. Either can be done alone. */}
+      <Link
+        href={connection?.status === "confirmed" ? "/connect/review" : "/connect/start"}
+        className="block mt-4 rounded-2xl border border-borderline bg-surface p-5 sm:p-6
+                   transition-all hover:border-accent"
+      >
+        <span className="block text-xs text-accent tracking-[0.16em] uppercase mb-2">
+          {connection?.status === "confirmed" ? "Your piece is saved" : "About eight minutes"}
+        </span>
+        <h2 className="text-lg sm:text-xl mb-1 serif">What Piece(s) of the Puzzle Do You Bring?</h2>
+        <p className="text-sm text-muted leading-relaxed max-w-xl">
+          A short conversation so we can get to know you and find where you fit.
+        </p>
       </Link>
 
       {/* ---- what's yours ---- */}

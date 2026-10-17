@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { audit } from "@/lib/audit";
 import { EXTRACTION_PROMPT } from "@/lib/prompts/onboarding";
 import { DECISION_INPUT_EXTRACTION_PROMPT } from "@/lib/prompts/decision";
+import { CONNECTION_EXTRACTION_PROMPT } from "@/lib/prompts/connection";
 import { EXTRACT_MODEL } from "@/lib/models";
 
 export const maxDuration = 120;
@@ -37,23 +38,51 @@ export async function POST(req: NextRequest) {
     .join("\n\n");
 
   const isDecision = conversation.kind === "decision";
+  const isConnection = conversation.kind === "connection";
   const anthropic = new Anthropic();
   const response = await anthropic.messages.create({
     model: EXTRACT_MODEL,
     max_tokens: 4096,
-    system: isDecision ? DECISION_INPUT_EXTRACTION_PROMPT : EXTRACTION_PROMPT,
-    messages: [{ role: "user", content: `Interview transcript:\n\n${transcript}` }],
+    system: isDecision
+      ? DECISION_INPUT_EXTRACTION_PROMPT
+      : isConnection
+        ? CONNECTION_EXTRACTION_PROMPT
+        : EXTRACTION_PROMPT,
+    messages: [
+      {
+        role: "user",
+        content:
+          `Interview transcript:\n\n${transcript}\n\n` +
+          `Respond with the JSON object only. Begin your reply with { and end it with }.`,
+      },
+    ],
   });
 
   const text = response.content[0].type === "text" ? response.content[0].text : "";
   let draft: unknown;
   try {
-    draft = JSON.parse(text.replace(/^```(?:json)?\s*/,"").replace(/\s*```$/,""));
+    draft = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1));
   } catch {
     return NextResponse.json({ error: "extraction did not return valid JSON" }, { status: 502 });
   }
 
-  if (isDecision) {
+  if (isConnection) {
+    // Same rule as the vision: drafting again never un-confirms someone.
+    const { data: existing } = await supabase
+      .from("connection_profiles").select("status").eq("user_id", user.id).maybeSingle();
+    const { error } = await supabase.from("connection_profiles").upsert(
+      {
+        user_id: user.id,
+        conversation_id: conversationId,
+        draft,
+        status: existing?.status === "confirmed" ? "confirmed" : "draft",
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id" }
+    );
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    await audit("connection.drafted", "connection_profile", user.id, user.id, {});
+  } else if (isDecision) {
     const { error } = await supabase.from("decision_inputs").upsert(
       {
         decision_id: conversation.decision_id,

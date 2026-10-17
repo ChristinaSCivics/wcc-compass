@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/lib/supabase/server";
 import { ONBOARDING_PROMPT } from "@/lib/prompts/onboarding";
 import { decisionInterviewPrompt } from "@/lib/prompts/decision";
+import { connectionPrompt } from "@/lib/prompts/connection";
 
 export const maxDuration = 120;
 
@@ -42,10 +43,12 @@ export async function POST(req: NextRequest) {
     .eq("conversation_id", conversationId)
     .order("created_at", { ascending: true });
 
-  const system =
-    conversation.kind === "decision" && conversation.decisions
-      ? decisionInterviewPrompt(conversation.decisions.title, conversation.decisions.description ?? "")
-      : ONBOARDING_PROMPT;
+  let system = ONBOARDING_PROMPT;
+  if (conversation.kind === "decision" && conversation.decisions) {
+    system = decisionInterviewPrompt(conversation.decisions.title, conversation.decisions.description ?? "");
+  } else if (conversation.kind === "connection") {
+    system = connectionPrompt(await visionBackground(supabase, user.id));
+  }
 
   const anthropic = new Anthropic();
   const stream = anthropic.messages.stream({
@@ -109,4 +112,23 @@ export async function POST(req: NextRequest) {
   return new Response(readable, {
     headers: { "Content-Type": "text/plain; charset=utf-8" },
   });
+}
+
+/**
+ * A few lines of the person's Basic Map, so the Connection Interview doesn't ask
+ * again what they've already said. Only fields about who they are and what they
+ * give — never the rest of their vision.
+ */
+async function visionBackground(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string
+): Promise<string | null> {
+  const { data } = await supabase
+    .from("vision_profiles").select("draft, confirmed, status").eq("user_id", userId).maybeSingle();
+  const v = (data?.status === "confirmed" ? data.confirmed : data?.draft) as Record<string, unknown> | null;
+  if (!v) return null;
+  const pick = ["headline", "work_and_contribution", "gifts", "capacity"]
+    .filter((k) => v[k] != null && v[k] !== "" && !(Array.isArray(v[k]) && !(v[k] as unknown[]).length))
+    .map((k) => `- ${k.replace(/_/g, " ")}: ${typeof v[k] === "string" ? v[k] : JSON.stringify(v[k])}`);
+  return pick.length ? pick.join("\n") : null;
 }

@@ -56,6 +56,7 @@ export default async function Privacy() {
               "If you choose to save your spot: your email and a password, so you can sign back in.",
               "If you join the mastermind list: your email, and whether you ticked the box for occasional updates.",
               "Anything you send through the feedback button.",
+              "If you do the \u201cWhat Piece(s) of the Puzzle Do You Bring?\u201d conversation: that conversation, the recap you edit, and the permissions you choose. If you tick \u201ccontact me\u201d, also the name, email, optional phone and contact preference you give, plus — only if you tick those boxes too — the organizations and people you mentioned.",
               "When you first enter: your approximate location (country, region and city, worked out by our host from your connection — not GPS), your timezone, your browser's language, and whether you're on a phone, tablet or computer. We don't store your IP address.",
             ]}
           />
@@ -68,6 +69,7 @@ export default async function Privacy() {
               "Your conversation is private to you and the small team that runs the Compass.",
               "Your confirmed vision is shown to other members without your name. Shared pages describe people by proportion, never by person.",
               "Your name, email and location are visible only to you and the team.",
+              "Your \u201cpiece of the puzzle\u201d recap reaches the team only if you tick \u201ccontact me\u201d. If you don\u2019t, it\u2019s counted only in anonymous totals (for example, how many people offered design help), with no name attached.",
               "The open log records that something happened and when — never your words or your name.",
             ]}
           />

@@ -19,6 +19,7 @@ const TOOLS = [
   { href: "/admin/members", label: "People" },
   { href: "/admin/funnel", label: "Journey" },
   { href: "/admin/contacts", label: "Emails" },
+  { href: "/admin/connections", label: "Pieces" },
   { href: "/admin/feedback", label: "Feedback" },
   { href: "/admin/technical", label: "Technical" },
   { href: "/audit", label: "Record" },

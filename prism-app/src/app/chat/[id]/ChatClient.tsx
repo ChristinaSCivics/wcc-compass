@@ -18,7 +18,7 @@ export function ChatClient({
   initialMessages,
 }: {
   conversationId: string;
-  kind: "onboarding" | "decision";
+  kind: "onboarding" | "decision" | "connection";
   decisionId: string | null;
   initialMessages: Msg[];
 }) {
@@ -35,8 +35,13 @@ export function ChatClient({
   // second identical extraction when nothing has been said since.
   const draftedAt = useRef<number | null>(null);
 
+  const reviewPath =
+    kind === "decision" ? `/decisions/${decisionId}/confirm`
+      : kind === "connection" ? "/connect/review"
+        : "/vision";
+
   // Where most people finish — used for the progress rail, not for drafting.
-  const TYPICAL = kind === "decision" ? 6 : 12;
+  const TYPICAL = kind === "decision" ? 6 : kind === "connection" ? 8 : 12;
 
   // One early draft, as insurance for a phone that dies thirty seconds in.
   // Everything after this is handled by the scheduled job, which drafts once
@@ -164,7 +169,7 @@ export function ChatClient({
     // A background draft already covers everything said so far — re-extracting
     // would burn another ten seconds to produce the same thing.
     if (draftedAt.current !== null && draftedAt.current === exchanges) {
-      router.push(kind === "decision" ? `/decisions/${decisionId}/confirm` : "/vision");
+      router.push(reviewPath);
       return;
     }
 
@@ -180,7 +185,7 @@ export function ChatClient({
       }
       // stay disabled through the navigation — this conversation stays open,
       // so they can come back and keep going afterwards
-      router.push(kind === "decision" ? `/decisions/${decisionId}/confirm` : "/vision");
+      router.push(reviewPath);
     } catch (e) {
       setError(
         e instanceof Error
@@ -203,7 +208,11 @@ export function ChatClient({
       <div className="flex items-center justify-between gap-3 px-6 py-2.5
                       border-b border-borderline text-xs">
         <span className="text-muted">
-          {kind === "decision" ? "Your input to a decision" : "Your vision — with PRiSM"}
+          {kind === "decision"
+            ? "Your input to a decision"
+            : kind === "connection"
+              ? "Your piece of the puzzle — with PRiSM"
+              : "Your vision — with PRiSM"}
         </span>
         {kind === "decision" && decisionId && (
           <Link href={`/decisions/${decisionId}`} className="text-accent hover:underline">
@@ -231,7 +240,9 @@ export function ChatClient({
             <div className="mx-auto w-fit animate-pulse">
               <WccMark size={44} />
             </div>
-            <p className="mt-5 text-lg">PRiSM is writing up your vision…</p>
+            <p className="mt-5 text-lg">
+              {kind === "connection" ? "PRiSM is writing up your recap…" : "PRiSM is writing up your vision…"}
+            </p>
             <p className="mt-2 text-sm text-muted leading-relaxed">
               It&apos;s reading back everything you said, in your own words. This usually
               takes about ten seconds.
