@@ -140,8 +140,8 @@ export function SaveSpot({ when }: { when?: string | null }) {
           {error && <p className="text-red-400 text-sm">{error}</p>}
           <p className="text-xs text-muted">
             {wantsCall
-              ? "Your email is for signing back in, and for the mastermind link. Nothing else."
-              : "Your email is only for signing back in — we send nothing to it."}
+              ? "Your email is for signing back in and the mastermind link, and the WCC team may reach out about getting involved. Never sold, never spam."
+              : "Your email is for signing back in, and the WCC team may reach out about getting involved. Never sold, never spam."}
           </p>
         </form>
       )}

@@ -102,7 +102,7 @@ export function MastermindSignup({
       </label>
 
       <p className={`text-xs text-muted/70 ${compact ? "mt-2" : "mt-4"}`}>
-        We&apos;ll only use it to send you the link.
+        We&apos;ll use it to send you the link, and the WCC team may follow up about getting involved.
       </p>
 
       {error && <p className="text-sm text-red-300 mt-3">{error}</p>}

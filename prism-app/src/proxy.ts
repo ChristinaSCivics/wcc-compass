@@ -49,7 +49,8 @@ export async function proxy(request: NextRequest) {
     // isn't open. A keeper reaching it from the admin nav has no participant
     // session either, and was being bounced to /login for it.
     path === "/audit" ||
-    path.startsWith("/about");
+    path.startsWith("/about") ||
+    path === "/privacy";
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";

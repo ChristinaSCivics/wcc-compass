@@ -187,7 +187,7 @@ export default function Enter() {
         )}
         <p className="text-xs text-muted mt-1 text-center">
           No account needed.{" "}
-          <a href="/about#privacy" className="underline hover:text-accent transition-colors">
+          <a href="/privacy" className="underline hover:text-accent transition-colors">
             How your words are kept
           </a>
         </p>

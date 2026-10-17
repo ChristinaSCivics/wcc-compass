@@ -111,6 +111,14 @@ export default async function About() {
             are public, so anyone can check exactly what it was told to do. We&apos;d rather
             be checkable than trusted.
           </P>
+          <P>
+            The details — what&apos;s collected, which services see it, how long it&apos;s
+            kept and how to delete it — are on the{" "}
+            <Link href="/privacy" className="text-accent underline underline-offset-4">
+              privacy page
+            </Link>
+            .
+          </P>
         </Section>
 
         <Section title="What PRiSM will not do">
