@@ -7,6 +7,7 @@ import { WccMark } from "@/components/WccLogo";
 import { FeedbackWidget } from "@/components/FeedbackWidget";
 import { ConversationProgress } from "@/components/ConversationProgress";
 import { TopNav } from "@/components/TopNav";
+import { VoiceInput } from "@/components/VoiceInput";
 
 type Msg = { id?: string; role: "user" | "assistant"; content: string };
 
@@ -35,7 +36,7 @@ export function ChatClient({
   const draftedAt = useRef<number | null>(null);
 
   // Where most people finish — used for the progress rail, not for drafting.
-  const TYPICAL = kind === "decision" ? 6 : 7;
+  const TYPICAL = kind === "decision" ? 6 : 12;
 
   // One early draft, as insurance for a phone that dies thirty seconds in.
   // Everything after this is handled by the scheduled job, which drafts once
@@ -293,10 +294,11 @@ export function ChatClient({
             }
           }}
           rows={2}
-          placeholder={busy ? "PRiSM is listening…" : "Speak freely…"}
+          placeholder={busy ? "PRiSM is listening…" : "Type, or tap the mic and talk…"}
           className="flex-1 bg-surface border border-borderline rounded-xl px-4 py-3 resize-none
                      focus:outline-none focus:border-accent transition-colors"
         />
+        <VoiceInput value={input} onChange={setInput} disabled={busy} />
         <button
           type="submit"
           disabled={busy || !input.trim()}

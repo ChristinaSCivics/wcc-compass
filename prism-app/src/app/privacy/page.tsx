@@ -82,6 +82,7 @@ export default async function Privacy() {
               "Vercel hosts the site and counts page visits with Vercel Analytics, which uses no cookies and doesn't identify you.",
               "Fibery is World Co-Creation's internal contact list. If you gave us an email, the team may add your name, email, how you joined and your rough location so someone can follow up. Your conversation and vision are never copied there.",
               "YouTube plays the video on the About page, and loads nothing until you press play.",
+              "If you use the mic button, your browser turns your speech into text before anything is sent — in Chrome that's done by Google's speech service, in Safari by Apple's. We only ever receive the text.",
             ]}
           />
           <P>We don&apos;t sell your information, run ads, or use advertising trackers.</P>

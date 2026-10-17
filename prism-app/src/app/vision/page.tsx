@@ -17,24 +17,40 @@ import { YourPiece } from "@/components/YourPiece";
 const VISION_GROUPS: FieldGroup[] = [
   {
     title: "The essentials",
-    keys: ["headline", "ideal_daily_life", "community"],
+    keys: ["headline", "ideal_daily_life", "the_feel", "community"],
   },
   {
     title: "Your values, and your lines",
-    hint: "What matters most, and what you could never live with",
-    keys: ["core_values", "red_lines", "safety_and_freedom"],
+    hint: "What matters most, and what must be true for you",
+    keys: ["core_values", "non_negotiables", "red_lines", "safety_and_freedom"],
+  },
+  {
+    title: "How your world works",
+    hint: "Decisions, needs, care — and your neighbors",
+    keys: [
+      "how_decisions_are_made",
+      "say_score",
+      "say_reason",
+      "how_needs_are_met",
+      "care_and_conflict",
+      "neighbors_who_live_differently",
+    ],
   },
   {
     title: "Your piece of the puzzle",
     hint: "What you're great at, what you'd build, what you can give",
-    keys: ["gifts", "blueprint", "capacity", "host_spark"],
+    keys: ["gifts", "work_and_contribution", "blueprint", "capacity", "host_spark"],
   },
   {
     title: "More of your world",
-    hint: "Home, work, health, learning — wherever the conversation reached",
+    hint: "Place, rhythm, what's gone — wherever the conversation reached",
     keys: [
       "home_and_environment",
-      "work_and_contribution",
+      "rhythm_of_life",
+      "whats_gone",
+      "barrier",
+      "joy_moment",
+      "note_to_today",
       "health_and_food",
       "learning_and_meaning",
       "keep_from_current_life",
