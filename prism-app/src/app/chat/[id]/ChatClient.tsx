@@ -203,6 +203,9 @@ export function ChatClient({
           site simply wasn't reachable from in here. Full navigation now, the
           same as every other page — and the finish button lives in the progress
           rail below, where it already was, instead of in two places. */}
+      {/* Pinned as one block: PRiSM's closing tells people to press Finish
+          "at the top", which used to scroll away with the conversation. */}
+      <div className="sticky top-0 z-30 bg-background">
       <TopNav withFeedback={false} />
 
       <div className="flex items-center justify-between gap-3 px-6 py-2.5
@@ -229,6 +232,7 @@ export function ChatClient({
           disabled={finishing || busy}
         />
       )}
+      </div>
 
       {finishing && (
         <div

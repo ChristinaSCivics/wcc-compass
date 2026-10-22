@@ -14,10 +14,10 @@ export function DemoBadge({ variant = "inline" }: { variant?: "full" | "inline" 
     return (
       <div className="rounded-lg border border-borderline bg-surface/70 px-4 py-3 max-w-xl">
         <span className="text-xs text-amber tracking-[0.18em] uppercase">
-          v0.1 · Early demo
+          Beta
         </span>
         <p className="text-sm text-muted leading-relaxed mt-1.5">
-          This is an early demo. It&apos;s here so you can feel what we&apos;re building —
+          The Compass is in beta. It&apos;s here so you can feel what we&apos;re building —
           the Proto-Compass is coming soon.
         </p>
       </div>
@@ -26,7 +26,7 @@ export function DemoBadge({ variant = "inline" }: { variant?: "full" | "inline" 
 
   return (
     <p className="text-xs tracking-[0.18em] uppercase text-amber">
-      v0.1 · Early demo
+      Beta
       <span className="text-muted normal-case tracking-normal ml-2 text-xs">
         an early look at what we&apos;re building
       </span>

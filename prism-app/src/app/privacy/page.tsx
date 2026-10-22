@@ -10,7 +10,7 @@ export const metadata = {
 
 // Every line here has to stay true to the code. When collection, storage or
 // sharing changes, this page changes in the same commit.
-const UPDATED = "October 17, 2026";
+const UPDATED = "October 21, 2026";
 const CONTACT = "admin@worldcocreation.com";
 
 export default async function Privacy() {
@@ -35,16 +35,16 @@ export default async function Privacy() {
           <h1 className="text-4xl md:text-5xl leading-tight">Privacy</h1>
           <p className="mt-4 text-muted text-lg leading-relaxed max-w-xl">
             What the Compass keeps, where it goes, how long we hold it, and how to have it
-            deleted. This is an early demo run by World Co-Creation, and this page describes
-            exactly what the demo does today.
+            deleted. The Compass is in beta, run by World Co-Creation, and this page describes
+            exactly what it does today.
           </p>
           <p className="mt-3 text-sm text-muted">Last updated {UPDATED}</p>
         </header>
 
         <Section title="Who it's for">
           <P>
-            The Compass is for people 13 and older. If you&apos;re under 13, please don&apos;t
-            use it. If we learn that someone under 13 has, we&apos;ll delete what they shared.
+            The Compass is for people 18 and older. If you&apos;re under 18, please don&apos;t
+            use it. If we learn that someone under 18 has, we&apos;ll delete what they shared.
           </P>
         </Section>
 

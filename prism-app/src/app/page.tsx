@@ -137,10 +137,10 @@ export default function Landing() {
 
           <div className="sm:border-l sm:border-borderline sm:pl-10">
             <span className="block text-xs text-amber/80 tracking-[0.16em] uppercase mb-3">
-              v0.1 · Early demo
+              Beta
             </span>
             <p className="text-sm text-muted leading-relaxed">
-              This is an early demo. It&apos;s here so you can feel what we&apos;re
+              The Compass is in beta. It&apos;s here so you can feel what we&apos;re
               building — the Proto-Compass is coming soon.
             </p>
             <Link
