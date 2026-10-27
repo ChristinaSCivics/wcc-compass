@@ -16,8 +16,8 @@ import { GoogleButton } from "@/components/GoogleButton";
  * laptop. The call tickbox stays, since someone who opens this may not have
  * been asked yet.
  */
-export function SaveSpot({ when }: { when?: string | null }) {
-  const [open, setOpen] = useState(false);
+export function SaveSpot({ when, startOpen = false }: { when?: string | null; startOpen?: boolean }) {
+  const [open, setOpen] = useState(startOpen);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [wantsCall, setWantsCall] = useState(false);
@@ -37,18 +37,8 @@ export function SaveSpot({ when }: { when?: string | null }) {
       return;
     }
 
-    // Mirror it onto the profile. Auth is the source of truth and the admin
-    // views read it there, but the profile row is what the rest of the app
-    // joins against, and leaving it blank made the Emails page report that
-    // nobody had saved a spot while two people had.
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      await supabase
-        .from("profiles")
-        .update({ email: email.trim().toLowerCase() })
-        .eq("id", user.id);
-    }
-
+    // /api/audience also mirrors the address onto the profile, which the
+    // browser isn't allowed to write.
     // Best effort, and deliberately after the account is safe: failing to add
     // someone to a call list must never cost them the thing they came here to
     // do, which is not lose their work.
@@ -94,12 +84,22 @@ export function SaveSpot({ when }: { when?: string | null }) {
   return (
     <div className="rounded-xl border border-borderline bg-surface/60 px-4 py-3">
       {!open ? (
-        <button
-          onClick={() => setOpen(true)}
-          className="text-left w-full text-sm text-muted hover:text-accent transition-colors"
-        >
-          Using another device later? Save your spot to pick this up there →
-        </button>
+        // Google is the one-tap save, so it sits out in the open; the
+        // password form and the tickboxes wait behind "more options".
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <p className="text-sm text-muted">
+            Save your spot to pick this up on any device.
+          </p>
+          <div className="flex items-center gap-3 flex-wrap">
+            <GoogleButton mode="link" next="/account" label="Save with Google" className="w-44" />
+            <button
+              onClick={() => setOpen(true)}
+              className="text-xs text-muted/70 hover:text-accent transition-colors"
+            >
+              More options
+            </button>
+          </div>
+        </div>
       ) : (
         <form onSubmit={save} className="space-y-3 fade-up">
           <h2 className="text-sm">Save your spot</h2>

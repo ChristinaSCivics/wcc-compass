@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { addToAudience, leaveNewsletter } from "@/lib/emailoctopus";
 
 /**
@@ -29,6 +30,13 @@ export async function POST(req: NextRequest) {
     return ok
       ? NextResponse.json({ ok: true })
       : NextResponse.json({ error: "Couldn't reach the mailing list." }, { status: 502 });
+  }
+
+  // Mirror a newly saved address onto the profile, which the admin views and
+  // the rest of the app read. The browser can't write that column itself —
+  // only display_name is granted — so doing it from SaveSpot failed silently.
+  if (body?.source === "saved-spot") {
+    await createAdminClient().from("profiles").update({ email: address }).eq("id", user.id).is("email", null);
   }
 
   const name = String(user.user_metadata?.full_name ?? "").trim() || null;

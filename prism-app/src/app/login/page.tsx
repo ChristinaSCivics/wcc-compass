@@ -199,6 +199,13 @@ export default function Enter() {
             join the collective map. Use a different name if you meant it for real.
           </p>
         )}
+        {/* A sandbox entry must stay anonymous and flagged, which Google can't carry. */}
+        {!testMode && (
+          <>
+            <p className="text-xs text-muted/60 text-center">or</p>
+            <GoogleButton mode="signin" label="Continue with Google" />
+          </>
+        )}
         <p className="text-xs text-muted mt-1 text-center">
           No account needed.{" "}
           <a href="/privacy" className="underline hover:text-accent transition-colors">
