@@ -90,15 +90,6 @@ export default async function Account() {
             On any device, open the Compass, choose &ldquo;Saved a spot here before? Sign
             in&rdquo;, and you&rsquo;ll be right back here.
           </p>
-          {newsletter === "no" && email && (
-            <div className="mt-4 rounded-xl border border-borderline bg-surface px-4 py-3
-                            flex items-center justify-between gap-4 flex-wrap">
-              <p className="text-sm text-muted leading-relaxed">
-                Want occasional updates on what World Co-Creation is building?
-              </p>
-              <UpdatesOptIn />
-            </div>
-          )}
           {!google && (
             <div className="mt-4 max-w-xs">
               <GoogleButton mode="link" next="/account" label="Also sign in with Google" />
@@ -147,14 +138,20 @@ export default async function Account() {
             title="Occasional updates by email"
             status={
               newsletter === "subscribed"
-                ? "Yes — every email has an unsubscribe link"
+                ? `Yes, to ${email} — every email has an unsubscribe link`
                 : newsletter === "unsubscribed"
-                  ? "You unsubscribed — we won't email you updates"
+                  ? "You unsubscribed — tick the box to start again"
                   : newsletter === "unknown"
                     ? signup?.mailing_list_opt_in || consents.email_updates ? "Yes" : "No"
-                    : "No"
+                    : email
+                      ? `Not yet — tick to get them at ${email}`
+                      : "Save your spot first, so we have somewhere to send them"
             }
-          />
+          >
+            {email && !user.is_anonymous && newsletter !== "unknown" && (
+              <UpdatesOptIn on={newsletter === "subscribed"} />
+            )}
+          </Row>
           <Row
             title="Conversations with PRiSM"
             status={`${conversations ?? 0} ${conversations === 1 ? "conversation" : "conversations"}`}
@@ -186,20 +183,20 @@ export default async function Account() {
 }
 
 function Row({
-  title, status, href, action, extra,
-}: { title: string; status: string; href?: string; action?: string; extra?: React.ReactNode }) {
+  title, status, href, action, children,
+}: { title: string; status: string; href?: string; action?: string; children?: React.ReactNode }) {
   return (
     <li className="px-5 py-4 flex items-start justify-between gap-4">
       <div className="min-w-0">
         <span className="block text-sm">{title}</span>
-        <span className="block text-xs text-muted mt-0.5 leading-relaxed">{status}</span>
+        <span className="block text-xs text-muted mt-0.5 leading-relaxed break-words">{status}</span>
+        {children}
       </div>
       {href && action && (
         <Link href={href} className="shrink-0 text-xs text-accent hover:underline mt-0.5">
           {action} →
         </Link>
       )}
-      {extra}
     </li>
   );
 }

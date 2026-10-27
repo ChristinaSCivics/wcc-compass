@@ -77,6 +77,12 @@ export async function addToAudience(input: {
   tags?: string[];
   /** The signed-in person, if any. Test accounts never reach the real list. */
   userId?: string | null;
+  /**
+   * They just ticked the newsletter box themselves, on their own page. Only
+   * then is status sent: a fresh, explicit opt-in is the one thing allowed to
+   * re-subscribe someone who unsubscribed before.
+   */
+  resubscribe?: boolean;
 }): Promise<void> {
   const key = process.env.EMAILOCTOPUS_API_KEY;
   if (!key) return;
@@ -108,11 +114,35 @@ export async function addToAudience(input: {
     const res = await fetch(`${API}/lists/${LIST_ID}/contacts`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-      body: JSON.stringify({ email_address: input.email.trim().toLowerCase(), tags, fields }),
+      body: JSON.stringify({
+        email_address: input.email.trim().toLowerCase(),
+        tags,
+        fields,
+        ...(input.resubscribe && input.newsletter ? { status: "subscribed" } : {}),
+      }),
     });
     if (!res.ok) console.error(`EmailOctopus replied ${res.status}: ${await res.text()}`);
   } catch (err) {
     console.error("EmailOctopus unreachable", err);
+  }
+}
+
+/**
+ * They unticked the newsletter box: take the tag off and leave them on the
+ * list, so a call link they asked for still reaches them.
+ */
+export async function leaveNewsletter(email: string): Promise<boolean> {
+  const key = process.env.EMAILOCTOPUS_API_KEY;
+  if (!key) return false;
+  try {
+    const res = await fetch(`${API}/lists/${LIST_ID}/contacts`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+      body: JSON.stringify({ email_address: email.trim().toLowerCase(), tags: { newsletter: false } }),
+    });
+    return res.ok;
+  } catch {
+    return false;
   }
 }
 
