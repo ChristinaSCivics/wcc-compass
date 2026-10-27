@@ -16,11 +16,17 @@ export function GoogleButton({
   next = "/dashboard",
   label,
   className = "",
+  call = false,
+  updates = false,
 }: {
   mode: "link" | "signin";
   next?: string;
   label?: string;
   className?: string;
+  /** Also sign them up for the mastermind call once Google says who they are. */
+  call?: boolean;
+  /** They ticked "email me updates" — the only thing that adds them to the newsletter. */
+  updates?: boolean;
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +35,10 @@ export function GoogleButton({
     setBusy(true);
     setError(null);
     const supabase = createClient();
-    const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
+    const params = new URLSearchParams({ next });
+    if (call) params.set("call", "1");
+    if (updates) params.set("updates", "1");
+    const redirectTo = `${window.location.origin}/auth/callback?${params}`;
     const { error } =
       mode === "link"
         ? await supabase.auth.linkIdentity({ provider: "google", options: { redirectTo } })

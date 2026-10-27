@@ -21,6 +21,7 @@ export function SaveSpot({ when }: { when?: string | null }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [wantsCall, setWantsCall] = useState(false);
+  const [wantsUpdates, setWantsUpdates] = useState(false);
   const [state, setState] = useState<"idle" | "busy" | "done">("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -54,13 +55,13 @@ export function SaveSpot({ when }: { when?: string | null }) {
     await fetch("/api/audience", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, source: "saved-spot", optIn: wantsUpdates }),
     }).catch(() => {});
     if (wantsCall) {
       await fetch("/api/mastermind", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, optIn: false }),
+        body: JSON.stringify({ email, optIn: wantsUpdates }),
       }).catch(() => {});
     }
 
@@ -106,7 +107,29 @@ export function SaveSpot({ when }: { when?: string | null }) {
             Your conversation lives in this browser only. Google, or an email and
             password, let you sign back in anywhere.
           </p>
-          <GoogleButton mode="link" next="/account" />
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={wantsCall}
+              onChange={(e) => setWantsCall(e.target.checked)}
+              className="w-4 h-4 mt-0.5 accent-teal shrink-0"
+            />
+            <span className="text-sm text-muted leading-relaxed">
+              Also invite me to the first mastermind{when ? ` — ${when}` : ""}.
+            </span>
+          </label>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={wantsUpdates}
+              onChange={(e) => setWantsUpdates(e.target.checked)}
+              className="w-4 h-4 mt-0.5 accent-teal shrink-0"
+            />
+            <span className="text-sm text-muted leading-relaxed">
+              Also email me occasionally about what World Co-Creation is building.
+            </span>
+          </label>
+          <GoogleButton mode="link" next="/account" call={wantsCall} updates={wantsUpdates} />
           <p className="text-xs text-muted/60 text-center">or with a password</p>
           <input
             type="email"
@@ -127,17 +150,6 @@ export function SaveSpot({ when }: { when?: string | null }) {
             className="w-full bg-surface-raised border border-borderline rounded-lg px-4 py-3
                        focus:outline-none focus:border-accent transition-colors"
           />
-          <label className="flex items-start gap-3 cursor-pointer pt-1">
-            <input
-              type="checkbox"
-              checked={wantsCall}
-              onChange={(e) => setWantsCall(e.target.checked)}
-              className="w-4 h-4 mt-0.5 accent-teal shrink-0"
-            />
-            <span className="text-sm text-muted leading-relaxed">
-              Also invite me to the first mastermind{when ? ` — ${when}` : ""}.
-            </span>
-          </label>
           <button
             type="submit"
             disabled={state === "busy"}

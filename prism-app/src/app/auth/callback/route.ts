@@ -22,7 +22,12 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user?.email) await rememberGoogle(user);
+      if (user?.email) {
+        await rememberGoogle(user, {
+          call: searchParams.get("call") === "1",
+          updates: searchParams.get("updates") === "1",
+        });
+      }
       return NextResponse.redirect(`${origin}${next}`);
     }
   }
@@ -31,14 +36,14 @@ export async function GET(request: Request) {
 
 /**
  * A Google sign-in saves the spot just as the password form does: the address
- * goes onto the profile, which the admin views read, and into the audience.
+ * goes onto the profile, which the admin views read; onto the call list if
+ * they ticked it; and into the audience, with the newsletter only if ticked.
  * Best effort — the person is already signed in, and that is what matters.
  */
-async function rememberGoogle(user: {
-  id: string;
-  email?: string;
-  user_metadata: Record<string, unknown>;
-}) {
+async function rememberGoogle(
+  user: { id: string; email?: string; user_metadata: Record<string, unknown> },
+  asked: { call: boolean; updates: boolean }
+) {
   const email = user.email!.toLowerCase();
   const fullName = String(user.user_metadata.full_name ?? user.user_metadata.name ?? "").trim();
 
@@ -60,5 +65,12 @@ async function rememberGoogle(user: {
     await admin.from("profiles").update(update).eq("id", user.id);
   }
 
-  await addToAudience({ email, source: "saved-spot", name: fullName, userId: user.id });
+  if (asked.call) {
+    await admin.from("mastermind_signups").upsert(
+      { user_id: user.id, email, mailing_list_opt_in: asked.updates },
+      { onConflict: "email" }
+    );
+  }
+  await addToAudience({ email, source: "saved-spot", newsletter: asked.updates, name: fullName, userId: user.id });
+  if (asked.call) await addToAudience({ email, source: "mastermind", userId: user.id });
 }

@@ -7,6 +7,8 @@ import { SaveSpot } from "@/components/SaveSpot";
 import { GoogleButton } from "@/components/GoogleButton";
 import { SignOutButton } from "@/components/SignOutButton";
 import { mastermindDate } from "@/lib/mastermind";
+import { newsletterStatus } from "@/lib/emailoctopus";
+import { UpdatesOptIn } from "@/components/UpdatesOptIn";
 
 const CONTACT = "admin@worldcocreation.com";
 
@@ -46,6 +48,8 @@ export default async function Account() {
   const password = providers.has("email");
   const email = user.email ?? profile?.email ?? null;
   const consents = (connection?.consents ?? {}) as Record<string, boolean>;
+  // EmailOctopus is the truth here: it knows about unsubscribes from a footer.
+  const newsletter = email ? await newsletterStatus(email) : "no";
   const since = profile?.created_at
     ? new Date(profile.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
     : null;
@@ -86,6 +90,15 @@ export default async function Account() {
             On any device, open the Compass, choose &ldquo;Saved a spot here before? Sign
             in&rdquo;, and you&rsquo;ll be right back here.
           </p>
+          {newsletter === "no" && email && (
+            <div className="mt-4 rounded-xl border border-borderline bg-surface px-4 py-3
+                            flex items-center justify-between gap-4 flex-wrap">
+              <p className="text-sm text-muted leading-relaxed">
+                Want occasional updates on what World Co-Creation is building?
+              </p>
+              <UpdatesOptIn />
+            </div>
+          )}
           {!google && (
             <div className="mt-4 max-w-xs">
               <GoogleButton mode="link" next="/account" label="Also sign in with Google" />
@@ -133,9 +146,13 @@ export default async function Account() {
           <Row
             title="Occasional updates by email"
             status={
-              signup?.mailing_list_opt_in || consents.email_updates
+              newsletter === "subscribed"
                 ? "Yes — every email has an unsubscribe link"
-                : "No"
+                : newsletter === "unsubscribed"
+                  ? "You unsubscribed — we won't email you updates"
+                  : newsletter === "unknown"
+                    ? signup?.mailing_list_opt_in || consents.email_updates ? "Yes" : "No"
+                    : "No"
             }
           />
           <Row
@@ -169,8 +186,8 @@ export default async function Account() {
 }
 
 function Row({
-  title, status, href, action,
-}: { title: string; status: string; href?: string; action?: string }) {
+  title, status, href, action, extra,
+}: { title: string; status: string; href?: string; action?: string; extra?: React.ReactNode }) {
   return (
     <li className="px-5 py-4 flex items-start justify-between gap-4">
       <div className="min-w-0">
@@ -182,6 +199,7 @@ function Row({
           {action} →
         </Link>
       )}
+      {extra}
     </li>
   );
 }

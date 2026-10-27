@@ -49,7 +49,8 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  await addToAudience({ email: address, source: "mastermind", updates: !!optIn, userId: user?.id });
+  // The call list is not the newsletter: only the tickbox adds that tag.
+  await addToAudience({ email: address, source: "mastermind", newsletter: !!optIn, userId: user?.id });
 
   // The address itself never enters the open record.
   await audit("mastermind.signup", "mastermind", null, user?.id ?? null, {

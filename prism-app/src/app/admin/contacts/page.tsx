@@ -286,21 +286,22 @@ export default function Contacts() {
             <p className="text-xs text-muted leading-relaxed mb-2">
               Automatic, nothing to push. The moment anyone gives an email here, they are
               added to the team&rsquo;s <span className="text-foreground">Audience</span> list,
-              tagged with what they asked for:
+              tagged with how they came in:
             </p>
             <ul className="text-xs text-muted leading-relaxed space-y-0.5 mb-2">
               <li><code className="text-accent">prism-beta</code> — everyone who came through the Compass</li>
               <li><code className="text-accent">prism-mastermind</code> — asked to be invited to the call</li>
-              <li><code className="text-accent">prism-saved-spot</code> — saved their spot with an email</li>
-              <li><code className="text-accent">prism-connect</code> — finished the Connection Interview and said &ldquo;contact me&rdquo;</li>
-              <li><code className="text-accent">newsletter</code> — also ticked the box for occasional updates</li>
+              <li><code className="text-accent">prism-saved-spot</code> — saved their spot (Google or password)</li>
+              <li><code className="text-accent">prism-connect</code> — finished the Connection Interview and said &ldquo;contact me&rdquo;, plus the team&rsquo;s <code className="text-accent">piece-*</code> / <code className="text-accent">help-*</code> tags read off their recap</li>
+              <li><code className="text-accent">newsletter</code> + <code className="text-accent">source-beta</code> — <span className="text-foreground">only</span> when they ticked &ldquo;email me updates&rdquo; (on any form, or on their You page). This tag sends the welcome email.</li>
             </ul>
             <p className="text-xs text-muted leading-relaxed">
-              So send the call link to <code className="text-accent">prism-mastermind</code>, and
-              updates only to <code className="text-accent">newsletter</code>. Test accounts are
-              never added, and nobody who unsubscribed is ever re-subscribed. Runs on{" "}
-              <code className="text-accent">EMAILOCTOPUS_API_KEY</code> in Vercel; earlier emails
-              were added with <code className="text-accent">scripts/backfill-emailoctopus.mts</code>.
+              Newsletters go to the <code className="text-accent">newsletter</code> segment, never
+              the whole list — the list also holds people who only asked for the call link or
+              saved a spot. Call links go to <code className="text-accent">prism-mastermind</code>.
+              Test accounts are never added, and nobody who unsubscribed is ever re-subscribed.
+              Runs on <code className="text-accent">EMAILOCTOPUS_API_KEY</code> in Vercel; to re-sync
+              everything, run <code className="text-accent">scripts/backfill-emailoctopus.mts</code>.
             </p>
           </section>
 
