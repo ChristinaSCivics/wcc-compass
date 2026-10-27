@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { audit } from "@/lib/audit";
+import { addToAudience } from "@/lib/emailoctopus";
 
 /**
  * Record a mastermind signup.
@@ -47,6 +48,8 @@ export async function POST(req: NextRequest) {
       { status: missing ? 503 : 500 }
     );
   }
+
+  await addToAudience({ email: address, source: "mastermind", updates: !!optIn, userId: user?.id });
 
   // The address itself never enters the open record.
   await audit("mastermind.signup", "mastermind", null, user?.id ?? null, {

@@ -271,6 +271,39 @@ export default function Contacts() {
             )}
           </section>
 
+          <section className="rounded-xl border border-borderline bg-surface p-5 mb-8">
+            <div className="flex items-baseline justify-between gap-4 flex-wrap mb-2">
+              <h2 className="text-sm text-foreground">In EmailOctopus</h2>
+              <a
+                href="https://emailoctopus.com/lists/4433d808-c28d-11f1-b998-fdd706948e05/contacts"
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs text-accent underline"
+              >
+                Open the Audience list
+              </a>
+            </div>
+            <p className="text-xs text-muted leading-relaxed mb-2">
+              Automatic, nothing to push. The moment anyone gives an email here, they are
+              added to the team&rsquo;s <span className="text-foreground">Audience</span> list,
+              tagged with what they asked for:
+            </p>
+            <ul className="text-xs text-muted leading-relaxed space-y-0.5 mb-2">
+              <li><code className="text-accent">prism-beta</code> — everyone who came through the Compass</li>
+              <li><code className="text-accent">prism-mastermind</code> — asked to be invited to the call</li>
+              <li><code className="text-accent">prism-saved-spot</code> — saved their spot with an email</li>
+              <li><code className="text-accent">prism-connect</code> — finished the Connection Interview and said &ldquo;contact me&rdquo;</li>
+              <li><code className="text-accent">newsletter</code> — also ticked the box for occasional updates</li>
+            </ul>
+            <p className="text-xs text-muted leading-relaxed">
+              So send the call link to <code className="text-accent">prism-mastermind</code>, and
+              updates only to <code className="text-accent">newsletter</code>. Test accounts are
+              never added, and nobody who unsubscribed is ever re-subscribed. Runs on{" "}
+              <code className="text-accent">EMAILOCTOPUS_API_KEY</code> in Vercel; earlier emails
+              were added with <code className="text-accent">scripts/backfill-emailoctopus.mts</code>.
+            </p>
+          </section>
+
           <Group
             title="In the mastermind"
             sub="Gave an email for the call."

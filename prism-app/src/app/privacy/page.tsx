@@ -83,6 +83,7 @@ export default async function Privacy() {
               "Supabase stores the database: your profile, conversations and visions. It's hosted in Canada.",
               "Vercel hosts the site and counts page visits with Vercel Analytics, which uses no cookies and doesn't identify you.",
               "Fibery is World Co-Creation's internal contact list. If you gave us an email, the team may add your name, email, how you joined and your rough location so someone can follow up. Your conversation and vision are never copied there.",
+              "EmailOctopus sends World Co-Creation's emails. If you give us an email, it's added there along with what you signed up for (the mastermind call, saving your spot, or the Connection Interview), whether you asked for occasional updates, and your first name if you gave one. Every email has an unsubscribe link.",
               "YouTube plays the video on the About page, and loads nothing until you press play.",
               "If you use the mic button, your browser turns your speech into text before anything is sent — in Chrome that's done by Google's speech service, in Safari by Apple's. We only ever receive the text.",
             ]}

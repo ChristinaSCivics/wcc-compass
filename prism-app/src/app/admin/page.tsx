@@ -152,7 +152,7 @@ export default function Admin() {
         <div className="grid gap-3 sm:grid-cols-2">
           <Tool href="/admin/members" title="People" sub="Who came, how far they got, which are sandboxes" />
           <Tool href="/admin/funnel" title="Journey" sub="Where people stop, and where they came from" />
-          <Tool href="/admin/contacts" title="Emails" sub="Who we can reach, and who is already in Fibery" />
+          <Tool href="/admin/contacts" title="Emails" sub="Who we can reach, and how they reach Fibery and EmailOctopus" />
           <Tool href="/admin/feedback" title="Feedback" sub="What people sent from the ✎ button" />
           <Tool href="/admin/technical" title="Technical" sub="Models, jobs, call counts, who signed in" />
           <Tool href="/audit" title="Record" sub="Every event, in order, hash-chained" />

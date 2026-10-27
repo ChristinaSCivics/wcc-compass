@@ -50,6 +50,11 @@ export function SaveSpot({ when }: { when?: string | null }) {
     // Best effort, and deliberately after the account is safe: failing to add
     // someone to a call list must never cost them the thing they came here to
     // do, which is not lose their work.
+    await fetch("/api/audience", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    }).catch(() => {});
     if (wantsCall) {
       await fetch("/api/mastermind", {
         method: "POST",

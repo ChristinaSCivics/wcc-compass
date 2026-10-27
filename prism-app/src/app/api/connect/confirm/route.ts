@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { audit } from "@/lib/audit";
+import { addToAudience } from "@/lib/emailoctopus";
 
 const CONSENT_KEYS = ["contact_me", "note_my_organization", "email_updates", "note_my_referrals"] as const;
 
@@ -53,6 +54,16 @@ export async function POST(req: NextRequest) {
     { onConflict: "user_id" }
   );
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  if (contact) {
+    await addToAudience({
+      email: contact.email,
+      source: "connect",
+      updates: consents.email_updates,
+      name: contact.name,
+      userId: user.id,
+    });
+  }
 
   await audit("connection.confirmed", "connection_profile", user.id, user.id, {
     contact_me: consents.contact_me,
