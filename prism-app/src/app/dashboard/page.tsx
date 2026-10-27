@@ -230,10 +230,19 @@ export default async function Dashboard() {
           />
           <KeeperLink />
         </div>
-        {user!.is_anonymous && (
+        {user!.is_anonymous ? (
           <div className="mt-3">
             <SaveSpot when={mastermindDate()} />
           </div>
+        ) : (
+          <Link
+            href="/account"
+            className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-teal/40
+                       bg-surface/60 px-4 py-3 text-sm transition-colors hover:border-teal"
+          >
+            <span className="text-teal">Your spot is saved ◈</span>
+            <span className="text-xs text-muted">How you sign in, and what we hold →</span>
+          </Link>
         )}
       </nav>
     </main>

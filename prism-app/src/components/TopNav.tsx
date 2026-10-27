@@ -7,12 +7,14 @@ import { createClient } from "@/lib/supabase/client";
 import { WccMark } from "./WccLogo";
 import { FeedbackWidget } from "./FeedbackWidget";
 import { disarmTestMode } from "@/lib/testMode";
+import { SignOutButton } from "./SignOutButton";
 
 const LINKS = [
   { href: "/dashboard", label: "Home" },
   { href: "/collective", label: "Collective" },
   { href: "/decisions", label: "Decisions" },
   { href: "/about", label: "About" },
+  { href: "/account", label: "You" },
 ];
 
 export function TopNav({ withFeedback = true }: { withFeedback?: boolean } = {}) {
@@ -32,20 +34,6 @@ export function TopNav({ withFeedback = true }: { withFeedback?: boolean } = {})
       setIsTest(!!data?.is_test);
     })();
   }, []);
-
-  async function signOut() {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user?.is_anonymous) {
-      const sure = window.confirm(
-        "You entered without an account, so signing out means this browser can't return to your conversations. Your confirmed vision stays safely on the map. Sign out?"
-      );
-      if (!sure) return;
-    }
-    await supabase.auth.signOut();
-    router.push("/");
-    router.refresh();
-  }
 
   return (
     <>
@@ -117,13 +105,9 @@ export function TopNav({ withFeedback = true }: { withFeedback?: boolean } = {})
             <span className="sm:hidden">WCC ↗</span>
             <span className="hidden sm:inline">World Co-Creation ↗</span>
           </a>
-          <button
-            onClick={signOut}
+          <SignOutButton
             className="px-2 sm:px-3 sm:ml-1 py-1.5 text-muted/60 hover:text-accent transition-colors"
-            title="Sign out"
-          >
-            Leave
-          </button>
+          />
         </div>
       </nav>
     </header>

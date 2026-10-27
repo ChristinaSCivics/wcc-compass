@@ -83,7 +83,8 @@ export function SaveSpot({ when }: { when?: string | null }) {
         <p className="text-sm text-muted mt-2">
           Your spot is kept, so you can return from any device — at the entry page
           choose &ldquo;Saved a spot here before? Sign in&rdquo; and use{" "}
-          <span className="text-accent">{email}</span>.
+          <span className="text-accent">{email}</span>.{" "}
+          <a href="/account" className="text-accent underline underline-offset-4">See your spot</a>
         </p>
       </div>
     );
@@ -105,7 +106,7 @@ export function SaveSpot({ when }: { when?: string | null }) {
             Your conversation lives in this browser only. Google, or an email and
             password, let you sign back in anywhere.
           </p>
-          <GoogleButton mode="link" />
+          <GoogleButton mode="link" next="/account" />
           <p className="text-xs text-muted/60 text-center">or with a password</p>
           <input
             type="email"
