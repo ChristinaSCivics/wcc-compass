@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { GoogleButton } from "@/components/GoogleButton";
 
 /**
  * Upgrade an anonymous identity to a returnable one (email + password).
@@ -95,15 +96,17 @@ export function SaveSpot({ when }: { when?: string | null }) {
           onClick={() => setOpen(true)}
           className="text-left w-full text-sm text-muted hover:text-accent transition-colors"
         >
-          Using another device later? Add a password to pick this up there →
+          Using another device later? Save your spot to pick this up there →
         </button>
       ) : (
         <form onSubmit={save} className="space-y-3 fade-up">
-          <h2 className="text-sm">Add a password</h2>
+          <h2 className="text-sm">Save your spot</h2>
           <p className="text-xs text-muted leading-relaxed">
-            Your conversation lives in this browser only. An email and password let you
-            sign back in anywhere.
+            Your conversation lives in this browser only. Google, or an email and
+            password, let you sign back in anywhere.
           </p>
+          <GoogleButton mode="link" />
+          <p className="text-xs text-muted/60 text-center">or with a password</p>
           <input
             type="email"
             required

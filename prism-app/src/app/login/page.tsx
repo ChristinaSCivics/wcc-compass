@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { WccMark } from "@/components/WccLogo";
 import { DemoBadge } from "@/components/DemoBadge";
+import { GoogleButton } from "@/components/GoogleButton";
 import { isTestArmed, armTestMode, disarmTestMode, looksLikeTest } from "@/lib/testMode";
 
 /**
@@ -23,6 +24,7 @@ export default function Enter() {
   const [existingName, setExistingName] = useState<string | null>(null);
   const [showFresh, setShowFresh] = useState(false);
   const [testMode, setTestMode] = useState(false);
+  const [googleError, setGoogleError] = useState<string | null>(null);
 
   // /login?test=1 opens a sandbox identity: it walks the whole product, but is
   // excluded from the collective weave, decision synthesis, and the member
@@ -30,8 +32,10 @@ export default function Enter() {
   // is how test identities ended up counted as real voices. Read off window
   // rather than useSearchParams so this page doesn't need a Suspense boundary.
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("test") === "1") armTestMode();
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("test") === "1") armTestMode();
     setTestMode(isTestArmed());
+    setGoogleError(params.get("google_error"));
   }, []);
 
   // if this browser already holds an identity, offer to continue as them —
@@ -109,6 +113,16 @@ export default function Enter() {
       <WccMark size={48} />
       <h1 className="mt-6 text-3xl">Enter the Compass</h1>
       <div className="mt-3"><DemoBadge /></div>
+
+      {googleError && (
+        <div className="mt-5 w-full max-w-sm rounded-lg border border-red-400/50 bg-red-400/10 px-4 py-3 text-center fade-up">
+          <p className="text-sm text-red-300 leading-relaxed">
+            {/already/i.test(googleError)
+              ? "That Google account already has a spot here. To go back to it, use \u201cSaved a spot here before? Sign in\u201d below and choose Google."
+              : `Google sign-in didn\u2019t finish: ${googleError}`}
+          </p>
+        </div>
+      )}
 
       {testMode && (
         <div className="mt-5 w-full max-w-sm rounded-lg border border-amber/50 bg-amber/10 px-4 py-3 text-center fade-up">
@@ -201,6 +215,8 @@ export default function Enter() {
       </button>
       {showReturning && (
         <form onSubmit={signIn} className="mt-4 w-full max-w-sm flex flex-col gap-3 fade-up">
+          <GoogleButton mode="signin" label="Sign in with Google" />
+          <p className="text-xs text-muted/60 text-center">or with your password</p>
           <input
             type="email"
             required
