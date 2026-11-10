@@ -6,6 +6,7 @@ import { audit } from "@/lib/audit";
 import { checkKeeper } from "@/lib/keeper";
 import { WEAVE_PROMPT } from "@/lib/prompts/collective";
 import { scrubNames } from "@/lib/anonymize";
+import { latestPerPerson, personKey } from "@/lib/people";
 
 export const maxDuration = 300;
 
@@ -64,17 +65,23 @@ export async function POST(req: NextRequest) {
   }
 
   // !inner + is_test=false keeps sandbox identities out of the collective picture
-  const { data: visions } = await admin
+  const { data: confirmed } = await admin
     .from("vision_profiles")
-    .select("confirmed, profiles!vision_profiles_user_id_fkey!inner(display_name, is_test)")
+    .select("user_id, confirmed, confirmed_at, profiles!vision_profiles_user_id_fkey!inner(display_name, is_test)")
     .eq("status", "confirmed")
     .eq("profiles.is_test", false);
+  // One voice per person: someone who confirmed from three devices is still one voice.
+  const visions = latestPerPerson(
+    confirmed ?? [],
+    (v) => personKey((v.profiles as unknown as { display_name: string | null }).display_name, v.user_id),
+    (v) => v.confirmed_at
+  );
 
   // The roster, used only to scrub names back out of the weave (below).
   const { data: roster } = await admin.from("profiles").select("display_name");
   const names = (roster ?? []).map((p) => p.display_name as string | null);
 
-  if (!visions?.length) {
+  if (!visions.length) {
     return NextResponse.json({ error: "no confirmed visions on the map yet" }, { status: 400 });
   }
 

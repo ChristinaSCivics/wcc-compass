@@ -14,6 +14,7 @@ type Data = {
   regions: Bar[];
   cities: Bar[];
   testExcluded: number;
+  spots: number;
 };
 
 /** Keeper-only. Not linked in the nav — share the URL with keepers. */
@@ -63,8 +64,10 @@ export default function Funnel() {
       <h1 className="text-4xl mb-3">How far people get</h1>
       <p className="text-muted mb-8 text-sm max-w-2xl leading-relaxed">
         Built from what the app already records — arrivals, conversations, how much
-        someone actually said, and what they confirmed. Sandbox accounts are left out.
-        {data ? ` ${data.testExcluded} test ${data.testExcluded === 1 ? "account" : "accounts"} excluded.` : ""}
+        someone actually typed (not the automatic &ldquo;Hello&rdquo; that opens a chat), and what
+        they confirmed. Counted per person, grouped by name, since one person can hold
+        a spot on each device. Sandbox accounts are left out.
+        {data ? ` ${data.funnel[0]?.count ?? 0} people across ${data.spots} spots; ${data.testExcluded} test ${data.testExcluded === 1 ? "account" : "accounts"} excluded.` : ""}
       </p>
 
       {!data && !error && <p className="text-muted text-sm">Loading…</p>}

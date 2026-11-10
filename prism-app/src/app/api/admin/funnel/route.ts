@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkKeeper } from "@/lib/keeper";
+import { personKey, saidPerConversation } from "@/lib/people";
 
 /**
  * Keeper-only funnel: how many people arrive, how far they get, and where they
@@ -34,11 +35,11 @@ export async function POST(req: NextRequest) {
   }
 
   const admin = createAdminClient();
-  const [{ data: profiles }, { data: convos }, { data: msgs }, { data: visions }, { data: signups }] =
+  const [{ data: profiles }, { data: convos }, userMsgsByConvo, { data: visions }, { data: signups }] =
     await Promise.all([
       admin.from("profiles").select("id, display_name, is_test, created_at, joined_from"),
       admin.from("conversations").select("id, user_id, kind, created_at"),
-      admin.from("messages").select("conversation_id, role"),
+      saidPerConversation(admin),
       admin.from("vision_profiles").select("user_id, status, confirmed_at"),
       admin.from("mastermind_signups").select("user_id"),
     ]);
@@ -64,35 +65,39 @@ export async function POST(req: NextRequest) {
   const real = (profiles ?? [])
     .filter((p) => !p.is_test)
     .filter((p) => inWindow(p.created_at as string));
-  const realIds = new Set(real.map((p) => p.id));
 
-  // Exchanges = what the person actually said. PRiSM's replies aren't progress.
-  const userMsgsByConvo = new Map<string, number>();
-  for (const m of msgs ?? []) {
-    if (m.role !== "user") continue;
-    userMsgsByConvo.set(m.conversation_id, (userMsgsByConvo.get(m.conversation_id) ?? 0) + 1);
-  }
+  // Exchanges = what the person actually typed (lib/people: PRiSM's replies
+  // and the automatic opener don't count).
+  //
+  // Counted per person, not per spot: entering without an account mints a new
+  // spot on every device, so one person with three spots used to be three
+  // arrivals, two of them "never spoke". A person's furthest point is the
+  // furthest any of their spots reached.
+  const personOf = new Map(real.map((p) => [p.id, personKey(p.display_name, p.id)]));
+  const people = new Set(personOf.values());
 
-  // Furthest point reached per person.
   const deepestByUser = new Map<string, number>();
   const startedByUser = new Set<string>();
   for (const c of convos ?? []) {
-    if (!realIds.has(c.user_id)) continue;
-    startedByUser.add(c.user_id);
+    const who = personOf.get(c.user_id);
+    if (!who) continue;
+    startedByUser.add(who);
     const n = userMsgsByConvo.get(c.id) ?? 0;
-    deepestByUser.set(c.user_id, Math.max(deepestByUser.get(c.user_id) ?? 0, n));
+    deepestByUser.set(who, Math.max(deepestByUser.get(who) ?? 0, n));
   }
 
-  const visionByUser = new Map((visions ?? []).map((v) => [v.user_id, v]));
   const signedUp = new Set((signups ?? []).map((s) => s.user_id).filter(Boolean));
+  const reached = (test: (id: string) => boolean) =>
+    new Set(real.filter((p) => test(p.id)).map((p) => personOf.get(p.id))).size;
+  const visionByUser = new Map((visions ?? []).map((v) => [v.user_id, v]));
 
-  const arrived = real.length;
+  const arrived = people.size;
   const started = startedByUser.size;
   const spoke = [...deepestByUser.values()].filter((n) => n >= 1).length;
   const wentDeep = [...deepestByUser.values()].filter((n) => n >= 4).length;
-  const drafted = real.filter((p) => visionByUser.get(p.id)).length;
-  const confirmed = real.filter((p) => visionByUser.get(p.id)?.status === "confirmed").length;
-  const asked = real.filter((p) => signedUp.has(p.id)).length;
+  const drafted = reached((id) => !!visionByUser.get(id));
+  const confirmed = reached((id) => visionByUser.get(id)?.status === "confirmed");
+  const asked = reached((id) => signedUp.has(id));
 
   // How far people got, as a distribution rather than an average — an average
   // hides the difference between "everyone stopped at three" and "half bounced".
@@ -104,7 +109,10 @@ export async function POST(req: NextRequest) {
     { label: "11+", min: 11, max: Infinity },
   ].map((b) => ({
     label: b.label,
-    count: [...deepestByUser.values()].filter((n) => n >= b.min && n <= b.max).length,
+    count: [...people].filter((who) => {
+      const n = deepestByUser.get(who) ?? 0;
+      return n >= b.min && n <= b.max;
+    }).length,
   }));
 
   const joined = (p: (typeof real)[number]) => (p.joined_from ?? {}) as Joined;
@@ -132,6 +140,7 @@ export async function POST(req: NextRequest) {
     devices: tally("device"),
     regions: tally("region"),
     cities: tally("city"),
-    testExcluded: (profiles ?? []).length - real.length,
+    testExcluded: (profiles ?? []).length - (profiles ?? []).filter((p) => !p.is_test).length,
+    spots: real.length,
   });
 }

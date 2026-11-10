@@ -7,6 +7,7 @@ import { WeaveButton } from "./WeaveButton";
 import { scrubNames } from "@/lib/anonymize";
 import { AutoWeave } from "@/components/AutoWeave";
 import { placesFrom, listPlaces } from "@/lib/places";
+import { personKey } from "@/lib/people";
 
 /** The collective map: who's on it, and PRiSM's latest weaving of all confirmed visions. */
 export default async function CollectivePage() {
@@ -17,7 +18,7 @@ export default async function CollectivePage() {
   const [
     { data: weaves },
     { data: mine },
-    { count: totalCount },
+    { data: voiceRows },
     { data: roster },
     { count: onBehalfCount },
     { data: newestConfirmed },
@@ -33,10 +34,10 @@ export default async function CollectivePage() {
       user
         ? supabase.from("vision_profiles").select("status").eq("user_id", user.id).maybeSingle()
         : Promise.resolve({ data: null }),
-      // Bypasses RLS, but only ever returns a count — never leaks who's hidden.
+      // Bypasses RLS, but only ever becomes a count — never leaks who's hidden.
       admin
         .from("vision_profiles")
-        .select("id, profiles!vision_profiles_user_id_fkey!inner(is_test)", { count: "exact", head: true })
+        .select("user_id, profiles!vision_profiles_user_id_fkey!inner(display_name, is_test)")
         .eq("status", "confirmed")
         .eq("profiles.is_test", false),
       // Names, used only to scrub them back out of weaves stored before the
@@ -72,6 +73,13 @@ export default async function CollectivePage() {
         .eq("profiles.is_test", false),
       admin.from("collective_syntheses").select("id", { count: "exact", head: true }),
     ]);
+
+  // People, not spots: one person who confirmed from three devices is one voice.
+  const totalCount = new Set(
+    (voiceRows ?? []).map((v) =>
+      personKey((v.profiles as unknown as { display_name: string | null }).display_name, v.user_id)
+    )
+  ).size;
 
   const isConfirmed = mine?.status === "confirmed";
   // Voices have joined since this weaving, so it no longer reflects the map.

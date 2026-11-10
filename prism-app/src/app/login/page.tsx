@@ -72,11 +72,14 @@ export default function Enter() {
         data: { display_name: name.trim(), is_test: testMode || looksLikeTest(name) },
       },
     });
-    setBusy(false);
     if (error) {
+      setBusy(false);
       setError(error.message);
       return;
     }
+    // Stays busy until the dashboard arrives. Re-enabling the button here left
+    // "Enter" live for the second or two the dashboard takes on a phone, and a
+    // second tap signed the first spot out and made another (Lisa, jack).
     // disclosed below: coarse entry context (region, timezone, device)
     void fetch("/api/context", {
       method: "POST",

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkKeeper } from "@/lib/keeper";
+import { saidPerConversation } from "@/lib/people";
 import { audit } from "@/lib/audit";
 import { emailsByUser } from "@/lib/authEmails";
 
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest) {
     { data: visions },
     { data: inputs },
     { data: convos },
-    { data: msgs },
+    saidPerConvo,
     { data: signups },
     authEmails,
   ] = await Promise.all([
@@ -61,19 +62,13 @@ export async function POST(req: NextRequest) {
       admin.from("vision_profiles").select("user_id, status, hidden, confirmed_at"),
       admin.from("decision_inputs").select("user_id, confirmed"),
       admin.from("conversations").select("id, user_id, kind, status, created_at"),
-      // What people actually said. PRiSM's replies aren't progress, so only the
-      // person's own messages are counted — this used to live on the Journey
-      // page over a second copy of the same roster.
-      admin.from("messages").select("conversation_id, role"),
+      // What people actually typed — PRiSM's replies and the automatic opener
+      // aren't progress (lib/people).
+      saidPerConversation(admin),
       admin.from("mastermind_signups").select("user_id"),
       emailsByUser(),
     ]);
 
-  const saidPerConvo = new Map<string, number>();
-  for (const m of msgs ?? []) {
-    if (m.role !== "user") continue;
-    saidPerConvo.set(m.conversation_id, (saidPerConvo.get(m.conversation_id) ?? 0) + 1);
-  }
   // The deepest single conversation, not the sum: someone who came back three
   // times and said one thing each time didn't get further than someone who
   // said three things once.
