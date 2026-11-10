@@ -82,8 +82,11 @@ export function FeedbackWidget({ anchored }: { anchored?: boolean } = {}) {
       )}
       <button
         onClick={() => setOpen((o) => !o)}
-        className="rounded-full border border-accent bg-surface-raised px-6 py-3 text-sm text-accent
-                   hover:bg-accent hover:text-background transition-all shadow-lg accent-glow"
+        className={`rounded-full border border-accent bg-surface-raised text-accent
+                   hover:bg-accent hover:text-background transition-all shadow-lg accent-glow ${
+          // in the chat it sits over the conversation, so on a phone it stays small
+          anchored ? "px-3 py-1.5 text-xs sm:px-6 sm:py-3 sm:text-sm" : "px-6 py-3 text-sm"
+        }`}
       >
         {open ? "Close" : "✎ Feedback"}
       </button>

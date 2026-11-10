@@ -118,7 +118,14 @@ export function ChatClient({
     setBusy(true);
     setError(null);
     const isOpener = messages.length === 0 && text === "Hello";
-    if (!isOpener) setMessages((m) => [...m, { role: "user", content: text }]);
+    // PRiSM's bubble goes up before the request does. It used to wait for the
+    // server, which left a first-time visitor on a phone looking at an empty
+    // screen for a second or two — about where half of them left.
+    setMessages((m) => [
+      ...m,
+      ...(isOpener ? [] : [{ role: "user" as const, content: text }]),
+      { role: "assistant" as const, content: "" },
+    ]);
     setInput("");
 
     // Every exit path has to release the input. A mid-stream failure used to
@@ -132,7 +139,6 @@ export function ChatClient({
       });
       if (!res.ok || !res.body) throw new Error(`chat responded ${res.status}`);
 
-      setMessages((m) => [...m, { role: "assistant", content: "" }]);
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let received = 0;
@@ -264,20 +270,22 @@ export function ChatClient({
         </p>
       )}
 
-      <div className="flex-1 px-6 py-8 space-y-6">
+      <div className="flex-1 px-4 sm:px-6 pt-8 pb-14 space-y-6">
         {messages.map((m, i) => (
           <div key={m.id ?? i} className={`fade-up ${m.role === "user" ? "text-right" : ""}`}>
             <div
-              className={`inline-block max-w-[85%] text-left rounded-2xl px-5 py-3 leading-relaxed whitespace-pre-wrap ${
+              className={`inline-block text-left rounded-2xl py-3 leading-relaxed whitespace-pre-wrap ${
                 m.role === "user"
-                  ? "bg-surface-raised border border-borderline"
-                  : "text-foreground"
+                  ? "max-w-[85%] px-5 bg-surface-raised border border-borderline"
+                  : "max-w-full sm:max-w-[85%] px-1 sm:px-5 text-foreground"
               }`}
             >
               {m.role === "assistant" && (
                 <span className="block text-xs text-accent mb-1 tracking-widest">PRiSM</span>
               )}
-              {m.content || <span className="text-muted">…</span>}
+              {m.content
+                ? <Emphasis text={m.content} />
+                : <span className="text-muted animate-pulse">PRiSM is gathering its thoughts…</span>}
             </div>
           </div>
         ))}
@@ -325,5 +333,26 @@ export function ChatClient({
         </form>
       </div>
     </main>
+  );
+}
+
+/**
+ * PRiSM writes *italics* and **bold** now and then, and on screen the
+ * asterisks showed as they were typed. Just those two — nothing else it
+ * writes needs markup.
+ */
+function Emphasis({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(/(\*\*[^*\n]+\*\*|\*[^*\n]+\*)/g).map((part, i) =>
+        part.startsWith("**") && part.endsWith("**") && part.length > 4 ? (
+          <strong key={i}>{part.slice(2, -2)}</strong>
+        ) : part.startsWith("*") && part.endsWith("*") && part.length > 2 ? (
+          <em key={i}>{part.slice(1, -1)}</em>
+        ) : (
+          part
+        )
+      )}
+    </>
   );
 }
