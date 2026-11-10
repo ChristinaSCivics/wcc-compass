@@ -24,6 +24,8 @@ type Member = {
   askedForCall: boolean;
   lastActive: string | null;
   sameName: number;
+  person: string;
+  linked: boolean;
 };
 
 /** Keeper-only roster. Not linked in the nav — share the URL with keepers. */
@@ -117,6 +119,31 @@ export default function Members() {
     void load();
   }
 
+  /**
+   * "Same person as…" links two entries without touching what anyone typed as
+   * their name; "set apart" undoes a link, or keeps two different people who
+   * share a name (two Peters) from counting as one.
+   */
+  async function link(m: Member, body: { samePersonAs: string } | { standAlone: true }) {
+    setPending(m.id);
+    const res = await fetch("/api/admin/members", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        keeperPassword: getKeeperPassword(),
+        userId: m.id,
+        actorName: getAdminName(),
+        ...body,
+      }),
+    });
+    setPending(null);
+    if (!res.ok) {
+      setError("Couldn't link those entries.");
+      return;
+    }
+    void load();
+  }
+
   const windowed = (members ?? []).filter(
     (m) => (!range.since && !range.until) || withinRange(m.joinedAt, range)
   );
@@ -175,7 +202,7 @@ export default function Members() {
       {members && (
         <>
           <div className="flex flex-wrap gap-6 mb-2 text-sm">
-            {peopleCount !== null && <Stat label="people, by name" value={peopleCount} />}
+            {peopleCount !== null && <Stat label="people" value={peopleCount} />}
             <Stat label="entries" value={real.length} />
             <Stat label="on the map" value={onMap} />
             <Stat label="test accounts" value={test.length} />
@@ -183,9 +210,10 @@ export default function Members() {
           <p className="text-xs text-muted mb-8 max-w-2xl leading-relaxed">
             Entering without an account makes a new identity each time — a second browser,
             a phone, or a return after signing out. So <em>entries</em> counts arrivals and{" "}
-            <em>people</em> groups them by name, which is all we have to go on. Repeats are
-            marked below; if two entries are the same person under different names, click a
-            name to correct it and they count as one.
+            <em>people</em> groups them: entries you&rsquo;ve linked as the same person, and
+            otherwise entries that share a name. If two entries are one person under different
+            names, use &ldquo;Same person as…&rdquo;; if two different people share a name, use
+            &ldquo;Set apart&rdquo;. Names stay as people typed them.
           </p>
         </>
       )}
@@ -193,6 +221,8 @@ export default function Members() {
       {!!real.length && (
         <Table
           rows={real}
+          everyone={real}
+          onLink={link}
           onFlag={flag}
           onRename={rename}
           renaming={renaming}
@@ -206,6 +236,8 @@ export default function Members() {
           <h2 className="text-lg mt-10 mb-3 text-muted">Test accounts</h2>
           <Table
             rows={test}
+            everyone={real}
+            onLink={link}
             onFlag={flag}
             onRename={rename}
             renaming={renaming}
@@ -270,9 +302,11 @@ function cmp(a: Member, b: Member, key: SortKey): number {
 }
 
 function Table({
-  rows, onFlag, onRename, renaming, setRenaming, pending,
+  rows, everyone, onLink, onFlag, onRename, renaming, setRenaming, pending,
 }: {
   rows: Member[];
+  everyone: Member[];
+  onLink: (m: Member, body: { samePersonAs: string } | { standAlone: true }) => void;
   onFlag: (m: Member) => void;
   onRename: (m: Member, next: string) => void;
   renaming: string | null;
@@ -314,7 +348,8 @@ function Table({
             )}
             {m.sameName > 1 && (
               <span className="text-xs text-amber/80 ml-2">
-                · 1 of {m.sameName} entries under this name
+                · 1 of {m.sameName} entries for this person
+                {m.linked ? "" : " (same name)"}
               </span>
             )}
             <div className="text-xs text-muted mt-1 break-words">
@@ -336,6 +371,39 @@ function Table({
             </div>
             {m.askedForCall && <div className="text-accent/80">asked for the call</div>}
           </div>
+
+          {!m.isTest && (
+            <div className="flex items-center gap-2 shrink-0">
+              <select
+                value=""
+                disabled={pending === m.id}
+                onChange={(e) => e.target.value && onLink(m, { samePersonAs: e.target.value })}
+                className="text-xs bg-surface border border-borderline rounded-full px-2 py-1 max-w-[11rem]
+                           text-muted hover:border-accent focus:outline-none focus:border-accent"
+              >
+                <option value="">Same person as…</option>
+                {everyone
+                  .filter((o) => o.person !== m.person)
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((o) => (
+                    <option key={o.id} value={o.id}>
+                      {o.name} · {new Date(o.joinedAt).toLocaleDateString()}
+                      {o.joinedFrom ? ` · ${o.joinedFrom}` : ""}
+                    </option>
+                  ))}
+              </select>
+              {m.sameName > 1 && (
+                <button
+                  onClick={() => onLink(m, { standAlone: true })}
+                  disabled={pending === m.id}
+                  title="Count this entry as its own person"
+                  className="text-xs text-muted hover:text-accent disabled:opacity-40"
+                >
+                  Set apart
+                </button>
+              )}
+            </div>
+          )}
 
           <button
             onClick={() => onFlag(m)}

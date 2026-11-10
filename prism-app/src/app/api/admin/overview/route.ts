@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkKeeper } from "@/lib/keeper";
+import { personKey } from "@/lib/people";
 import { emailsByUser } from "@/lib/authEmails";
 
 /**
@@ -12,7 +13,7 @@ import { emailsByUser } from "@/lib/authEmails";
  * rather than describing four tools in prose and making them choose blind.
  *
  * Counted the same way the pages themselves count: test accounts out, people
- * grouped by name because entering without an account mints a new identity
+ * grouped (lib/people) because entering without an account mints a new identity
  * each time.
  */
 export async function POST(req: NextRequest) {
@@ -33,7 +34,7 @@ export async function POST(req: NextRequest) {
     { data: events },
     authEmails,
   ] = await Promise.all([
-    admin.from("profiles").select("id, display_name, email, is_test, created_at"),
+    admin.from("profiles").select("id, display_name, email, is_test, created_at, person_id"),
     admin.from("vision_profiles").select("user_id, status, confirmed_at"),
     admin.from("conversations").select("user_id, created_at"),
     admin.from("mastermind_signups").select("user_id, created_at"),
@@ -48,9 +49,7 @@ export async function POST(req: NextRequest) {
 
   const real = (profiles ?? []).filter((p) => !p.is_test);
   const realIds = new Set(real.map((p) => p.id));
-  const names = new Set(
-    real.map((p) => (p.display_name ?? "").trim().toLowerCase()).filter(Boolean)
-  );
+  const names = new Set(real.map((p) => personKey(p.display_name, p.id, p.person_id)));
 
   const realVisions = (visions ?? []).filter((v) => realIds.has(v.user_id));
   const onMap = realVisions.filter((v) => v.status === "confirmed").length;

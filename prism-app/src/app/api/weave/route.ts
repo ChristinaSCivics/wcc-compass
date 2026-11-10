@@ -67,13 +67,16 @@ export async function POST(req: NextRequest) {
   // !inner + is_test=false keeps sandbox identities out of the collective picture
   const { data: confirmed } = await admin
     .from("vision_profiles")
-    .select("user_id, confirmed, confirmed_at, profiles!vision_profiles_user_id_fkey!inner(display_name, is_test)")
+    .select("user_id, confirmed, confirmed_at, profiles!vision_profiles_user_id_fkey!inner(display_name, is_test, person_id)")
     .eq("status", "confirmed")
     .eq("profiles.is_test", false);
   // One voice per person: someone who confirmed from three devices is still one voice.
   const visions = latestPerPerson(
     confirmed ?? [],
-    (v) => personKey((v.profiles as unknown as { display_name: string | null }).display_name, v.user_id),
+    (v) => {
+      const p = v.profiles as unknown as { display_name: string | null; person_id: string | null };
+      return personKey(p.display_name, v.user_id, p.person_id);
+    },
     (v) => v.confirmed_at
   );
 

@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   const admin = createAdminClient();
   const [{ data: profiles }, { data: convos }, userMsgsByConvo, { data: visions }, { data: signups }] =
     await Promise.all([
-      admin.from("profiles").select("id, display_name, is_test, created_at, joined_from"),
+      admin.from("profiles").select("id, display_name, is_test, created_at, joined_from, person_id"),
       admin.from("conversations").select("id, user_id, kind, created_at"),
       saidPerConversation(admin),
       admin.from("vision_profiles").select("user_id, status, confirmed_at"),
@@ -69,11 +69,11 @@ export async function POST(req: NextRequest) {
   // Exchanges = what the person actually typed (lib/people: PRiSM's replies
   // and the automatic opener don't count).
   //
-  // Counted per person, not per spot: entering without an account mints a new
+  // Counted per person, not per spot (lib/people): entering without an account mints a new
   // spot on every device, so one person with three spots used to be three
   // arrivals, two of them "never spoke". A person's furthest point is the
   // furthest any of their spots reached.
-  const personOf = new Map(real.map((p) => [p.id, personKey(p.display_name, p.id)]));
+  const personOf = new Map(real.map((p) => [p.id, personKey(p.display_name, p.id, p.person_id)]));
   const people = new Set(personOf.values());
 
   const deepestByUser = new Map<string, number>();

@@ -5,12 +5,17 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  *
  * Entering without an account mints a new spot each time — another browser,
  * another phone, coming back after signing out — so one person can hold
- * several spots, and several confirmed visions: Peter had three by November.
- * Names are the only signal we have, so spots are grouped by name, the same
- * way the admin People page groups them.
+ * several spots, and several confirmed visions. A keeper links spots on the
+ * People page ("same person as…"); those share a person_id. A spot nobody has
+ * linked is grouped by name, which is right far more often than not — but two
+ * Peters are two people, so a keeper can also set a spot apart (person_id =
+ * its own id).
  */
-export const personKey = (name: string | null | undefined, id: string) =>
-  (name ?? "").trim().toLowerCase() || id;
+export const personKey = (
+  name: string | null | undefined,
+  id: string,
+  personId?: string | null
+) => (personId ? `person:${personId}` : (name ?? "").trim().toLowerCase() || id);
 
 /** Keep each person's latest row, so one person is one voice. */
 export function latestPerPerson<T>(

@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkKeeper } from "@/lib/keeper";
-import { saidPerConversation } from "@/lib/people";
+import { personKey, saidPerConversation } from "@/lib/people";
 import { audit } from "@/lib/audit";
 import { emailsByUser } from "@/lib/authEmails";
 
 /**
  * Keeper-only member roster: who is here, how far they've come, and which
- * identities are sandboxes. POST lists; PATCH flags an account as test or real.
+ * identities are sandboxes. POST lists; PATCH flags an account as test or real,
+ * renames it, or links it to the other spots of the same person.
  *
  * Counts are assembled in memory rather than in SQL — at circle scale that's a
  * handful of rows, and it keeps this readable without a view or an RPC.
@@ -57,7 +58,7 @@ export async function POST(req: NextRequest) {
   ] = await Promise.all([
       admin
         .from("profiles")
-        .select("id, display_name, email, role, is_test, created_at, joined_from")
+        .select("id, display_name, email, role, is_test, created_at, joined_from, person_id")
         .order("created_at", { ascending: true }),
       admin.from("vision_profiles").select("user_id, status, hidden, confirmed_at"),
       admin.from("decision_inputs").select("user_id, confirmed"),
@@ -88,15 +89,16 @@ export async function POST(req: NextRequest) {
    * Entering without an account mints a new identity every time — a different
    * browser, a different phone, or coming back after signing out all make one.
    * So the row count is a count of entries, not of people, and reading it as
-   * people badly overstates the circle. Names are the only signal we have for
-   * who is who, so rows are grouped by name and both numbers are reported.
+   * people badly overstates the circle. Spots a keeper has linked are one
+   * person; the rest are grouped by name (lib/people), and both numbers are
+   * reported.
    */
-  const key = (name: string | null) => (name ?? "").trim().toLowerCase();
+  const who = (p: { id: string; display_name: string | null; person_id: string | null }) =>
+    personKey(p.display_name, p.id, p.person_id);
   const nameCounts = new Map<string, number>();
   for (const p of profiles ?? []) {
     if (p.is_test) continue;
-    const k = key(p.display_name);
-    if (k) nameCounts.set(k, (nameCounts.get(k) ?? 0) + 1);
+    nameCounts.set(who(p), (nameCounts.get(who(p)) ?? 0) + 1);
   }
 
   const members = (profiles ?? []).map((p) => {
@@ -135,8 +137,10 @@ export async function POST(req: NextRequest) {
                 : "arrived only",
       askedForCall: askedForCall.has(p.id),
       lastActive,
-      // How many identities carry this same name, this one included.
-      sameName: p.is_test ? 1 : nameCounts.get(key(p.display_name)) ?? 1,
+      // How many entries count as this same person, this one included.
+      sameName: p.is_test ? 1 : nameCounts.get(who(p)) ?? 1,
+      person: who(p),
+      linked: !!p.person_id,
     };
   });
 
@@ -147,7 +151,8 @@ export async function PATCH(req: NextRequest) {
   // Admins no longer need a participant session, so there may be nobody signed
   // in to attribute this to. The name picked at the admin door stands in — a
   // signature rather than proof, and recorded as such.
-  const { keeperPassword, userId, isTest, displayName, actorName } = await req.json();
+  const { keeperPassword, userId, isTest, displayName, actorName, samePersonAs, standAlone } =
+    await req.json();
   if (!checkKeeper(keeperPassword)) {
     return NextResponse.json({ error: "keeper password required" }, { status: 403 });
   }
@@ -189,6 +194,59 @@ export async function PATCH(req: NextRequest) {
     await audit("profile.renamed", "profile", userId, null, {
       from: before?.display_name ?? null,
       to: next,
+      by_name: signedAs ?? "an admin holding the shared password",
+    });
+    return NextResponse.json({ ok: true });
+  }
+
+  /**
+   * Linking spots. "Same person as" puts this spot — and every spot already
+   * linked to it — into the other one's group; "stand alone" takes it out of
+   * any group, including the one its name would put it in, so two different
+   * people who share a name stop counting as one. Names are left as typed.
+   */
+  if (typeof samePersonAs === "string" || standAlone === true) {
+    if (samePersonAs === userId) {
+      return NextResponse.json({ error: "that's the same entry" }, { status: 400 });
+    }
+    const { data: spots } = await admin
+      .from("profiles")
+      .select("id, display_name, person_id")
+      .in("id", typeof samePersonAs === "string" ? [userId, samePersonAs] : [userId]);
+    const self = spots?.find((p) => p.id === userId);
+    const other = spots?.find((p) => p.id === samePersonAs);
+    if (!self || (typeof samePersonAs === "string" && !other)) {
+      return NextResponse.json({ error: "no such entry" }, { status: 404 });
+    }
+
+    if (standAlone) {
+      // if the rest of the group hangs off this spot, hand them a new anchor first
+      const { data: rest } = await admin
+        .from("profiles")
+        .select("id")
+        .eq("person_id", userId)
+        .neq("id", userId)
+        .order("created_at");
+      if (rest?.length) {
+        await admin.from("profiles").update({ person_id: rest[0].id }).eq("person_id", userId).neq("id", userId);
+      }
+      const { error } = await admin.from("profiles").update({ person_id: userId }).eq("id", userId);
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    } else {
+      const target = other!.person_id ?? other!.id;
+      // the other spot anchors the group; anything already grouped with this
+      // spot comes along, so linking never splits a person in two
+      const moving = [userId, ...(self.person_id && self.person_id !== target ? [self.person_id] : [])];
+      const { error } = await admin
+        .from("profiles")
+        .update({ person_id: target })
+        .or(`id.in.(${[...moving, other!.id].join(",")}),person_id.in.(${moving.join(",")})`);
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    await audit(standAlone ? "profile.set_apart" : "profile.linked", "profile", userId, null, {
+      name: self.display_name ?? null,
+      ...(other ? { same_person_as: other.id, other_name: other.display_name ?? null } : {}),
       by_name: signedAs ?? "an admin holding the shared password",
     });
     return NextResponse.json({ ok: true });

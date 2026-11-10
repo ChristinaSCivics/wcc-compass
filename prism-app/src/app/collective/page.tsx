@@ -37,7 +37,7 @@ export default async function CollectivePage() {
       // Bypasses RLS, but only ever becomes a count — never leaks who's hidden.
       admin
         .from("vision_profiles")
-        .select("user_id, profiles!vision_profiles_user_id_fkey!inner(display_name, is_test)")
+        .select("user_id, profiles!vision_profiles_user_id_fkey!inner(display_name, is_test, person_id)")
         .eq("status", "confirmed")
         .eq("profiles.is_test", false),
       // Names, used only to scrub them back out of weaves stored before the
@@ -76,9 +76,10 @@ export default async function CollectivePage() {
 
   // People, not spots: one person who confirmed from three devices is one voice.
   const totalCount = new Set(
-    (voiceRows ?? []).map((v) =>
-      personKey((v.profiles as unknown as { display_name: string | null }).display_name, v.user_id)
-    )
+    (voiceRows ?? []).map((v) => {
+      const p = v.profiles as unknown as { display_name: string | null; person_id: string | null };
+      return personKey(p.display_name, v.user_id, p.person_id);
+    })
   ).size;
 
   const isConfirmed = mine?.status === "confirmed";

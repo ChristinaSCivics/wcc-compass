@@ -65,8 +65,8 @@ export default function Funnel() {
       <p className="text-muted mb-8 text-sm max-w-2xl leading-relaxed">
         Built from what the app already records — arrivals, conversations, how much
         someone actually typed (not the automatic &ldquo;Hello&rdquo; that opens a chat), and what
-        they confirmed. Counted per person, grouped by name, since one person can hold
-        a spot on each device. Sandbox accounts are left out.
+        they confirmed. Counted per person (spots linked on the People page, otherwise grouped by
+        name), since one person can hold a spot on each device. Sandbox accounts are left out.
         {data ? ` ${data.funnel[0]?.count ?? 0} people across ${data.spots} spots; ${data.testExcluded} test ${data.testExcluded === 1 ? "account" : "accounts"} excluded.` : ""}
       </p>
 
